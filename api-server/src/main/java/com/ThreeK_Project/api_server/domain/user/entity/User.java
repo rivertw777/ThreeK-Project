@@ -1,5 +1,6 @@
 package com.ThreeK_Project.api_server.domain.user.entity;
 
+import com.ThreeK_Project.api_server.global.audit.BaseEntity;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -25,7 +26,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder(access = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "users")
+@Table(name = "p_users")
 public class User {
 
     @Id
@@ -38,7 +39,7 @@ public class User {
 
     @NotNull
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @CollectionTable(name = "p_user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private List<Role> roles = new ArrayList<>();
