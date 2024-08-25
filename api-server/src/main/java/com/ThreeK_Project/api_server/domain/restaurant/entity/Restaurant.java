@@ -40,13 +40,16 @@ public class Restaurant extends BaseEntity {
     private Category category;
 
     public static Restaurant createRestaurant(
-            String name, String address, String phoneNumber, String description
+            String name, String address, String phoneNumber, String description,
+            Location location, Category category
     ) {
         return Restaurant.builder()
                 .name(name)
                 .address(address)
                 .phoneNumber(phoneNumber)
                 .description(description)
+                .location(location)
+                .category(category)
                 .build();
     }
 }
