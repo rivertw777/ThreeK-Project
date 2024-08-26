@@ -1,7 +1,9 @@
 package com.ThreeK_Project.api_server.domain.order.controller;
 
 import com.ThreeK_Project.api_server.domain.order.dto.OrderRequestDto;
+import com.ThreeK_Project.api_server.domain.order.dto.OrderResponseDto;
 import com.ThreeK_Project.api_server.domain.order.dto.OrderedProduct;
+import com.ThreeK_Project.api_server.domain.order.enums.OrderStatus;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderType;
 import com.ThreeK_Project.api_server.domain.order.service.OrderService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +24,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -61,5 +65,27 @@ class OrderControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(content))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("주문 조회 성공 태스트")
+    public void getOrder() throws Exception {
+        UUID orderId = UUID.randomUUID();
+
+        List<OrderedProduct> orderedProductList = new ArrayList<>();
+        orderedProductList.add(new OrderedProduct(UUID.randomUUID(), 2));
+        OrderResponseDto responseDto = new OrderResponseDto(
+                orderId, OrderStatus.WAIT, OrderType.ONLINE, new BigDecimal(10000),
+                "서울시", "문앞에 두고 노크",  orderedProductList
+        );
+
+        doReturn(responseDto).when(orderService).getOrder(orderId);
+
+        mockMvc.perform(get("/api/order/" + orderId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("orderId").value(orderId.toString()))
+                .andExpect(jsonPath("orderStatus").value(OrderStatus.WAIT.toString()))
+                .andExpect(jsonPath("orderType").value(OrderType.ONLINE.toString()))
+                .andExpect(jsonPath("deliveryAddress").value("서울시"));
     }
 }
