@@ -8,14 +8,14 @@ import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import com.ThreeK_Project.api_server.domain.restaurant.repository.CategoryRepository;
 import com.ThreeK_Project.api_server.domain.restaurant.repository.LocationRepository;
 import com.ThreeK_Project.api_server.domain.restaurant.repository.RestaurantRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -52,5 +52,11 @@ public class RestaurantService {
             responseList.add(new RestaurantResponse(restaurant));
         });
         return responseList;
+    }
+
+    public RestaurantResponse findRestaurantById(UUID restaurantId) {
+        return restaurantRepository.findById(restaurantId)
+                .map(restaurant -> new RestaurantResponse(restaurant))
+                .orElseThrow(() -> new EntityNotFoundException("가게 조회 실패"));
     }
 }

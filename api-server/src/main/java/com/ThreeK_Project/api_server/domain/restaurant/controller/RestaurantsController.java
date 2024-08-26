@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,15 +27,22 @@ public class RestaurantsController {
 
     @PostMapping
     public ResponseEntity<String> registRestaurant(@RequestBody RestaurantRequest restaurantRequest) {
-        // 가게 주인 / 가게 등록
+        // 가게 주인 / 가게 등록(role: OWNER 이상)
         String result = restaurantService.registRestaurant(restaurantRequest);
         return ResponseEntity.ok().body(result);
     }
 
     @GetMapping
     public ResponseEntity<List<RestaurantResponse>> findAllRestaurant() {
-        // 가게 전체 조회
+        // 가게 전체 조회(role: x)
         List<RestaurantResponse> resultList = restaurantService.findAllRestaurant();
         return ResponseEntity.ok().body(resultList);
+    }
+
+    @GetMapping("/{restaurantId}")
+    public ResponseEntity<RestaurantResponse> findRestaurantById(@PathVariable UUID restaurantId) {
+        // 가게 단일 조회(role: x)
+        RestaurantResponse result = restaurantService.findRestaurantById(restaurantId);
+        return ResponseEntity.ok().body(result);
     }
 }
