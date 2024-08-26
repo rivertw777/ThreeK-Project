@@ -45,7 +45,7 @@ class FindByIdRestaurantTest {
 
         // Mock the getLocationId and getCategoryId methods to return specific IDs
         when(location.getLocationId()).thenReturn(1);
-        when(category.getCategoryId()).thenReturn(1L);
+        when(category.getCategoryId()).thenReturn(1);
 
         Restaurant restaurant = Restaurant.createRestaurant(
                 "Test Restaurant", "123 Test St.", "123-456-7890", "Great food", location, category
@@ -62,7 +62,7 @@ class FindByIdRestaurantTest {
         assertEquals(restaurant.getPhoneNumber(), result.getPhoneNumber());
         assertEquals(restaurant.getDescription(), result.getDescription());
         assertEquals(1, result.getLocationId());  // 모킹된 locationId 확인
-        assertEquals(1L, result.getCategoryId());  // 모킹된 categoryId 확인
+        assertEquals(1, result.getCategoryId());  // 모킹된 categoryId 확인
     }
 
     @Test

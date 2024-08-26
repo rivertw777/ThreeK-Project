@@ -45,4 +45,9 @@ public class RestaurantsController {
         RestaurantResponse result = restaurantService.findRestaurantById(restaurantId);
         return ResponseEntity.ok().body(result);
     }
+
+//    @PutMapping("/{restaurantId}")
+//    public ResponseEntity<String> deleteRestaurant(@PathVariable UUID restaurantId) {
+//
+//    }
 }

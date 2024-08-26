@@ -20,5 +20,5 @@ public class RestaurantRequest {
     // 가게 위치 id
     private int locationId;
     // 가게 카테고리 id
-    private Long categoryId;
+    private int categoryId;
 }

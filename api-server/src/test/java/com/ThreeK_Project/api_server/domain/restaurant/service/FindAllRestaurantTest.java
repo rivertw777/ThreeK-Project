@@ -57,6 +57,4 @@ class FindAllRestaurantTest {
         assertEquals(0, result.get(1).getLocationId());
         assertEquals(0, result.get(1).getCategoryId());
     }
-
-
 }

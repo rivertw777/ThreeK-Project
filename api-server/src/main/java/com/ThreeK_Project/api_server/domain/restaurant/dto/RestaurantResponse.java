@@ -26,7 +26,7 @@ public class RestaurantResponse {
     // 가게 위치 id
     private int locationId;
     // 가게 카테고리 id
-    private Long categoryId;
+    private int categoryId;
 
     public RestaurantResponse(Restaurant restaurant) {
         this.restaurantId = restaurant.getRestaurantId();
@@ -35,6 +35,6 @@ public class RestaurantResponse {
         this.phoneNumber = restaurant.getPhoneNumber();
         this.description = restaurant.getDescription();
         this.locationId = (restaurant.getLocation() != null) ? restaurant.getLocation().getLocationId() : 0;
-        this.categoryId = (restaurant.getCategory() != null) ? restaurant.getCategory().getCategoryId() : 0L;
+        this.categoryId = (restaurant.getCategory() != null) ? restaurant.getCategory().getCategoryId() : 0;
     }
 }

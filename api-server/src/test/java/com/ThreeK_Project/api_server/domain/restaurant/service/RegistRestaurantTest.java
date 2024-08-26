@@ -48,7 +48,7 @@ class RegistRestaurantTest {
                 "123-456-7890",
                 "Test Description",
                 2,  // Assume locationId
-                5L  // Assume categoryId
+                5  // Assume categoryId
         );
 
         Location location = Location.createLocation("종로구");
@@ -75,7 +75,7 @@ class RegistRestaurantTest {
                 "123-456-7890",
                 "Test Description",
                 1,  // Assume locationId
-                1L  // Assume categoryId
+                1  // Assume categoryId
         );
 
         when(locationRepository.findById(restaurantRequest.getLocationId())).thenReturn(Optional.empty());
@@ -97,7 +97,7 @@ class RegistRestaurantTest {
                 "123-456-7890",
                 "Test Description",
                 1,  // Assume locationId
-                1L  // Assume categoryId
+                1  // Assume categoryId
         );
 
         Location location = Location.createLocation("종로구");
