@@ -5,6 +5,7 @@ import com.ThreeK_Project.api_server.global.audit.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Getter
@@ -18,7 +19,7 @@ public class OrderProduct extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderProductId;
     private Integer quantity;
-    private Integer totalPrice;
+    private BigDecimal totalPrice;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
@@ -29,13 +30,13 @@ public class OrderProduct extends BaseEntity {
     private Order order;
 
     public static OrderProduct createOrderProduct(
-            Integer quantity, Integer totalPrice, Product product, Order order
+            Integer quantity, BigDecimal totalPrice, Order order, Product product
     ) {
         return OrderProduct.builder()
                 .quantity(quantity)
                 .totalPrice(totalPrice)
-                .product(product)
                 .order(order)
+                .product(product)
                 .build();
     }
 }
