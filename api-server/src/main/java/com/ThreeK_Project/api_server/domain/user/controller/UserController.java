@@ -2,6 +2,7 @@ package com.ThreeK_Project.api_server.domain.user.controller;
 
 import com.ThreeK_Project.api_server.domain.user.dto.SignUpRequest;
 import com.ThreeK_Project.api_server.domain.user.service.UserService;
+import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +21,9 @@ public class UserController {
 
     @Operation(summary = "회원 가입")
     @PostMapping
-    public ResponseEntity<Void> signUp(@Valid @RequestBody SignUpRequest reqeustParam) {
-        userService.signUp(reqeustParam);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<SuccessResponse> signUp(@Valid @RequestBody SignUpRequest reqeustParam) {
+        SuccessResponse response = userService.signUp(reqeustParam);
+        return ResponseEntity.ok(response);
     }
 
 }

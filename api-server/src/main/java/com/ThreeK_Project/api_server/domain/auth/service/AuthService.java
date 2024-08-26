@@ -1,6 +1,6 @@
 package com.ThreeK_Project.api_server.domain.auth.service;
 
-import static com.ThreeK_Project.api_server.domain.auth.exception.AuthExceptionMessage.PASSWORD_NOT_MATCH;
+import static com.ThreeK_Project.api_server.domain.auth.message.AuthExceptionMessage.PASSWORD_NOT_MATCH;
 
 import com.ThreeK_Project.api_server.domain.auth.dto.LoginRequest;
 import com.ThreeK_Project.api_server.domain.auth.dto.LoginResponse;

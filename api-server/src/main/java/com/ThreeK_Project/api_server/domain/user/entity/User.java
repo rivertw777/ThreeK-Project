@@ -1,6 +1,6 @@
 package com.ThreeK_Project.api_server.domain.user.entity;
 
-import com.ThreeK_Project.api_server.global.audit.BaseEntity;
+import com.ThreeK_Project.api_server.domain.user.enums.Role;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -34,8 +34,15 @@ public class User {
     @Column(unique = true, name = "username")
     private String username;
 
+    @NotNull
     @Column(name = "password", length = 60)
     private String password;
+
+    @NotNull
+    private String phoneNumber;
+
+    @NotNull
+    private String address;
 
     @NotNull
     @ElementCollection(fetch = FetchType.EAGER)
@@ -44,13 +51,15 @@ public class User {
     @Enumerated(EnumType.STRING)
     private List<Role> roles = new ArrayList<>();
 
-    public static User createUser(String username, String encodedPassword, Role role) {
-        User user = User.builder()
+    public static User createUser(String username, String encodedPassword, Role role, String phoneNumber,
+                                  String address) {
+        return User.builder()
                 .username(username)
                 .password(encodedPassword)
                 .roles(Collections.singletonList(role))
+                .phoneNumber(phoneNumber)
+                .address(address)
                 .build();
-        return user;
     }
 
 }

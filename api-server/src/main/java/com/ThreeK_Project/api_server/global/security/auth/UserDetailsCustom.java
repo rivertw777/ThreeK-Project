@@ -1,6 +1,6 @@
 package com.ThreeK_Project.api_server.global.security.auth;
 
-import com.ThreeK_Project.api_server.domain.user.entity.Role;
+import com.ThreeK_Project.api_server.domain.user.enums.Role;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import java.util.Collection;
 import java.util.List;

@@ -1,4 +1,6 @@
-package com.ThreeK_Project.api_server.domain.user.entity;
+package com.ThreeK_Project.api_server.domain.user.enums;
+
+import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMessage.INVALID_ROLE;
 
 import com.ThreeK_Project.api_server.global.exception.ApplicationException;
 import java.util.Arrays;
@@ -20,7 +22,7 @@ public enum Role {
         return Arrays.stream(Role.values())
                 .filter(role -> role.getValue().equalsIgnoreCase(value))
                 .findFirst()
-                .orElseThrow(() -> new ApplicationException("Invalid role: " + value));
+                .orElseThrow(() -> new ApplicationException(INVALID_ROLE.getValue()));
     }
 
 }

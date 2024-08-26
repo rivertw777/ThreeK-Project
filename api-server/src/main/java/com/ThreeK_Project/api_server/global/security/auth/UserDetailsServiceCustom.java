@@ -1,6 +1,6 @@
 package com.ThreeK_Project.api_server.global.security.auth;
 
-import static com.ThreeK_Project.api_server.domain.user.exception.UserExceptionMessage.USER_NOT_FOUND;
+import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMessage.USER_NOT_FOUND;
 
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.domain.user.repository.UserRepository;
