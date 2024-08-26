@@ -38,7 +38,7 @@ public class Restaurant extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
-
+    // 도메인 주도 개발..
     public static Restaurant createRestaurant(
             String name, String address, String phoneNumber, String description,
             Location location, Category category

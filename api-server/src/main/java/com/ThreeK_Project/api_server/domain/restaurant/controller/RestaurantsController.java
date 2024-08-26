@@ -2,13 +2,13 @@ package com.ThreeK_Project.api_server.domain.restaurant.controller;
 
 
 import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantRequest;
+import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantResponse;
 import com.ThreeK_Project.api_server.domain.restaurant.service.RestaurantService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,5 +31,10 @@ public class RestaurantsController {
         return ResponseEntity.ok().body(result);
     }
 
-
+    @GetMapping
+    public ResponseEntity<List<RestaurantResponse>> findAllRestaurant() {
+        // 가게 전체 조회
+        List<RestaurantResponse> resultList = restaurantService.findAllRestaurant();
+        return ResponseEntity.ok().body(resultList);
+    }
 }
