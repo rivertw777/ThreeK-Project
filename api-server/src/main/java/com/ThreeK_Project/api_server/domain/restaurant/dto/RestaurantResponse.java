@@ -34,7 +34,7 @@ public class RestaurantResponse {
         this.address = restaurant.getAddress();
         this.phoneNumber = restaurant.getPhoneNumber();
         this.description = restaurant.getDescription();
-        this.locationId = (restaurant.getLocation() != null) ? restaurant.getLocation().getLocationId() : null;
-        this.categoryId = (restaurant.getCategory() != null) ? restaurant.getCategory().getCategoryId() : null;
+        this.locationId = (restaurant.getLocation() != null) ? restaurant.getLocation().getLocationId() : 0;
+        this.categoryId = (restaurant.getCategory() != null) ? restaurant.getCategory().getCategoryId() : 0L;
     }
 }
