@@ -1,11 +1,16 @@
 package com.ThreeK_Project.api_server.domain.order.entity;
 
+import com.ThreeK_Project.api_server.domain.order.enums.OrderStatus;
+import com.ThreeK_Project.api_server.domain.order.enums.OrderType;
+import com.ThreeK_Project.api_server.domain.order.enums.converter.OrderStatusConverter;
+import com.ThreeK_Project.api_server.domain.order.enums.converter.OrderTypeConverter;
 import com.ThreeK_Project.api_server.domain.payment.entity.Payment;
 import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import com.ThreeK_Project.api_server.global.audit.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,9 +24,11 @@ public class Order extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID orderId;
-    private String orderType;
-    private String orderStatus;
-    private Integer orderAmount;
+    @Convert(converter = OrderTypeConverter.class)
+    private OrderType orderType;
+    @Convert(converter = OrderStatusConverter.class)
+    private OrderStatus orderStatus;
+    private BigDecimal orderAmount;
     private String deliveryAddress;
     private String deliveryDetails;
 
@@ -36,7 +43,7 @@ public class Order extends BaseEntity {
     private Payment payment;
 
     public static Order createOrder(
-            String orderType, String orderStatus, Integer orderAmount, String deliveryAddress,
+            OrderType orderType, OrderStatus orderStatus, BigDecimal orderAmount, String deliveryAddress,
             String deliveryDetails, Restaurant restaurant
     ) {
         return Order.builder()
