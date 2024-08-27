@@ -3,9 +3,13 @@ package com.ThreeK_Project.api_server.domain.restaurant.controller;
 
 import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantRequest;
 import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantResponse;
+import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import com.ThreeK_Project.api_server.domain.restaurant.service.RestaurantService;
+import com.ThreeK_Project.api_server.domain.user.entity.User;
+import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,10 +29,13 @@ public class RestaurantsController {
         ex) location_id와 category_id가 1부터 자동 증가함
      */
 
+
     @PostMapping
-    public ResponseEntity<String> registRestaurant(@RequestBody RestaurantRequest restaurantRequest) {
+    public ResponseEntity<String> registRestaurant(@RequestBody RestaurantRequest restaurantRequest, @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
         // 가게 주인 / 가게 등록(role: OWNER 이상)
-        String result = restaurantService.registRestaurant(restaurantRequest);
+        User user = userDetailsCustom.getUser();
+        System.out.println(user);
+        String result = restaurantService.registRestaurant(restaurantRequest, user);
         return ResponseEntity.ok().body(result);
     }
 

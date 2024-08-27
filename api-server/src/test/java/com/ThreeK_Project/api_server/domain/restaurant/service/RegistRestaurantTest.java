@@ -7,6 +7,7 @@ import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import com.ThreeK_Project.api_server.domain.restaurant.repository.CategoryRepository;
 import com.ThreeK_Project.api_server.domain.restaurant.repository.LocationRepository;
 import com.ThreeK_Project.api_server.domain.restaurant.repository.RestaurantRepository;
+import com.ThreeK_Project.api_server.domain.user.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -21,6 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class RegistRestaurantTest {
+
+    @Mock
+    private User user;
 
     @Mock
     private RestaurantRepository restaurantRepository;
@@ -47,6 +51,7 @@ class RegistRestaurantTest {
                 "123 Test Address",
                 "123-456-7890",
                 "Test Description",
+                null,
                 2,  // Assume locationId
                 5  // Assume categoryId
         );
@@ -58,7 +63,7 @@ class RegistRestaurantTest {
         when(categoryRepository.findById(restaurantRequest.getCategoryId())).thenReturn(Optional.of(category));
 
         // when
-        String result = restaurantService.registRestaurant(restaurantRequest);
+        String result = restaurantService.registRestaurant(restaurantRequest, user);
 
         // then
         assertEquals("가게 등록 성공", result);
@@ -74,6 +79,7 @@ class RegistRestaurantTest {
                 "123 Test Address",
                 "123-456-7890",
                 "Test Description",
+                null,
                 1,  // Assume locationId
                 1  // Assume categoryId
         );
@@ -82,7 +88,7 @@ class RegistRestaurantTest {
 
         // when & then
         NotFoundException exception = assertThrows(NotFoundException.class,
-                () -> restaurantService.registRestaurant(restaurantRequest));
+                () -> restaurantService.registRestaurant(restaurantRequest, user));
 
         assertEquals("위치 조회 실패", exception.getMessage());
         verify(restaurantRepository, never()).save(any(Restaurant.class));
@@ -96,6 +102,7 @@ class RegistRestaurantTest {
                 "123 Test Address",
                 "123-456-7890",
                 "Test Description",
+                null,
                 1,  // Assume locationId
                 1  // Assume categoryId
         );
@@ -107,7 +114,7 @@ class RegistRestaurantTest {
 
         // when & then
         NotFoundException exception = assertThrows(NotFoundException.class,
-                () -> restaurantService.registRestaurant(restaurantRequest));
+                () -> restaurantService.registRestaurant(restaurantRequest, user));
 
         assertEquals("카테고리 조회 실패", exception.getMessage());
         verify(restaurantRepository, never()).save(any(Restaurant.class));

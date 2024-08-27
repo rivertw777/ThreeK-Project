@@ -19,6 +19,7 @@ public class Restaurant extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID restaurantId;
+    // 가게 이름
     private String name;
     private String address;
     private String phoneNumber;
@@ -28,7 +29,7 @@ public class Restaurant extends BaseEntity {
     private List<Product> products;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_name")
+    @JoinColumn(name = "username")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -41,13 +42,14 @@ public class Restaurant extends BaseEntity {
     // 도메인 주도 개발..
     public static Restaurant createRestaurant(
             String name, String address, String phoneNumber, String description,
-            Location location, Category category
+            User user, Location location, Category category
     ) {
         return Restaurant.builder()
                 .name(name)
                 .address(address)
                 .phoneNumber(phoneNumber)
                 .description(description)
+                .user(user)
                 .location(location)
                 .category(category)
                 .build();

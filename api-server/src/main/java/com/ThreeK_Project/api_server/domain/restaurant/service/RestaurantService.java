@@ -8,6 +8,7 @@ import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import com.ThreeK_Project.api_server.domain.restaurant.repository.CategoryRepository;
 import com.ThreeK_Project.api_server.domain.restaurant.repository.LocationRepository;
 import com.ThreeK_Project.api_server.domain.restaurant.repository.RestaurantRepository;
+import com.ThreeK_Project.api_server.domain.user.entity.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class RestaurantService {
     private final LocationRepository locationRepository;
     private final CategoryRepository categoryRepository;
 
-    public String registRestaurant(RestaurantRequest restaurantRequest) {
+    public String registRestaurant(RestaurantRequest restaurantRequest, User user) {
 
         Location location = locationRepository.findById(restaurantRequest.getLocationId())
                 .orElseThrow(() -> new NotFoundException("위치 조회 실패"));
@@ -37,6 +38,7 @@ public class RestaurantService {
                 restaurantRequest.getAddress(),
                 restaurantRequest.getPhoneNumber(),
                 restaurantRequest.getDescription(),
+                user,
                 location,
                 category
         );

@@ -23,6 +23,8 @@ public class RestaurantResponse {
     private String phoneNumber;
     // 가게 설명
     private String description;
+    // 가게 주인 유저네임
+    private String username;
     // 가게 위치 id
     private int locationId;
     // 가게 카테고리 id
@@ -34,6 +36,7 @@ public class RestaurantResponse {
         this.address = restaurant.getAddress();
         this.phoneNumber = restaurant.getPhoneNumber();
         this.description = restaurant.getDescription();
+        this.username = (restaurant.getUser() != null) ? restaurant.getUser().getUsername() : "null";
         this.locationId = (restaurant.getLocation() != null) ? restaurant.getLocation().getLocationId() : 0;
         this.categoryId = (restaurant.getCategory() != null) ? restaurant.getCategory().getCategoryId() : 0;
     }

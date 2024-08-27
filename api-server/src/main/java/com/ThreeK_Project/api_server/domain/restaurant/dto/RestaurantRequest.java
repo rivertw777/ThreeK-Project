@@ -17,6 +17,8 @@ public class RestaurantRequest {
     private String phoneNumber;
     // 가게 설명
     private String description;
+    // 가게 주인 유저 네임
+    private String username;
     // 가게 위치 id
     private int locationId;
     // 가게 카테고리 id
