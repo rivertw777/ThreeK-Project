@@ -61,4 +61,31 @@ public class RestaurantService {
                 .map(restaurant -> new RestaurantResponse(restaurant))
                 .orElseThrow(() -> new EntityNotFoundException("가게 조회 실패"));
     }
+
+    public String updateRestaurant(RestaurantRequest restaurantRequest, UUID restaurantId, User user) {
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new EntityNotFoundException("가게 조회 실패"));
+
+        if (!restaurant.getUser().getUsername().equals(user.getUsername())) {
+            throw new SecurityException("가게를 수정할 권한이 없습니다.");
+        }
+
+        Location location = locationRepository.findById(restaurantRequest.getLocationId())
+                .orElseThrow(() -> new NotFoundException("위치 조회 실패"));
+        Category category = categoryRepository.findById(restaurantRequest.getCategoryId())
+                .orElseThrow(() -> new NotFoundException("카테고리 조회 실패"));
+
+        restaurant.updateRestaurant(
+                restaurantRequest.getName(),
+                restaurantRequest.getAddress(),
+                restaurantRequest.getPhoneNumber(),
+                restaurantRequest.getDescription(),
+                location,
+                category
+        );
+
+        restaurantRepository.save(restaurant);
+
+        return "가게 수정 성공";
+    }
 }

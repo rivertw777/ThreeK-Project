@@ -54,4 +54,20 @@ public class Restaurant extends BaseEntity {
                 .category(category)
                 .build();
     }
+
+    // 수정 메서드 추가
+    public void updateRestaurant(
+            String name, String address, String phoneNumber, String description,
+            Location location, Category category
+    ) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("가게 이름은 필수입니다.");
+        }
+        this.name = name;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.description = description;
+        this.location = location;
+        this.category = category;
+    }
 }

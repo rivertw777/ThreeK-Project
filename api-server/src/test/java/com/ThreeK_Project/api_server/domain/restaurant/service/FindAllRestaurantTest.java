@@ -33,11 +33,11 @@ class FindAllRestaurantTest {
 
         // Given: Restaurant 객체들을 생성
         Restaurant restaurant1 = Restaurant.createRestaurant(
-                "Test Restaurant 1", "Test Address 1", "1234567890", "Test Description 1", null, null
+                "Test Restaurant 1", "Test Address 1", "1234567890", "Test Description 1", null, null, null
         );
 
         Restaurant restaurant2 = Restaurant.createRestaurant(
-                "Test Restaurant 2", "Test Address 2", "0987654321", "Test Description 2", null, null
+                "Test Restaurant 2", "Test Address 2", "0987654321", "Test Description 2", null, null, null
         );
 
         List<Restaurant> restaurants = Arrays.asList(restaurant1, restaurant2);

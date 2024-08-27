@@ -51,7 +51,6 @@ class RegistRestaurantTest {
                 "123 Test Address",
                 "123-456-7890",
                 "Test Description",
-                null,
                 2,  // Assume locationId
                 5  // Assume categoryId
         );
@@ -79,7 +78,6 @@ class RegistRestaurantTest {
                 "123 Test Address",
                 "123-456-7890",
                 "Test Description",
-                null,
                 1,  // Assume locationId
                 1  // Assume categoryId
         );
@@ -102,7 +100,6 @@ class RegistRestaurantTest {
                 "123 Test Address",
                 "123-456-7890",
                 "Test Description",
-                null,
                 1,  // Assume locationId
                 1  // Assume categoryId
         );

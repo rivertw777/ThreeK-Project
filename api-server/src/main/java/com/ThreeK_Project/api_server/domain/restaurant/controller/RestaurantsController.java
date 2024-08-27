@@ -3,7 +3,6 @@ package com.ThreeK_Project.api_server.domain.restaurant.controller;
 
 import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantRequest;
 import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantResponse;
-import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import com.ThreeK_Project.api_server.domain.restaurant.service.RestaurantService;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
@@ -34,7 +33,6 @@ public class RestaurantsController {
     public ResponseEntity<String> registRestaurant(@RequestBody RestaurantRequest restaurantRequest, @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
         // 가게 주인 / 가게 등록(role: OWNER 이상)
         User user = userDetailsCustom.getUser();
-        System.out.println(user);
         String result = restaurantService.registRestaurant(restaurantRequest, user);
         return ResponseEntity.ok().body(result);
     }
@@ -53,8 +51,41 @@ public class RestaurantsController {
         return ResponseEntity.ok().body(result);
     }
 
-//    @PutMapping("/{restaurantId}")
-//    public ResponseEntity<String> deleteRestaurant(@PathVariable UUID restaurantId) {
-//
-//    }
+    @PutMapping("/{restaurantId}")
+    public ResponseEntity<String> updateRestaurant(@RequestBody RestaurantRequest restaurantRequest,
+                                                   @PathVariable UUID restaurantId,
+                                                   @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
+        // 가게 단일 수정(role: OWNER 이상)
+        User user = userDetailsCustom.getUser();
+        String result = restaurantService.updateRestaurant(restaurantRequest, restaurantId, user);
+        return ResponseEntity.ok().body(result);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
