@@ -4,11 +4,15 @@ package com.ThreeK_Project.api_server.domain.restaurant.controller;
 import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantRequest;
 import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantResponse;
 import com.ThreeK_Project.api_server.domain.restaurant.service.RestaurantService;
+import com.ThreeK_Project.api_server.domain.user.entity.User;
+import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -25,10 +29,12 @@ public class RestaurantsController {
         ex) location_id와 category_id가 1부터 자동 증가함
      */
 
+
     @PostMapping
-    public ResponseEntity<String> registRestaurant(@RequestBody RestaurantRequest restaurantRequest) {
+    public ResponseEntity<String> registRestaurant(@RequestBody RestaurantRequest restaurantRequest, @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
         // 가게 주인 / 가게 등록(role: OWNER 이상)
-        String result = restaurantService.registRestaurant(restaurantRequest);
+        User user = userDetailsCustom.getUser();
+        String result = restaurantService.registRestaurant(restaurantRequest, user);
         return ResponseEntity.ok().body(result);
     }
 
@@ -46,8 +52,49 @@ public class RestaurantsController {
         return ResponseEntity.ok().body(result);
     }
 
-//    @PutMapping("/{restaurantId}")
-//    public ResponseEntity<String> deleteRestaurant(@PathVariable UUID restaurantId) {
-//
-//    }
+    @PutMapping("/{restaurantId}")
+    public ResponseEntity<String> updateRestaurant(@RequestBody RestaurantRequest restaurantRequest,
+                                                   @PathVariable UUID restaurantId,
+                                                   @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
+        // 가게 주인 / 단일 수정(role: OWNER 이상)
+        User user = userDetailsCustom.getUser();
+        String result = restaurantService.updateRestaurant(restaurantRequest, restaurantId, user);
+        return ResponseEntity.ok().body(result);
+    }
+
+    @DeleteMapping("/{restaurantId}")
+    public ResponseEntity<Map<String, String>> deleteRestaurant(@PathVariable UUID restaurantId,
+                                                   @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
+        // 가게 주인 / 단일 삭제(role: OWNER 이상)
+        User user = userDetailsCustom.getUser();
+        String result = restaurantService.deleteRestaurant(restaurantId, user);
+        return ResponseEntity.ok().body(Map.of("message", result));
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -48,7 +48,7 @@ class FindByIdRestaurantTest {
         when(category.getCategoryId()).thenReturn(1);
 
         Restaurant restaurant = Restaurant.createRestaurant(
-                "Test Restaurant", "123 Test St.", "123-456-7890", "Great food", location, category
+                "Test Restaurant", "123 Test St.", "123-456-7890", "Great food", null, location, category
         );
 
         when(restaurantRepository.findById(restaurantId)).thenReturn(Optional.of(restaurant));

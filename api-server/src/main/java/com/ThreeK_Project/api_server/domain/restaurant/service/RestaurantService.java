@@ -8,6 +8,7 @@ import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import com.ThreeK_Project.api_server.domain.restaurant.repository.CategoryRepository;
 import com.ThreeK_Project.api_server.domain.restaurant.repository.LocationRepository;
 import com.ThreeK_Project.api_server.domain.restaurant.repository.RestaurantRepository;
+import com.ThreeK_Project.api_server.domain.user.entity.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class RestaurantService {
     private final LocationRepository locationRepository;
     private final CategoryRepository categoryRepository;
 
-    public String registRestaurant(RestaurantRequest restaurantRequest) {
+    public String registRestaurant(RestaurantRequest restaurantRequest, User user) {
 
         Location location = locationRepository.findById(restaurantRequest.getLocationId())
                 .orElseThrow(() -> new NotFoundException("위치 조회 실패"));
@@ -37,6 +38,7 @@ public class RestaurantService {
                 restaurantRequest.getAddress(),
                 restaurantRequest.getPhoneNumber(),
                 restaurantRequest.getDescription(),
+                user,
                 location,
                 category
         );
@@ -58,5 +60,46 @@ public class RestaurantService {
         return restaurantRepository.findById(restaurantId)
                 .map(restaurant -> new RestaurantResponse(restaurant))
                 .orElseThrow(() -> new EntityNotFoundException("가게 조회 실패"));
+    }
+
+    public String updateRestaurant(RestaurantRequest restaurantRequest, UUID restaurantId, User user) {
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new EntityNotFoundException("가게 조회 실패"));
+
+        if (!restaurant.getUser().getUsername().equals(user.getUsername())) {
+            throw new SecurityException("가게를 수정할 권한이 없습니다.");
+        }
+
+        Location location = locationRepository.findById(restaurantRequest.getLocationId())
+                .orElseThrow(() -> new NotFoundException("위치 조회 실패"));
+        Category category = categoryRepository.findById(restaurantRequest.getCategoryId())
+                .orElseThrow(() -> new NotFoundException("카테고리 조회 실패"));
+
+        restaurant.updateRestaurant(
+                restaurantRequest.getName(),
+                restaurantRequest.getAddress(),
+                restaurantRequest.getPhoneNumber(),
+                restaurantRequest.getDescription(),
+                location,
+                category
+        );
+
+        restaurantRepository.save(restaurant);
+
+        return "가게 수정 성공";
+    }
+
+    public String deleteRestaurant(UUID restaurantId, User user) {
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new EntityNotFoundException("가게 조회 실패"));
+
+        if (!restaurant.getUser().getUsername().equals(user.getUsername())) {
+            throw new SecurityException("가게를 삭제할 권한이 없습니다.");
+        }
+        // 물리적 삭제 대신 논리적 삭제 처리
+        restaurant.deleteBy(user);
+        restaurantRepository.save(restaurant);  // 상태 변경을 DB에 반영
+
+        return "가게 삭제 성공";
     }
 }
