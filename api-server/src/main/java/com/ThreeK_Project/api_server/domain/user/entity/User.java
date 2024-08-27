@@ -62,4 +62,27 @@ public class User {
                 .build();
     }
 
+    public void updateUserInfo(String username, String encodedPassword, String phoneNumber, String address) {
+        setUsername(username);
+        setPassword(encodedPassword);
+        setPhoneNumber(phoneNumber);
+        setAddress(address);
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
 }

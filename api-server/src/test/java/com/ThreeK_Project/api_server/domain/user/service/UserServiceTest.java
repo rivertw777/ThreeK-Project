@@ -3,9 +3,11 @@ package com.ThreeK_Project.api_server.domain.user.service;
 import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMessage.DUPLICATE_NAME;
 import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMessage.INVALID_ROLE;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.SIGN_UP_SUCCESS;
+import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.UPDATE_USER_INFO_SUCCESS;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.ThreeK_Project.api_server.domain.user.dto.SignUpRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.UpdateUserInfoRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.UserInfoResponse;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.domain.user.enums.Role;
@@ -103,6 +105,25 @@ public class UserServiceTest {
         List<String> roles = new ArrayList<>();
         roles.add(Role.CUSTOMER.getValue());
         assertEquals(roles, response.roles());
+    }
+
+    @Test
+    @DisplayName("회원 정보 수정 - 성공 테스트")
+    void updateUserInfo_Success() {
+        // Given
+        User user = User.createUser("username", "123456", Role.CUSTOMER,
+                "01012345678", "address");
+        UpdateUserInfoRequest request = new UpdateUserInfoRequest("username2", "1234567",
+                "01012345678", "address");
+
+        // When
+        SuccessResponse response = userService.updateUserInfo(user, request);
+
+        // Then
+        assertEquals("username2", user.getUsername());
+        assertEquals("01012345678", user.getPhoneNumber());
+        assertEquals("address", user.getAddress());
+        assertEquals(UPDATE_USER_INFO_SUCCESS.getValue(), response.message());
     }
 
 }
