@@ -2,14 +2,17 @@ package com.ThreeK_Project.api_server.domain.user.service;
 
 import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMessage.DUPLICATE_NAME;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.SIGN_UP_SUCCESS;
+import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.UPDATE_USER_INFO_SUCCESS;
 
 import com.ThreeK_Project.api_server.domain.user.dto.SignUpRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.UpdateUserInfoRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.UserInfoResponse;
 import com.ThreeK_Project.api_server.domain.user.enums.Role;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.domain.user.repository.UserRepository;
 import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
 import com.ThreeK_Project.api_server.global.exception.ApplicationException;
+import jakarta.validation.Valid;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,12 +28,12 @@ public class UserService {
 
     // 회원 가입
     @Transactional
-    public SuccessResponse signUp(SignUpRequest reqeustParam) {
-        validateDuplicateName(reqeustParam.username());
-        Role role = Role.fromValue(reqeustParam.role());
-        String encodedPassword = passwordEncoder.encode(reqeustParam.password());
+    public SuccessResponse signUp(SignUpRequest requestParam) {
+        validateDuplicateName(requestParam.username());
+        Role role = Role.fromValue(requestParam.role());
+        String encodedPassword = passwordEncoder.encode(requestParam.password());
 
-        saveUser(reqeustParam, encodedPassword, role);
+        saveUser(requestParam, encodedPassword, role);
         return new SuccessResponse(SIGN_UP_SUCCESS.getValue());
     }
 
@@ -52,6 +55,17 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserInfoResponse getUserInfo(User user) {
         return new UserInfoResponse(user);
+    }
+
+    // 사용자 정보 수정
+    @Transactional
+    public SuccessResponse updateUserInfo(User user, @Valid UpdateUserInfoRequest requestParam) {
+        validateDuplicateName(requestParam.username());
+        String encodedPassword = passwordEncoder.encode(requestParam.password());
+
+        user.updateUserInfo(requestParam.username(), encodedPassword, requestParam.phoneNumber(),
+                requestParam.address());
+        return new SuccessResponse(UPDATE_USER_INFO_SUCCESS.getValue());
     }
 
 }

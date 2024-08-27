@@ -44,6 +44,7 @@ class AuthControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String content = objectMapper.writeValueAsString(request);
         LoginResponse response = new LoginResponse("accessToken");
+
         when(authService.login(request)).thenReturn(response);
 
         // When & Then
