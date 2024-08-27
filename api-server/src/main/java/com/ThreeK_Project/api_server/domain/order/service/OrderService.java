@@ -1,6 +1,7 @@
 package com.ThreeK_Project.api_server.domain.order.service;
 
 import com.ThreeK_Project.api_server.domain.order.dto.OrderRequestDto;
+import com.ThreeK_Project.api_server.domain.order.dto.OrderResponseDto;
 import com.ThreeK_Project.api_server.domain.order.dto.OrderedProduct;
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
 import com.ThreeK_Project.api_server.domain.order.entity.OrderProduct;
@@ -13,10 +14,12 @@ import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import com.ThreeK_Project.api_server.domain.restaurant.repository.RestaurantRepository;
 import com.ThreeK_Project.api_server.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -52,5 +55,13 @@ public class OrderService {
             orderProductRepository.save(orderProduct);
         }
 
+    }
+
+    public OrderResponseDto getOrder(UUID orderId) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ApplicationException("Order not found"));
+
+        return new OrderResponseDto(order);
     }
 }
