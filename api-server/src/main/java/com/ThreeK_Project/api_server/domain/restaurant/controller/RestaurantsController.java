@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -55,12 +56,20 @@ public class RestaurantsController {
     public ResponseEntity<String> updateRestaurant(@RequestBody RestaurantRequest restaurantRequest,
                                                    @PathVariable UUID restaurantId,
                                                    @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
-        // 가게 단일 수정(role: OWNER 이상)
+        // 가게 주인 / 단일 수정(role: OWNER 이상)
         User user = userDetailsCustom.getUser();
         String result = restaurantService.updateRestaurant(restaurantRequest, restaurantId, user);
         return ResponseEntity.ok().body(result);
     }
 
+    @DeleteMapping("/{restaurantId}")
+    public ResponseEntity<Map<String, String>> deleteRestaurant(@PathVariable UUID restaurantId,
+                                                   @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
+        // 가게 주인 / 단일 삭제(role: OWNER 이상)
+        User user = userDetailsCustom.getUser();
+        String result = restaurantService.deleteRestaurant(restaurantId, user);
+        return ResponseEntity.ok().body(Map.of("message", result));
+    }
 
 
 

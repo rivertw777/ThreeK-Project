@@ -88,4 +88,18 @@ public class RestaurantService {
 
         return "가게 수정 성공";
     }
+
+    public String deleteRestaurant(UUID restaurantId, User user) {
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new EntityNotFoundException("가게 조회 실패"));
+
+        if (!restaurant.getUser().getUsername().equals(user.getUsername())) {
+            throw new SecurityException("가게를 삭제할 권한이 없습니다.");
+        }
+        // 물리적 삭제 대신 논리적 삭제 처리
+        restaurant.deleteBy(user);
+        restaurantRepository.save(restaurant);  // 상태 변경을 DB에 반영
+
+        return "가게 삭제 성공";
+    }
 }
