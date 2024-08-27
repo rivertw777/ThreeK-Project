@@ -1,11 +1,14 @@
 package com.ThreeK_Project.api_server.domain.user.service;
 
-import static com.ThreeK_Project.api_server.domain.user.exception.UserExceptionMessage.DUPLICATE_NAME;
+import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMessage.DUPLICATE_NAME;
+import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.SIGN_UP_SUCCESS;
 
 import com.ThreeK_Project.api_server.domain.user.dto.SignUpRequest;
-import com.ThreeK_Project.api_server.domain.user.entity.Role;
+import com.ThreeK_Project.api_server.domain.user.dto.UserInfoResponse;
+import com.ThreeK_Project.api_server.domain.user.enums.Role;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.domain.user.repository.UserRepository;
+import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
 import com.ThreeK_Project.api_server.global.exception.ApplicationException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -22,12 +25,13 @@ public class UserService {
 
     // 회원 가입
     @Transactional
-    public void signUp(SignUpRequest reqeustParam) {
+    public SuccessResponse signUp(SignUpRequest reqeustParam) {
         validateDuplicateName(reqeustParam.username());
-        String encodedPassword = passwordEncoder.encode(reqeustParam.password());
         Role role = Role.fromValue(reqeustParam.role());
+        String encodedPassword = passwordEncoder.encode(reqeustParam.password());
 
-        saveUser(reqeustParam.username(), encodedPassword, role);
+        saveUser(reqeustParam, encodedPassword, role);
+        return new SuccessResponse(SIGN_UP_SUCCESS.getValue());
     }
 
     // 이름 중복 검증
@@ -38,9 +42,16 @@ public class UserService {
         }
     }
 
-    private void saveUser(String username, String encodedPassword, Role role) {
-        User user = User.createUser(username, encodedPassword, role);
+    private void saveUser(SignUpRequest reqeustParam, String encodedPassword, Role role) {
+        User user = User.createUser(reqeustParam.username(), encodedPassword, role, reqeustParam.phoneNumber(),
+                reqeustParam.address());
         userRepository.save(user);
+    }
+
+    // 사용자 정보 조회
+    @Transactional(readOnly = true)
+    public UserInfoResponse getUserInfo(User user) {
+        return new UserInfoResponse(user);
     }
 
 }
