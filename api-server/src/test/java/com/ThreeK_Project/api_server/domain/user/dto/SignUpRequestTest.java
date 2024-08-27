@@ -13,8 +13,8 @@ class SignUpRequestTest {
     @Test
     @DisplayName("SignUpRequest 생성 - 성공 테스트")
     void createSignUpRequest_Success() {
-        SignUpRequest request = new SignUpRequest("testUser", "password1234", "user",
-                "01012345678", "Test Address");
+        SignUpRequest request = new SignUpRequest("username", "123456", "customer",
+                "01012345678", "address");
         assertNotNull(request);
     }
 
@@ -22,8 +22,8 @@ class SignUpRequestTest {
     @DisplayName("SignUpRequest 생성 - 짧은 비밀번호 테스트")
     void createSignUpRequest_ShortPassword_ThrowsException() {
         Exception exception = assertThrows(ApplicationException.class,
-                () -> new SignUpRequest("testUser", "1234", "user",
-                        "01012345678", "Test Address"));
+                () -> new SignUpRequest("username", "1234", "customer",
+                        "01012345678", "address"));
         assertEquals(TOO_SHORT_PASSWORD.getValue(), exception.getMessage());
     }
 
@@ -31,9 +31,9 @@ class SignUpRequestTest {
     @DisplayName("SignUpRequest 생성 - 유효하지 않은 전화번호 테스트")
     void createSignUpRequest_InvalidPhoneNumber_ThrowsException() {
         Exception exception = assertThrows(ApplicationException.class,
-                () -> new SignUpRequest("testUser", "password123", "user",
-                        "010", "Test Address"));
-        assertEquals(INVALID_PHONE_NUMBER.getValue(), exception.getMessage()); // 예외 메시지 확인
+                () -> new SignUpRequest("username", "123456", "user",
+                        "010", "address"));
+        assertEquals(INVALID_PHONE_NUMBER.getValue(), exception.getMessage());
     }
 
 }

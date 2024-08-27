@@ -6,10 +6,14 @@ import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessa
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.ThreeK_Project.api_server.domain.user.dto.SignUpRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.UserInfoResponse;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
+import com.ThreeK_Project.api_server.domain.user.enums.Role;
 import com.ThreeK_Project.api_server.domain.user.repository.UserRepository;
 import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
 import com.ThreeK_Project.api_server.global.exception.ApplicationException;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +44,8 @@ public class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        signUpRequest = new SignUpRequest("testUser", "password1234", "customer", "01012345678", "Test Address");
+        signUpRequest = new SignUpRequest("username", "123456", "customer",
+                "01012345678", "address");
     }
 
     @Test
@@ -60,7 +65,7 @@ public class UserServiceTest {
     void signUp_DuplicateUsername_ThrowsException() {
         // Given
         User existingUser = new User();
-        when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(existingUser));
+        when(userRepository.findByUsername("username")).thenReturn(Optional.of(existingUser));
 
         // When & Then
         ApplicationException exception = assertThrows(ApplicationException.class,
@@ -72,12 +77,32 @@ public class UserServiceTest {
     @DisplayName("회원 가입 - 유효하지 않은 권한 테스트")
     void signUp_InvalidRole_ThrowsException() {
         // Given
-        SignUpRequest testRequest = new SignUpRequest("testUser", "password1234", "user", "01012345678", "Test Address");
+        SignUpRequest testRequest = new SignUpRequest("username", "123456", "user",
+                "01012345678", "address");
 
         // When & Then
         ApplicationException exception = assertThrows(ApplicationException.class,
                 () -> userService.signUp(testRequest));
         assertEquals(INVALID_ROLE.getValue(), exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("회원 정보 조회 - 성공 테스트")
+    void getUserInfo_Success() {
+        // Given
+        User user = User.createUser("username", "123456", Role.CUSTOMER,
+                "01012345678", "address");
+
+        // When
+        UserInfoResponse response = userService.getUserInfo(user);
+
+        // Then
+        assertEquals("username", response.username());
+        assertEquals("01012345678", response.phoneNumber());
+        assertEquals("address", response.address());
+        List<String> roles = new ArrayList<>();
+        roles.add(Role.CUSTOMER.getValue());
+        assertEquals(roles, response.roles());
     }
 
 }

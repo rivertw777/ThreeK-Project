@@ -38,19 +38,23 @@ public class AuthServiceTest {
     @Mock
     private TokenManager tokenManager;
 
+    private User user;
+
+    private UserDetailsCustom userDetails;
+
     private LoginRequest loginRequest;
 
     @BeforeEach
     void setUp() {
-        loginRequest = new LoginRequest("testUser", "password1234");
+        user = User.createUser("username", "123456", Role.CUSTOMER, "01012345678", "address");
+        userDetails = new UserDetailsCustom(user);
+        loginRequest = new LoginRequest("username", "123456");
     }
 
     @Test
     @DisplayName("회원 로그인 - 성공 테스트")
     void login_Success() {
         // Given
-        User user = User.createUser("testUser", "password1234", Role.CUSTOMER, "01012345678", "Test Address");
-        UserDetailsCustom userDetails = new UserDetailsCustom(user);
         when(userDetailsServiceCustom.loadUserByUsername(loginRequest.username())).thenReturn(userDetails);
         when(passwordEncoder.matches(loginRequest.password(), user.getPassword())).thenReturn(true);
         when(tokenManager.generateToken(userDetails)).thenReturn("accessToken");
@@ -69,10 +73,8 @@ public class AuthServiceTest {
     @DisplayName("회원 로그인 - 유효하지 않은 비밀번호 테스트")
     void login_InvalidPassword_ThrowsException() {
         // Given
-        User user = User.createUser("testUser", "password1234", Role.CUSTOMER, "01012345678", "Test Address");
-        UserDetailsCustom userDetails = new UserDetailsCustom(user);
         when(userDetailsServiceCustom.loadUserByUsername(loginRequest.username())).thenReturn(userDetails);
-        LoginRequest testRequest = new LoginRequest("testUser", "password1235");
+        LoginRequest testRequest = new LoginRequest("username", "123457");
 
         // When & Then
         ApplicationException exception = assertThrows(ApplicationException.class,

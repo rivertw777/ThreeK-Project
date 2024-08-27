@@ -4,6 +4,7 @@ import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMes
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.SIGN_UP_SUCCESS;
 
 import com.ThreeK_Project.api_server.domain.user.dto.SignUpRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.UserInfoResponse;
 import com.ThreeK_Project.api_server.domain.user.enums.Role;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.domain.user.repository.UserRepository;
@@ -45,6 +46,12 @@ public class UserService {
         User user = User.createUser(reqeustParam.username(), encodedPassword, role, reqeustParam.phoneNumber(),
                 reqeustParam.address());
         userRepository.save(user);
+    }
+
+    // 사용자 정보 조회
+    @Transactional(readOnly = true)
+    public UserInfoResponse getUserInfo(User user) {
+        return new UserInfoResponse(user);
     }
 
 }

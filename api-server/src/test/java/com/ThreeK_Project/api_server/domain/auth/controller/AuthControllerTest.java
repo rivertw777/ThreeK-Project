@@ -1,6 +1,5 @@
 package com.ThreeK_Project.api_server.domain.auth.controller;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,19 +40,18 @@ class AuthControllerTest {
     @DisplayName("회원 로그인 - 성공 테스트")
     void login_Success() throws Exception {
         // Given
-        LoginRequest request = new LoginRequest("testUser", "password1234");
+        LoginRequest request = new LoginRequest("username", "123456");
         ObjectMapper objectMapper = new ObjectMapper();
         String content = objectMapper.writeValueAsString(request);
         LoginResponse response = new LoginResponse("accessToken");
-        when(authService.login(any(LoginRequest.class))).thenReturn(response);
+        when(authService.login(request)).thenReturn(response);
 
-        // When
+        // When & Then
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
-                // Then
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("accessToken"));
+                .andExpect(jsonPath("token").value(response.token()));
     }
 
 }
