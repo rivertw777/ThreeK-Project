@@ -24,7 +24,7 @@ public class OrderResponseDto {
     private BigDecimal orderAmount;
     private String deliveryAddress;
     private String deliveryDetails;
-    private List<OrderedProduct> orderedProducts;
+    private List<ProductResponseData> orderedProducts;
 
     public OrderResponseDto(Order order) {
         this.orderId = order.getOrderId();
@@ -33,12 +33,12 @@ public class OrderResponseDto {
         this.orderAmount = order.getOrderAmount();
         this.deliveryAddress = order.getDeliveryAddress();
         this.deliveryDetails = order.getDeliveryDetails();
+
         this.orderedProducts = new ArrayList<>();
         for(OrderProduct orderProduct: order.getOrderProducts()){
             Product product = orderProduct.getProduct();
-            UUID productId = product.getProductId();
-            Integer quantity = orderProduct.getQuantity();
-            orderedProducts.add(new OrderedProduct(productId, quantity));
+            orderedProducts.add(new ProductResponseData(
+                    product.getProductId(), product.getName(), orderProduct.getQuantity(), orderProduct.getTotalPrice()));
         }
     }
 }
