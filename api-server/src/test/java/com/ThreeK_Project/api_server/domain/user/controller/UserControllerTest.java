@@ -2,11 +2,13 @@ package com.ThreeK_Project.api_server.domain.user.controller;
 
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.SIGN_UP_SUCCESS;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.UPDATE_USER_INFO_SUCCESS;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -67,6 +69,7 @@ class UserControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("message").value(response.message()));
+        verify(userService).signUp(request);
     }
 
     @Test
@@ -122,7 +125,7 @@ class UserControllerTest {
 
     @WithCustomMockUser
     @Test
-    @DisplayName("사용자 정보 조회 - 성공 테스트")
+    @DisplayName("회원 정보 조회 - 성공 테스트")
     void getUserInfo_Success() throws Exception {
         // Given
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -139,11 +142,12 @@ class UserControllerTest {
                 .andExpect(jsonPath("roles").value(response.roles()))
                 .andExpect(jsonPath("phoneNumber").value(response.phoneNumber()))
                 .andExpect(jsonPath("address").value(response.address()));
+        verify(userService).getUserInfo(user);
     }
 
     @WithCustomMockUser
     @Test
-    @DisplayName("사용자 정보 수정 - 성공 테스트")
+    @DisplayName("회원 정보 수정 - 성공 테스트")
     void updateUserInfo_Success() throws Exception {
         // Given
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -164,6 +168,27 @@ class UserControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("message").value(response.message()));
+        verify(userService).updateUserInfo(user, request);
+    }
+
+    @WithCustomMockUser
+    @Test
+    @DisplayName("회원 탈퇴 - 성공 테스트")
+    void deleteUser_Success() throws Exception {
+        // Given
+        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userDetails.getUser();
+        SuccessResponse response = new SuccessResponse(UPDATE_USER_INFO_SUCCESS.getValue());
+
+        when(userService.deleteUser(user)).thenReturn(response);
+
+        // When & Then
+        mockMvc.perform(delete("/api/users")
+                        .with(user(userDetails)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("message").value(response.message()));
+        verify(userService).deleteUser(user);
     }
 
 }
