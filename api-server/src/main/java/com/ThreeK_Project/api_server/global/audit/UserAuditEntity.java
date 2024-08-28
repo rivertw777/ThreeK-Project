@@ -19,7 +19,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @EntityListeners(AuditingEntityListener.class)
 public class UserAuditEntity {
 
-    @Column(updatable = false)
+    @Column
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
@@ -48,19 +48,18 @@ public class UserAuditEntity {
         this.updatedBy = user;
     }
 
-    public void updateUserAuditData(User user, LocalDateTime originalCreatedAt) {
-        this.createdAt = originalCreatedAt;
-        this.createdBy = user;
-        this.updatedBy = user;
-    }
-
-    public void setUpdatedBy(User user) {
+    public void updateUserAuditData(User user) {
+        this.updatedAt = LocalDateTime.now();
         this.updatedBy = user;
     }
 
     public void deleteUserAuditData(User user) {
         this.deletedAt = LocalDateTime.now();
         this.deletedBy = user;
+    }
+
+    public void setOriginalCreatedAt(LocalDateTime originalCreatedAt) {
+        this.createdAt = originalCreatedAt;
     }
 
 }

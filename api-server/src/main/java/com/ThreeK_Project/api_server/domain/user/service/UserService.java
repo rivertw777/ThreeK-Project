@@ -2,11 +2,12 @@ package com.ThreeK_Project.api_server.domain.user.service;
 
 import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMessage.DUPLICATE_NAME;
 import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMessage.USER_NOT_FOUND;
-import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMessage.USER_REGISTRATION_RESTRICTION;
+import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.ASSIGN_ROLE_SUCCESS;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.DELETE_USER_SUCCESS;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.SIGN_UP_SUCCESS;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.UPDATE_USER_INFO_SUCCESS;
 
+import com.ThreeK_Project.api_server.domain.user.dto.AssignRoleRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.SignUpRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.UpdateUserInfoRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.UserInfoResponse;
@@ -16,7 +17,6 @@ import com.ThreeK_Project.api_server.domain.user.repository.UserRepository;
 import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
 import com.ThreeK_Project.api_server.global.exception.ApplicationException;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -31,11 +31,18 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    // 회원 조회
+    @Transactional(readOnly = true)
+    public User findUser(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new ApplicationException(USER_NOT_FOUND.getValue()));
+    }
+
     // 회원 가입
     @Transactional
     public SuccessResponse signUp(SignUpRequest requestParam) {
         validateDuplicateName(requestParam.username());
-        Role role = validateRole(requestParam.role());
+        Role role = Role.fromValue(requestParam.role());
         String encodedPassword = passwordEncoder.encode(requestParam.password());
 
         saveUser(requestParam, encodedPassword, role);
@@ -50,18 +57,9 @@ public class UserService {
         }
     }
 
-    // 역할 검증
-    private Role validateRole(String roleValue) {
-        Role role = Role.fromValue(roleValue);
-        if (role == Role.MANAGER || role == Role.MASTER) {
-            throw new ApplicationException(USER_REGISTRATION_RESTRICTION.getValue());
-        }
-        return role;
-    }
-
     private void saveUser(SignUpRequest requestParam, String encodedPassword, Role role) {
         User user = User.createUser(requestParam.username(), encodedPassword,
-                Collections.singletonList(role), requestParam.phoneNumber(), requestParam.address());
+                role, requestParam.phoneNumber(), requestParam.address());
         userRepository.save(user);
     }
 
@@ -86,6 +84,7 @@ public class UserService {
     private void updateUser(User user, UpdateUserInfoRequest requestParam, String encodedPassword) {
         List<Role> originalRoles = user.getRoles();
         LocalDateTime originalCreatedAt = user.getCreatedAt();
+        System.out.println(originalCreatedAt);
 
         userRepository.delete(user);
         User newUser = User.updateUser(requestParam.username(), encodedPassword, originalRoles, requestParam.phoneNumber(),
@@ -102,11 +101,14 @@ public class UserService {
         return new SuccessResponse(DELETE_USER_SUCCESS.getValue());
     }
 
-    // 회원 조회
-    @Transactional(readOnly = true)
-    public User findUser(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new ApplicationException(USER_NOT_FOUND.getValue()));
+    // MASTER 권한 부여
+    @Transactional
+    public SuccessResponse assignRoleToUser(User master, String username, AssignRoleRequest requestParam) {
+        User findUser = findUser(username);
+        Role role = Role.fromValue(requestParam.role());
+
+        findUser.addRole(role, master);
+        return new SuccessResponse(ASSIGN_ROLE_SUCCESS.getValue());
     }
 
 }

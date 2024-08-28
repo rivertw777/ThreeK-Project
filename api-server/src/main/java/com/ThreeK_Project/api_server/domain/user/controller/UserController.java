@@ -1,5 +1,6 @@
 package com.ThreeK_Project.api_server.domain.user.controller;
 
+import com.ThreeK_Project.api_server.domain.user.dto.AssignRoleRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.SignUpRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.UpdateUserInfoRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.UserInfoResponse;
@@ -14,28 +15,28 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
 
     @Operation(summary = "회원 가입")
-    @PostMapping
+    @PostMapping("/api/users")
     public ResponseEntity<SuccessResponse> signUp(@Valid @RequestBody SignUpRequest reqeustParam) {
         SuccessResponse response = userService.signUp(reqeustParam);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "회원 정보 조회")
-    @GetMapping
+    @GetMapping("/api/users")
     public ResponseEntity<UserInfoResponse> getUserInfo(){
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userDetails.getUser();
@@ -44,7 +45,7 @@ public class UserController {
     }
 
     @Operation(summary = "회원 정보 수정")
-    @PutMapping
+    @PutMapping("/api/users")
     public ResponseEntity<SuccessResponse> updateUserInfo(@Valid @RequestBody UpdateUserInfoRequest requestParam){
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userDetails.getUser();
@@ -53,11 +54,21 @@ public class UserController {
     }
 
     @Operation(summary = "회원 탈퇴")
-    @DeleteMapping
+    @DeleteMapping("/api/users")
     public ResponseEntity<SuccessResponse> deleteUser(){
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userDetails.getUser();
         SuccessResponse response = userService.deleteUser(user);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "MASTER 권한 부여")
+    @PatchMapping("api/master/users/{username}/roles")
+    public ResponseEntity<SuccessResponse> assignRoleToUser(@Valid @RequestBody AssignRoleRequest requestParam,
+            @Valid @PathVariable("username") String username) {
+        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userDetails.getUser();
+        SuccessResponse response = userService.assignRoleToUser(user, username, requestParam);
         return ResponseEntity.ok(response);
     }
 

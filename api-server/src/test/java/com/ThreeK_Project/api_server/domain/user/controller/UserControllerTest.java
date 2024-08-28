@@ -4,7 +4,7 @@ import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessa
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.UPDATE_USER_INFO_SUCCESS;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.ThreeK_Project.api_server.customMockUser.WithCustomMockUser;
+import com.ThreeK_Project.api_server.domain.user.dto.AssignRoleRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.SignUpRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.UpdateUserInfoRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.UserInfoResponse;
@@ -162,7 +163,6 @@ class UserControllerTest {
 
         // When & Then
         mockMvc.perform(put("/api/users")
-                        .with(user(userDetails))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
                 .andDo(print())
@@ -183,12 +183,36 @@ class UserControllerTest {
         when(userService.deleteUser(user)).thenReturn(response);
 
         // When & Then
-        mockMvc.perform(delete("/api/users")
-                        .with(user(userDetails)))
+        mockMvc.perform(delete("/api/users"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("message").value(response.message()));
         verify(userService).deleteUser(user);
+    }
+
+    @WithCustomMockUser
+    @Test
+    @DisplayName("MASTER 권한 부여 - 성공 테스트")
+    void assignRoleToUser_Success() throws Exception {
+        // Given
+        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User master = userDetails.getUser();
+        String username = "customer";
+        AssignRoleRequest request = new AssignRoleRequest("manager");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String content = objectMapper.writeValueAsString(request);
+        SuccessResponse response = new SuccessResponse(UPDATE_USER_INFO_SUCCESS.getValue());
+
+        when(userService.assignRoleToUser(master, username, request)).thenReturn(response);
+
+        // When & Then
+        mockMvc.perform(patch("/api/master/users/{username}/roles", username)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(content))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("message").value(response.message()));
+        verify(userService).assignRoleToUser(master, username, request);
     }
 
 }

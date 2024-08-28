@@ -11,7 +11,6 @@ import com.ThreeK_Project.api_server.global.exception.ApplicationException;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsServiceCustom;
 import com.ThreeK_Project.api_server.global.security.jwt.TokenManager;
-import java.util.Collections;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -48,7 +47,7 @@ public class AuthServiceTest {
     @BeforeEach
     void setUp() {
         String encodedPassword = passwordEncoder.encode("123456");
-        user = User.createUser("username", encodedPassword, Collections.singletonList(Role.CUSTOMER), "01012345678", "address");
+        user = User.createUser("username", encodedPassword, Role.CUSTOMER, "01012345678", "address");
         userDetails = new UserDetailsCustom(user);
         loginRequest = new LoginRequest("username", "123456");
     }
