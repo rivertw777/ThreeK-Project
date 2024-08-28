@@ -1,7 +1,9 @@
 package com.ThreeK_Project.api_server.domain.auth.controller;
 
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -51,8 +53,10 @@ class AuthControllerTest {
         mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("token").value(response.token()));
+        verify(authService).login(request);
     }
 
 }

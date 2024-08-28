@@ -1,6 +1,6 @@
 package com.ThreeK_Project.api_server.domain.auth.service;
 
-import static com.ThreeK_Project.api_server.domain.auth.message.AuthExceptionMessage.PASSWORD_NOT_MATCH;
+import static com.ThreeK_Project.api_server.domain.auth.message.AuthExceptionMessage.USER_NOT_ACTIVE;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.ThreeK_Project.api_server.domain.auth.dto.LoginRequest;
@@ -11,6 +11,7 @@ import com.ThreeK_Project.api_server.global.exception.ApplicationException;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsServiceCustom;
 import com.ThreeK_Project.api_server.global.security.jwt.TokenManager;
+import java.util.Collections;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -46,7 +47,8 @@ public class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        user = User.createUser("username", "123456", Role.CUSTOMER, "01012345678", "address");
+        String encodedPassword = passwordEncoder.encode("123456");
+        user = User.createUser("username", encodedPassword, Collections.singletonList(Role.CUSTOMER), "01012345678", "address");
         userDetails = new UserDetailsCustom(user);
         loginRequest = new LoginRequest("username", "123456");
     }
@@ -70,16 +72,17 @@ public class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("회원 로그인 - 유효하지 않은 비밀번호 테스트")
-    void login_InvalidPassword_ThrowsException() {
+    @DisplayName("회원 로그인 - 탈퇴 회원 테스트")
+    void login_NotActiveUser_ThrowsException() {
         // Given
+        user.deleteUser(user);
         when(userDetailsServiceCustom.loadUserByUsername(loginRequest.username())).thenReturn(userDetails);
-        LoginRequest testRequest = new LoginRequest("username", "123457");
+        LoginRequest testRequest = new LoginRequest("username", "123456");
 
         // When & Then
         ApplicationException exception = assertThrows(ApplicationException.class,
                 () -> authService.login(testRequest));
-        assertEquals(PASSWORD_NOT_MATCH.getValue(), exception.getMessage());
+        assertEquals(USER_NOT_ACTIVE.getValue(), exception.getMessage());
     }
 
 }
