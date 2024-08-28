@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -154,4 +154,38 @@ class ProductServiceTest {
 
         verify(productRepository, times(1)).findAllByRestaurant(mockRestaurant);
     }
+
+    @Test
+    void testGetProduct_Success() {
+        UUID productId = UUID.randomUUID();
+        Restaurant restaurant = mock(Restaurant.class);
+
+        // Create a Product with a set productId
+        Product product = Product.createProduct("Test Product", 1000, "Test Description", restaurant);
+        ReflectionTestUtils.setField(product, "productId", productId); // force set the productId
+
+        when(restaurant.getRestaurantId()).thenReturn(UUID.randomUUID());
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+
+        ProductResponse productResponse = productService.getProduct(productId);
+
+        assertNotNull(productResponse);
+        assertEquals(productId, productResponse.getProductId());
+        assertEquals("Test Product", productResponse.getName());
+        assertEquals("1000", productResponse.getPrice());
+        assertEquals("Test Description", productResponse.getDescription());
+        verify(productRepository, times(1)).findById(productId);
+    }
+
+
+    @Test
+    void testGetProduct_NotFound() {
+        UUID productId = UUID.randomUUID();
+
+        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> productService.getProduct(productId));
+        verify(productRepository, times(1)).findById(productId);
+    }
+
 }

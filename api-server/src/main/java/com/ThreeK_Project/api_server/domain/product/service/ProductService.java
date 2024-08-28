@@ -5,10 +5,12 @@ import com.ThreeK_Project.api_server.domain.product.dto.ProductResponse;
 import com.ThreeK_Project.api_server.domain.product.entity.Product;
 import com.ThreeK_Project.api_server.domain.product.repository.ProductRepository;
 import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,5 +43,11 @@ public class ProductService {
         return products.stream()
                 .map(ProductResponse::new)
                 .collect(Collectors.toList());
+    }
+
+    public ProductResponse getProduct(UUID productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
+        return new ProductResponse(product);
     }
 }
