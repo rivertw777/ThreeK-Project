@@ -4,9 +4,12 @@ import com.ThreeK_Project.api_server.customMockUser.WithCustomMockUser;
 import com.ThreeK_Project.api_server.domain.order.dto.OrderResponseDto;
 import com.ThreeK_Project.api_server.domain.order.dto.OrderStatusRequestDto;
 import com.ThreeK_Project.api_server.domain.order.dto.ProductResponseData;
+import com.ThreeK_Project.api_server.domain.order.entity.Order;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderStatus;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderType;
 import com.ThreeK_Project.api_server.domain.order.service.OrderService;
+import com.ThreeK_Project.api_server.domain.payment.dto.PaymentRequestDto;
+import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -37,6 +41,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class OrderControllerTest {
     @Mock
     private OrderService orderService;
+
+    @Mock
+    private PaymentService paymentService;
 
     @InjectMocks
     private OrderController orderController;
@@ -114,6 +121,28 @@ class OrderControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("message").value("주문 삭제 성공"));
+    }
+
+    @Test
+    @DisplayName("결제 정보 생성 성공 테스트")
+    public void createPaymentTest() throws Exception {
+        UUID orderId = UUID.randomUUID();
+        Order order = new Order();
+        String content = "{\"paymentStatus\":\"WAIT\",\"paymentAmount\": \"10000\"}";
+
+        doReturn(order)
+                .when(orderService)
+                .findOrderById(any());
+
+        doNothing()
+                .when(paymentService)
+                .createPayment(order, new PaymentRequestDto());
+
+        mockMvc.perform(post("/api/orders/" + orderId + "/payments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("message").value("결제 정보 생성 성공"));
     }
 
 }
