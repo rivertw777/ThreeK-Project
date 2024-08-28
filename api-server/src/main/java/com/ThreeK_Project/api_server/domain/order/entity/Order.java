@@ -59,4 +59,8 @@ public class Order extends BaseEntity {
                 .orderProducts(new ArrayList<>())
                 .build();
     }
+
+    public void changeStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
+    }
 }
