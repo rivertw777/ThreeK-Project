@@ -78,7 +78,7 @@ public class RestaurantsController {
     }
 
     // Product 관련 컨트롤러
-    @PostMapping("{restaurantId}/products")
+    @PostMapping("/{restaurantId}/products")
     public ResponseEntity<Map<String, String>> createProduct(@PathVariable UUID restaurantId,
                                                              @RequestBody ProductRequest productRequest,
                                                              @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
@@ -88,7 +88,6 @@ public class RestaurantsController {
         String result = productService.createProduct(productRequest, restaurant);
         return ResponseEntity.ok().body(Map.of("message", result));
     }
-
 
 
 
