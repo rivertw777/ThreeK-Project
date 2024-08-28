@@ -19,7 +19,7 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Operation(summary = "로그인")
+    @Operation(summary = "회원 로그인")
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest reqeustParam) {
         LoginResponse response = authService.login(reqeustParam);

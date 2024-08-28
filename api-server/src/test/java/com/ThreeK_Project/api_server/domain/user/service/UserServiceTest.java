@@ -2,6 +2,8 @@ package com.ThreeK_Project.api_server.domain.user.service;
 
 import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMessage.DUPLICATE_NAME;
 import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMessage.INVALID_ROLE;
+import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMessage.USER_REGISTRATION_RESTRICTION;
+import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.DELETE_USER_SUCCESS;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.SIGN_UP_SUCCESS;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.UPDATE_USER_INFO_SUCCESS;
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,7 +16,7 @@ import com.ThreeK_Project.api_server.domain.user.enums.Role;
 import com.ThreeK_Project.api_server.domain.user.repository.UserRepository;
 import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
 import com.ThreeK_Project.api_server.global.exception.ApplicationException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,9 +46,13 @@ public class UserServiceTest {
 
     private SignUpRequest signUpRequest;
 
+    private User user;
+
     @BeforeEach
     void setUp() {
         signUpRequest = new SignUpRequest("username", "123456", "customer",
+                "01012345678", "address");
+        user = User.createUser("username", "123456", Collections.singletonList(Role.CUSTOMER),
                 "01012345678", "address");
     }
 
@@ -89,10 +95,23 @@ public class UserServiceTest {
     }
 
     @Test
+    @DisplayName("회원 가입 - 허용되지 않은 권한 테스트")
+    void signUp_UnauthorizedRole_ThrowsException() {
+        // Given
+        SignUpRequest testRequest = new SignUpRequest("username", "123456", "manager",
+                "01012345678", "address");
+
+        // When & Then
+        ApplicationException exception = assertThrows(ApplicationException.class,
+                () -> userService.signUp(testRequest));
+        assertEquals(USER_REGISTRATION_RESTRICTION.getValue(), exception.getMessage());
+    }
+
+    @Test
     @DisplayName("회원 정보 조회 - 성공 테스트")
     void getUserInfo_Success() {
         // Given
-        User user = User.createUser("username", "123456", Role.CUSTOMER,
+        User user = User.createUser("username", "123456", Collections.singletonList(Role.CUSTOMER),
                 "01012345678", "address");
 
         // When
@@ -102,8 +121,7 @@ public class UserServiceTest {
         assertEquals("username", response.username());
         assertEquals("01012345678", response.phoneNumber());
         assertEquals("address", response.address());
-        List<String> roles = new ArrayList<>();
-        roles.add(Role.CUSTOMER.getValue());
+        List<String> roles = Collections.singletonList(Role.CUSTOMER.getValue());
         assertEquals(roles, response.roles());
     }
 
@@ -111,19 +129,34 @@ public class UserServiceTest {
     @DisplayName("회원 정보 수정 - 성공 테스트")
     void updateUserInfo_Success() {
         // Given
-        User user = User.createUser("username", "123456", Role.CUSTOMER,
-                "01012345678", "address");
         UpdateUserInfoRequest request = new UpdateUserInfoRequest("username2", "1234567",
                 "01012345678", "address");
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
 
         // When
         SuccessResponse response = userService.updateUserInfo(user, request);
 
         // Then
-        assertEquals("username2", user.getUsername());
-        assertEquals("01012345678", user.getPhoneNumber());
-        assertEquals("address", user.getAddress());
+        verify(userRepository).findByUsername(user.getUsername());
+        verify(passwordEncoder).encode(request.password());
+        verify(userRepository).delete(user);
+        verify(userRepository).save(any(User.class));
         assertEquals(UPDATE_USER_INFO_SUCCESS.getValue(), response.message());
+    }
+
+    @Test
+    @DisplayName("회원 탈퇴 - 성공 테스트")
+    void deleteUser_Success() {
+        // Given
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+
+        // When
+        SuccessResponse response = userService.deleteUser(user);
+
+        // Then
+        verify(userRepository).findByUsername(user.getUsername());
+        assertNotNull(user.getDeletedAt());
+        assertEquals(DELETE_USER_SUCCESS.getValue(), response.message());
     }
 
 }
