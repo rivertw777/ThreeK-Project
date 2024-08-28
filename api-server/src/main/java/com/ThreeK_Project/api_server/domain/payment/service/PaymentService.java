@@ -2,11 +2,15 @@ package com.ThreeK_Project.api_server.domain.payment.service;
 
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
 import com.ThreeK_Project.api_server.domain.payment.dto.PaymentRequestDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.PaymentResponseDto;
 import com.ThreeK_Project.api_server.domain.payment.entity.Payment;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentStatus;
 import com.ThreeK_Project.api_server.domain.payment.repository.PaymentRepository;
+import com.ThreeK_Project.api_server.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,5 +24,14 @@ public class PaymentService {
                 requestDto.getPaymentAmount(), order
         );
         paymentRepository.save(payment);
+    }
+
+    public PaymentResponseDto getPayment(UUID paymentId) {
+        return new PaymentResponseDto(getPaymentByPaymentId(paymentId));
+    }
+
+    public Payment getPaymentByPaymentId(UUID paymentId) {
+        return paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new ApplicationException("Payment not found"));
     }
 }
