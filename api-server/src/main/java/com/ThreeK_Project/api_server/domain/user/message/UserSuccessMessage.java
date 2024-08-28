@@ -7,7 +7,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum UserSuccessMessage {
 
-    SIGN_UP_SUCCESS("회원가입 완료");
+    SIGN_UP_SUCCESS("회원가입 완료"),
+    UPDATE_USER_INFO_SUCCESS("회원 정보 수정 완료"),
+    DELETE_USER_SUCCESS("회원 탈퇴 완료");
 
     private final String value;
 

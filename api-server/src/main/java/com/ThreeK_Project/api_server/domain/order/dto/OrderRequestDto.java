@@ -18,5 +18,5 @@ public class OrderRequestDto {
     private String requestDetails;
     private OrderType orderType;
     private UUID restaurantId;
-    private List<OrderedProduct> productList;
+    private List<ProductRequestData> productList;
 }

@@ -9,6 +9,7 @@ import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import com.ThreeK_Project.api_server.global.audit.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import java.util.UUID;
 @Builder(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "p_orders")
+@SQLRestriction("deleted_at is NULL")
 public class Order extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -56,5 +58,9 @@ public class Order extends BaseEntity {
                 .restaurant(restaurant)
                 .orderProducts(new ArrayList<>())
                 .build();
+    }
+
+    public void changeStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
     }
 }
