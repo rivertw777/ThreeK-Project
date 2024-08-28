@@ -26,8 +26,7 @@ import java.util.UUID;
 
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -52,7 +51,6 @@ class OrderControllerTest {
     @DisplayName("주문 조회 성공 태스트")
     public void getOrder() throws Exception {
         UUID orderId = UUID.randomUUID();
-
         List<ProductResponseData> orderedProductList = new ArrayList<>();
         orderedProductList.add(new ProductResponseData(UUID.randomUUID(), "product", 2, new BigDecimal(5000)));
         OrderResponseDto responseDto = new OrderResponseDto(
@@ -84,5 +82,19 @@ class OrderControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("message").value("주문 삭제 성공"));
+    }
+
+    @Test
+    @DisplayName("주문 취소 성공 테스트")
+    @WithCustomMockUser
+    public void cancelOrder() throws Exception {
+        UUID orderId = UUID.randomUUID();
+        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userDetails.getUser();
+
+        doNothing().when(orderService).cancelOrder(UUID.randomUUID(), user.getUsername());
+
+        mockMvc.perform(patch("/api/orders/" + orderId +"/cancel"))
+                .andExpect(status().isOk());
     }
 }
