@@ -2,6 +2,7 @@ package com.ThreeK_Project.api_server.domain.restaurant.controller;
 
 
 import com.ThreeK_Project.api_server.domain.product.dto.ProductRequest;
+import com.ThreeK_Project.api_server.domain.product.dto.ProductResponse;
 import com.ThreeK_Project.api_server.domain.product.service.ProductService;
 import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantRequest;
 import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantResponse;
@@ -10,6 +11,7 @@ import com.ThreeK_Project.api_server.domain.restaurant.repository.RestaurantRepo
 import com.ThreeK_Project.api_server.domain.restaurant.service.RestaurantService;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,62 +37,78 @@ public class RestaurantsController {
         ex) location_id와 category_id가 1부터 자동 증가함
      */
 
-
+    @Operation(summary = "가게 주인 / 가게 등록(role: OWNER 이상)")
     @PostMapping
     public ResponseEntity<String> registRestaurant(@RequestBody RestaurantRequest restaurantRequest, @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
-        // 가게 주인 / 가게 등록(role: OWNER 이상)
         User user = userDetailsCustom.getUser();
         String result = restaurantService.registRestaurant(restaurantRequest, user);
         return ResponseEntity.ok().body(result);
     }
 
+    @Operation(summary = "가게 전체 조회(role: x)")
     @GetMapping
     public ResponseEntity<List<RestaurantResponse>> findAllRestaurant() {
-        // 가게 전체 조회(role: x)
         List<RestaurantResponse> resultList = restaurantService.findAllRestaurant();
         return ResponseEntity.ok().body(resultList);
     }
 
+    @Operation(summary = "가게 단일 조회(role: x)")
     @GetMapping("/{restaurantId}")
     public ResponseEntity<RestaurantResponse> findRestaurantById(@PathVariable UUID restaurantId) {
-        // 가게 단일 조회(role: x)
         RestaurantResponse result = restaurantService.findRestaurantById(restaurantId);
         return ResponseEntity.ok().body(result);
     }
 
+    @Operation(summary = "가게 주인 / 단일 수정(role: OWNER 이상)")
     @PutMapping("/{restaurantId}")
     public ResponseEntity<String> updateRestaurant(@RequestBody RestaurantRequest restaurantRequest,
                                                    @PathVariable UUID restaurantId,
                                                    @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
-        // 가게 주인 / 단일 수정(role: OWNER 이상)
         User user = userDetailsCustom.getUser();
         String result = restaurantService.updateRestaurant(restaurantRequest, restaurantId, user);
         return ResponseEntity.ok().body(result);
     }
 
+    @Operation(summary = "가게 주인 / 단일 삭제(role: OWNER 이상)")
     @DeleteMapping("/{restaurantId}")
     public ResponseEntity<Map<String, String>> deleteRestaurant(@PathVariable UUID restaurantId,
                                                    @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
-        // 가게 주인 / 단일 삭제(role: OWNER 이상)
         User user = userDetailsCustom.getUser();
         String result = restaurantService.deleteRestaurant(restaurantId, user);
         return ResponseEntity.ok().body(Map.of("message", result));
     }
 
     // Product 관련 컨트롤러
+    @Operation(summary = "가게 주인 / 상품 생성(role: OWNER 이상)")
     @PostMapping("/{restaurantId}/products")
     public ResponseEntity<Map<String, String>> createProduct(@PathVariable UUID restaurantId,
                                                              @RequestBody ProductRequest productRequest,
                                                              @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
-        // 가게 주인 / 상품 생성(role: OWNER 이상)
         User user = userDetailsCustom.getUser();
-        Restaurant restaurant= restaurantService.validateAndGetRestaurant(restaurantId, user);
+        Restaurant restaurant = restaurantService.validateAndGetRestaurant(restaurantId, user);
         String result = productService.createProduct(productRequest, restaurant);
         return ResponseEntity.ok().body(Map.of("message", result));
     }
 
+    @Operation(summary = "가게 상품 전체 조회(role: x)")
+    @GetMapping("/{restaurantId}/products")
+    public ResponseEntity<List<ProductResponse>> searchProductsByRestaurantId(@PathVariable UUID restaurantId) {
+        Restaurant restaurant = restaurantService.getRestaurant(restaurantId);
+        List<ProductResponse> productResponseList  = productService.loadProductsByRestaurantId(restaurant);
+        return ResponseEntity.ok().body(productResponseList);
+    }
 
-
+    @Operation(summary = "가게 주인 / 상품 단일 수정")
+    @PutMapping("/{restaurantId}/products/{productId}")
+    public ResponseEntity<Map<String, String>> updateProduct(@PathVariable UUID restaurantId,
+                                                             @PathVariable UUID productId,
+                                                             @RequestBody ProductRequest productRequest,
+                                                             @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
+        User user = userDetailsCustom.getUser();
+        Restaurant restaurant = restaurantService.validateAndGetRestaurant(restaurantId, user);
+        String result = productService.updateProduct(productId, productRequest, restaurant);
+        return ResponseEntity.ok().body(Map.of("message", result));
+    }
 
 
 

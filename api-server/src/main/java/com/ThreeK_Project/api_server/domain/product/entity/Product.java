@@ -35,4 +35,11 @@ public class Product extends BaseEntity {
                 .restaurant(restaurant)
                 .build();
     }
+
+    public void updateProduct(String name, Integer price, String description) {
+        if (name != null && !name.isEmpty()) {this.name = name;}
+        if (price != null) {this.price = price;}
+        if (description != null && !description.isEmpty()) {this.description = description;}
+    }
+
 }
