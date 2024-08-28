@@ -1,8 +1,12 @@
 package com.ThreeK_Project.api_server.domain.restaurant.controller;
 
 
+import com.ThreeK_Project.api_server.domain.product.dto.ProductRequest;
+import com.ThreeK_Project.api_server.domain.product.service.ProductService;
 import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantRequest;
 import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantResponse;
+import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
+import com.ThreeK_Project.api_server.domain.restaurant.repository.RestaurantRepository;
 import com.ThreeK_Project.api_server.domain.restaurant.service.RestaurantService;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
@@ -21,6 +25,8 @@ import java.util.UUID;
 public class RestaurantsController {
 
     private final RestaurantService restaurantService;
+    private final RestaurantRepository restaurantRepository;
+    private final ProductService productService;
 
     /*
         location과 category를 DB에 미리 추가 해주어야 함
@@ -71,8 +77,17 @@ public class RestaurantsController {
         return ResponseEntity.ok().body(Map.of("message", result));
     }
 
-
-
+    // Product 관련 컨트롤러
+    @PostMapping("/{restaurantId}/products")
+    public ResponseEntity<Map<String, String>> createProduct(@PathVariable UUID restaurantId,
+                                                             @RequestBody ProductRequest productRequest,
+                                                             @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
+        // 가게 주인 / 상품 생성(role: OWNER 이상)
+        User user = userDetailsCustom.getUser();
+        Restaurant restaurant= restaurantService.validateAndGetRestaurant(restaurantId, user);
+        String result = productService.createProduct(productRequest, restaurant);
+        return ResponseEntity.ok().body(Map.of("message", result));
+    }
 
 
 
