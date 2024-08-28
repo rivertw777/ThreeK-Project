@@ -188,4 +188,83 @@ class ProductServiceTest {
         verify(productRepository, times(1)).findById(productId);
     }
 
+    @Test
+    void testUpdateProduct_Success() {
+        UUID productId = UUID.randomUUID();
+        Restaurant restaurant = mock(Restaurant.class);
+
+        // 기존 상품을 설정
+        Product existingProduct = Product.createProduct("Old Product", 1000, "Old Description", restaurant);
+        ReflectionTestUtils.setField(existingProduct, "productId", productId); // force set the productId
+
+        ProductRequest productRequest = new ProductRequest();
+        productRequest.setName("Updated Product Name");
+        productRequest.setPrice(2000);
+        productRequest.setDescription("Updated Description");
+
+        when(productRepository.findById(productId)).thenReturn(Optional.of(existingProduct));
+
+        String result = productService.updateProduct(productId, productRequest, restaurant);
+
+        assertEquals("상품 수정 성공", result);
+        assertEquals("Updated Product Name", existingProduct.getName());
+        assertEquals(2000, existingProduct.getPrice());
+        assertEquals("Updated Description", existingProduct.getDescription());
+        verify(productRepository, times(1)).findById(productId);
+    }
+
+    @Test
+    void testUpdateProduct_NotFound() {
+        UUID productId = UUID.randomUUID();
+        Restaurant restaurant = mock(Restaurant.class);
+
+        ProductRequest productRequest = new ProductRequest();
+        productRequest.setName("Updated Product Name");
+        productRequest.setPrice(2000);
+        productRequest.setDescription("Updated Description");
+
+        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () ->
+                productService.updateProduct(productId, productRequest, restaurant));
+        verify(productRepository, times(1)).findById(productId);
+    }
+
+    @Test
+    void testUpdateProduct_RestaurantMismatch() {
+        UUID productId = UUID.randomUUID();
+        Restaurant restaurant = mock(Restaurant.class);
+        Restaurant otherRestaurant = mock(Restaurant.class); // 다른 레스토랑
+
+        // 기존 상품을 설정
+        Product existingProduct = Product.createProduct("Old Product", 1000, "Old Description", restaurant);
+        ReflectionTestUtils.setField(existingProduct, "productId", productId); // force set the productId
+
+        ProductRequest productRequest = new ProductRequest();
+        productRequest.setName("Updated Product Name");
+        productRequest.setPrice(2000);
+        productRequest.setDescription("Updated Description");
+
+        when(productRepository.findById(productId)).thenReturn(Optional.of(existingProduct));
+
+        assertThrows(SecurityException.class, () ->
+                productService.updateProduct(productId, productRequest, otherRestaurant));
+        verify(productRepository, times(1)).findById(productId);
+    }
+
+    @Test
+    void testUpdateProduct_RestaurantIsNull() {
+        UUID productId = UUID.randomUUID();
+
+        ProductRequest productRequest = new ProductRequest();
+        productRequest.setName("Updated Product Name");
+        productRequest.setPrice(2000);
+        productRequest.setDescription("Updated Description");
+
+        assertThrows(IllegalArgumentException.class, () ->
+                productService.updateProduct(productId, productRequest, null));
+        verify(productRepository, never()).findById(any(UUID.class));
+    }
+
+
 }

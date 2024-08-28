@@ -8,6 +8,7 @@ import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -49,5 +50,29 @@ public class ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
         return new ProductResponse(product);
+    }
+
+    @Transactional
+    public String updateProduct(UUID productId, ProductRequest productRequest, Restaurant restaurant) {
+        if (restaurant == null) {
+            throw new IllegalArgumentException("Restaurant cannot be null");
+        }
+        // 상품을 데이터베이스에서 조회, 존재하지 않으면 예외 발생
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
+
+        // 상품이 속한 레스토랑이 일치하는지 확인
+        if (!product.getRestaurant().equals(restaurant)) {
+            throw new SecurityException("해당 레스토랑에 대한 권한이 없습니다.");
+        }
+
+        // Product 엔티티의 필드들을 업데이트
+        product.updateProduct(
+                productRequest.getName(),
+                productRequest.getPrice(),
+                productRequest.getDescription()
+        );
+
+        return "상품 수정 성공";
     }
 }

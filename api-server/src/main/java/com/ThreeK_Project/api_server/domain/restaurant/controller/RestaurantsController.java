@@ -98,6 +98,17 @@ public class RestaurantsController {
         return ResponseEntity.ok().body(productResponseList);
     }
 
+    @Operation(summary = "가게 주인 / 상품 단일 수정")
+    @PutMapping("/{restaurantId}/products/{productId}")
+    public ResponseEntity<Map<String, String>> updateProduct(@PathVariable UUID restaurantId,
+                                                             @PathVariable UUID productId,
+                                                             @RequestBody ProductRequest productRequest,
+                                                             @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
+        User user = userDetailsCustom.getUser();
+        Restaurant restaurant = restaurantService.validateAndGetRestaurant(restaurantId, user);
+        String result = productService.updateProduct(productId, productRequest, restaurant);
+        return ResponseEntity.ok().body(Map.of("message", result));
+    }
 
 
 
