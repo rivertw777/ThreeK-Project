@@ -1,6 +1,7 @@
 package com.ThreeK_Project.api_server.domain.user.controller;
 
 import com.ThreeK_Project.api_server.domain.user.dto.AssignRoleRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.RevokeRoleRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.SignUpRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.UpdateUserInfoRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.UserInfoResponse;
@@ -65,10 +66,20 @@ public class UserController {
     @Operation(summary = "MASTER 권한 부여")
     @PatchMapping("api/master/users/{username}/roles")
     public ResponseEntity<SuccessResponse> assignRoleToUser(@Valid @RequestBody AssignRoleRequest requestParam,
-            @Valid @PathVariable("username") String username) {
+                                                            @Valid @PathVariable("username") String username) {
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userDetails.getUser();
         SuccessResponse response = userService.assignRoleToUser(user, username, requestParam);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "MASTER 권한 회수")
+    @DeleteMapping("api/master/users/{username}/roles")
+    public ResponseEntity<SuccessResponse> revokeRoleFromUser(@Valid @RequestBody RevokeRoleRequest requestParam,
+                                                    @Valid @PathVariable("username") String username) {
+        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userDetails.getUser();
+        SuccessResponse response = userService.revokeRoleFromUser(user, username, requestParam);
         return ResponseEntity.ok(response);
     }
 

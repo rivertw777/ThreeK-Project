@@ -4,10 +4,12 @@ import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMes
 import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMessage.USER_NOT_FOUND;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.ASSIGN_ROLE_SUCCESS;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.DELETE_USER_SUCCESS;
+import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.REVOKE_ROLE_SUCCESS;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.SIGN_UP_SUCCESS;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.UPDATE_USER_INFO_SUCCESS;
 
 import com.ThreeK_Project.api_server.domain.user.dto.AssignRoleRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.RevokeRoleRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.SignUpRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.UpdateUserInfoRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.UserInfoResponse;
@@ -111,4 +113,12 @@ public class UserService {
         return new SuccessResponse(ASSIGN_ROLE_SUCCESS.getValue());
     }
 
+    // MASTER 권한 회수
+    public SuccessResponse revokeRoleFromUser(User master, String username, RevokeRoleRequest requestParam) {
+        User findUser = findUser(username);
+        Role role = Role.fromValue(requestParam.role());
+
+        findUser.removeRole(role, master);
+        return new SuccessResponse(REVOKE_ROLE_SUCCESS.getValue());
+    }
 }

@@ -1,5 +1,6 @@
 package com.ThreeK_Project.api_server.domain.user.controller;
 
+import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.REVOKE_ROLE_SUCCESS;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.SIGN_UP_SUCCESS;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.UPDATE_USER_INFO_SUCCESS;
 import static org.mockito.Mockito.verify;
@@ -15,6 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.ThreeK_Project.api_server.customMockUser.WithCustomMockUser;
 import com.ThreeK_Project.api_server.domain.user.dto.AssignRoleRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.RevokeRoleRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.SignUpRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.UpdateUserInfoRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.UserInfoResponse;
@@ -213,6 +215,31 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("message").value(response.message()));
         verify(userService).assignRoleToUser(master, username, request);
+    }
+
+    @WithCustomMockUser
+    @Test
+    @DisplayName("MASTER 권한 회수 - 성공 테스트")
+    void revokeRoleFromUser_Success() throws Exception {
+        // Given
+        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User master = userDetails.getUser();
+        String username = "manager";
+        RevokeRoleRequest request = new RevokeRoleRequest("manager");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String content = objectMapper.writeValueAsString(request);
+        SuccessResponse response = new SuccessResponse(REVOKE_ROLE_SUCCESS.getValue());
+
+        when(userService.revokeRoleFromUser(master, username, request)).thenReturn(response);
+
+        // When & Then
+        mockMvc.perform(delete("/api/master/users/{username}/roles", username)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("message").value(response.message()));
+        verify(userService).revokeRoleFromUser(master, username, request);
     }
 
 }

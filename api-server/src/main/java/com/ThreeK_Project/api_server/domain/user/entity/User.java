@@ -107,4 +107,11 @@ public class User extends UserAuditEntity {
         }
     }
 
+    public void removeRole(Role role, User master) {
+        if (this.roles.contains(role)) {
+            this.roles.remove(role);
+            this.updateUserAuditData(master);
+        }
+    }
+
 }
