@@ -2,6 +2,7 @@ package com.ThreeK_Project.api_server.domain.order.controller;
 
 import com.ThreeK_Project.api_server.domain.order.dto.OrderRequestDto;
 import com.ThreeK_Project.api_server.domain.order.dto.OrderResponseDto;
+import com.ThreeK_Project.api_server.domain.order.dto.OrderStatusRequestDto;
 import com.ThreeK_Project.api_server.domain.order.service.OrderService;
 import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
@@ -19,10 +20,20 @@ public class OrderController {
 
     private final OrderService orderService;
 
-    @PostMapping
-    public ResponseEntity<String> createOrder(@RequestBody OrderRequestDto requestDto) {
-        orderService.createOrder(requestDto);
-        return ResponseEntity.ok("\"message\": \"주문 생성 성공\"");
+    @PatchMapping("/{orderId}/cancel")
+    public ResponseEntity<SuccessResponse> cancelOrder(@PathVariable UUID orderId) {
+        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        orderService.cancelOrder(orderId, userDetails.getUser().getUsername());
+        return ResponseEntity.ok(new SuccessResponse("주문 취소 성공"));
+    }
+
+    @PatchMapping("/{orderId}/status")
+    public ResponseEntity<SuccessResponse> updateOrderStatus(
+            @PathVariable UUID orderId,
+            @RequestBody OrderStatusRequestDto requestDto
+    ) {
+        orderService.updateOrderStatus(orderId, requestDto.getOrderStatus());
+        return ResponseEntity.ok(new SuccessResponse("주문 상태 변경 성공"));
     }
 
     @GetMapping("/{orderId}")
@@ -35,13 +46,6 @@ public class OrderController {
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         orderService.deleteOrder(orderId, userDetails.getUser());
         return ResponseEntity.ok(new SuccessResponse("주문 삭제 성공"));
-    }
-
-    @PatchMapping("/{orderId}/cancel")
-    public ResponseEntity<String> cancelOrder(@PathVariable UUID orderId) {
-        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        orderService.cancelOrder(orderId, userDetails.getUser().getUsername());
-        return ResponseEntity.ok("\"message\": \"주문 취소 성공\"");
     }
 
 }

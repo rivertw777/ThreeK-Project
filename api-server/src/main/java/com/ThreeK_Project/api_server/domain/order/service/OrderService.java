@@ -31,44 +31,19 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final RestaurantRepository restaurantRepository;
 
-    @Transactional
-    public void createOrder(OrderRequestDto requestDto) {
-
-        if(requestDto.getProductList().isEmpty())
-            throw new ApplicationException("Product list is empty");
-
-        Restaurant restaurant = restaurantRepository.findById(requestDto.getRestaurantId())
-                .orElseThrow(() ->  new ApplicationException("Restaurant not found"));
-
-        Order order = Order.createOrder(
-                requestDto.getOrderType(), OrderStatus.WAIT, requestDto.getOrderAmount(),
-                requestDto.getDeliveryAddress(), requestDto.getRequestDetails(), restaurant
-        );
-        final Order savedOrder = orderRepository.save(order);
-
-        for(ProductRequestData orderedProduct: requestDto.getProductList()){
-            int quantity = orderedProduct.getQuantity();
-
-            Product product = productRepository.findById(orderedProduct.getProductId())
-                    .orElseThrow(() -> new ApplicationException("Product not found"));
-
-            OrderProduct orderProduct = OrderProduct.createOrderProduct(quantity, new BigDecimal(product.getPrice() * quantity), savedOrder, product);
-            orderProductRepository.save(orderProduct);
-        }
-
-    }
-
     public OrderResponseDto getOrder(UUID orderId) {
         Order order = findOrderById(orderId);
         return new OrderResponseDto(order);
     }
 
+    @Transactional
     public void deleteOrder(UUID orderId, User user) {
         Order order = findOrderById(orderId);
         order.deleteBy(user);
         orderRepository.save(order);
     }
 
+    @Transactional
     public void cancelOrder(UUID orderId, String username) {
         LocalDateTime now = LocalDateTime.now();
         Order order = findOrderById(orderId);
@@ -83,6 +58,25 @@ public class OrderService {
             throw new ApplicationException("Cancel Timeout");
 
         order.changeStatus(OrderStatus.CANCELED);
+        orderRepository.save(order);
+    }
+
+    @Transactional
+    public void updateOrderStatus(UUID orderId, OrderStatus newOrderStatus) {
+        if(newOrderStatus == OrderStatus.WAIT)
+            throw new ApplicationException("Invalid order status");
+
+        Order order = findOrderById(orderId);
+
+        OrderStatus oldOrderStatus = order.getOrderStatus();
+        if(oldOrderStatus == OrderStatus.WAIT && newOrderStatus == OrderStatus.CANCELED)
+            order.changeStatus(OrderStatus.CANCELED);
+        else if(oldOrderStatus == OrderStatus.WAIT && newOrderStatus == OrderStatus.RECEIPT)
+            order.changeStatus(OrderStatus.RECEIPT);
+        else if(oldOrderStatus == OrderStatus.RECEIPT && newOrderStatus == OrderStatus.COMPLETE)
+            order.changeStatus(OrderStatus.COMPLETE);
+        else
+            throw new ApplicationException("Invalid order status");
         orderRepository.save(order);
     }
 

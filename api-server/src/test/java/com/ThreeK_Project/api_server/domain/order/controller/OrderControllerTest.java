@@ -2,6 +2,7 @@ package com.ThreeK_Project.api_server.domain.order.controller;
 
 import com.ThreeK_Project.api_server.customMockUser.WithCustomMockUser;
 import com.ThreeK_Project.api_server.domain.order.dto.OrderResponseDto;
+import com.ThreeK_Project.api_server.domain.order.dto.OrderStatusRequestDto;
 import com.ThreeK_Project.api_server.domain.order.dto.ProductResponseData;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderStatus;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderType;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -48,14 +50,44 @@ class OrderControllerTest {
     }
 
     @Test
+    @DisplayName("주문 취소 성공 테스트")
+    @WithCustomMockUser
+    public void cancelOrderTest() throws Exception {
+        UUID orderId = UUID.randomUUID();
+        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userDetails.getUser();
+
+        doNothing().when(orderService).cancelOrder(UUID.randomUUID(), user.getUsername());
+
+        mockMvc.perform(patch("/api/orders/" + orderId +"/cancel"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("message").value("주문 취소 성공"));
+    }
+
+    @Test
+    @DisplayName("주문 상태 변경 성공 테스트")
+    public void updateOrderStatusTest() throws Exception {
+        UUID orderId = UUID.randomUUID();
+        String content = "{\"orderStatus\":\"CANCELED\"}";
+
+        doNothing().when(orderService).updateOrderStatus(orderId, OrderStatus.CANCELED);
+
+        mockMvc.perform(patch("/api/orders/" + orderId + "/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(content))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("message").value("주문 상태 변경 성공"));
+    }
+
+    @Test
     @DisplayName("주문 조회 성공 태스트")
     public void getOrder() throws Exception {
         UUID orderId = UUID.randomUUID();
-        List<ProductResponseData> orderedProductList = new ArrayList<>();
-        orderedProductList.add(new ProductResponseData(UUID.randomUUID(), "product", 2, new BigDecimal(5000)));
+        List<ProductResponseData> products = new ArrayList<>();
+        products.add(new ProductResponseData(UUID.randomUUID(), "product", 2, new BigDecimal(5000)));
         OrderResponseDto responseDto = new OrderResponseDto(
                 orderId, OrderStatus.WAIT, OrderType.ONLINE, new BigDecimal(10000),
-                "서울시", "문앞에 두고 노크",  orderedProductList
+                "서울시", "문앞에 두고 노크",  products
         );
 
         doReturn(responseDto).when(orderService).getOrder(orderId);
@@ -84,17 +116,4 @@ class OrderControllerTest {
                 .andExpect(jsonPath("message").value("주문 삭제 성공"));
     }
 
-    @Test
-    @DisplayName("주문 취소 성공 테스트")
-    @WithCustomMockUser
-    public void cancelOrder() throws Exception {
-        UUID orderId = UUID.randomUUID();
-        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User user = userDetails.getUser();
-
-        doNothing().when(orderService).cancelOrder(UUID.randomUUID(), user.getUsername());
-
-        mockMvc.perform(patch("/api/orders/" + orderId +"/cancel"))
-                .andExpect(status().isOk());
-    }
 }

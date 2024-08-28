@@ -40,69 +40,6 @@ class OrderServiceTest {
     private OrderService orderService;
 
     @Test
-    @DisplayName("주문 조회 성공 테스트")
-    public void getOrderTest1(){
-        UUID orderId = UUID.randomUUID();
-        Order order = Order.createOrder(
-            OrderType.ONLINE, OrderStatus.WAIT, new BigDecimal(10000),
-            "서울", "문앞에 놓고 노크", new Restaurant()
-        );
-
-        doReturn(Optional.of(order))
-                .when(orderRepository)
-                .findById(any(UUID.class));
-
-
-        OrderResponseDto orderResponseDto = orderService.getOrder(orderId);
-        assertEquals(order.getOrderStatus(), orderResponseDto.getOrderStatus());
-        assertEquals(order.getOrderType(), orderResponseDto.getOrderType());
-        assertEquals(order.getDeliveryAddress(), orderResponseDto.getDeliveryAddress());
-        assertEquals(order.getDeliveryDetails(), orderResponseDto.getDeliveryDetails());
-    }
-
-    @Test
-    @DisplayName("주문 조회 실패 테스트 - 주문 기록 없음")
-    public void getOrderTest2(){
-        doReturn(Optional.empty())
-                .when(orderRepository)
-                .findById(any(UUID.class));
-
-        ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> orderService.getOrder(UUID.randomUUID()));
-        assertThat(e.getMessage()).isEqualTo("Order not found");
-    }
-
-    @Test
-    @DisplayName("주문 삭제 성공 테스트")
-    public void deleteOrderTest1(){
-        UUID orderId = UUID.randomUUID();
-
-        doReturn(Optional.of(order))
-                .when(orderRepository)
-                .findById(any(UUID.class));
-
-        doNothing()
-                .when(order)
-                .deleteBy(any(User.class));
-
-        orderService.deleteOrder(orderId, new User());
-    }
-
-    @Test
-    @DisplayName("주문 삭제 실패 테스트 - 주문 기록 없음")
-    public void deleteOrderTest2(){
-        UUID orderId = UUID.randomUUID();
-
-        doReturn(Optional.empty())
-                .when(orderRepository)
-                .findById(any(UUID.class));
-
-        ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> orderService.deleteOrder(orderId, new User()));
-        assertThat(e.getMessage()).isEqualTo("Order not found");
-    }
-
-    @Test
     @DisplayName("주문 취소 성공 테스트")
     public void cancelOrderTest1(){
         UUID orderId = UUID.randomUUID();
@@ -222,5 +159,211 @@ class OrderServiceTest {
         assertThat(e.getMessage()).isEqualTo("Cancel Timeout");
     }
 
+    @Test
+    @DisplayName("음식점 사장 주문상태 변경 성공 테스트 - WAIT > CANCELED")
+    public void changeOrderStatusTest(){
+        UUID orderId = UUID.randomUUID();
+
+        doReturn(Optional.of(order))
+                .when(orderRepository)
+                .findById(any(UUID.class));
+
+        doReturn(OrderStatus.WAIT)
+                .when(order)
+                .getOrderStatus();
+
+        orderService.updateOrderStatus(orderId, OrderStatus.CANCELED);
+    }
+
+    @Test
+    @DisplayName("음식점 사장 주문상태 변경 성공 테스트 - WAIT > RECEIPT")
+    public void changeOrderStatusTest2(){
+        UUID orderId = UUID.randomUUID();
+
+        doReturn(Optional.of(order))
+                .when(orderRepository)
+                .findById(any(UUID.class));
+
+        doReturn(OrderStatus.WAIT)
+                .when(order)
+                .getOrderStatus();
+
+        orderService.updateOrderStatus(orderId, OrderStatus.RECEIPT);
+    }
+
+    @Test
+    @DisplayName("음식점 사장 주문상태 변경 성공 테스트 - RECEIPT > COMPLETE")
+    public void changeOrderStatusTest3(){
+        UUID orderId = UUID.randomUUID();
+
+        doReturn(Optional.of(order))
+                .when(orderRepository)
+                .findById(any(UUID.class));
+
+        doReturn(OrderStatus.RECEIPT)
+                .when(order)
+                .getOrderStatus();
+
+        orderService.updateOrderStatus(orderId, OrderStatus.COMPLETE);
+    }
+
+    @Test
+    @DisplayName("음식점 사장 주문상태 변경 실패 테스트 - WAIT로 변경")
+    public void changeOrderStatusTest4(){
+        UUID orderId = UUID.randomUUID();
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(orderId, OrderStatus.WAIT));
+        assertThat(e.getMessage()).isEqualTo("Invalid order status");
+    }
+
+    @Test
+    @DisplayName("음식점 사장 주문상태 변경 실패 테스트 - 존재하지 않는 음식점")
+    public void changeOrderStatusTest5(){
+        UUID orderId = UUID.randomUUID();
+
+        doReturn(Optional.empty())
+                .when(orderRepository)
+                .findById(orderId);
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(orderId, OrderStatus.RECEIPT));
+        assertThat(e.getMessage()).isEqualTo("Order not found");
+    }
+
+    @Test
+    @DisplayName("음식점 사장 주문상태 변경 실패 테스트 - WAIT > COMPLETE")
+    public void changeOrderStatusTest6(){
+        UUID orderId = UUID.randomUUID();
+
+        doReturn(Optional.of(order))
+                .when(orderRepository)
+                .findById(any(UUID.class));
+
+        doReturn(OrderStatus.WAIT)
+                .when(order)
+                .getOrderStatus();
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(orderId, OrderStatus.COMPLETE));
+        assertThat(e.getMessage()).isEqualTo("Invalid order status");
+    }
+
+    @Test
+    @DisplayName("음식점 사장 주문상태 변경 실패 테스트 - CANCLED > anything")
+    public void changeOrderStatusTest7(){
+        UUID orderId = UUID.randomUUID();
+
+        doReturn(Optional.of(order))
+                .when(orderRepository)
+                .findById(any(UUID.class));
+
+        doReturn(OrderStatus.CANCELED)
+                .when(order)
+                .getOrderStatus();
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(orderId, OrderStatus.COMPLETE));
+        assertThat(e.getMessage()).isEqualTo("Invalid order status");
+    }
+
+    @Test
+    @DisplayName("음식점 사장 주문상태 변경 실패 테스트 - COMPLETE > anything")
+    public void changeOrderStatusTest9(){
+        UUID orderId = UUID.randomUUID();
+
+        doReturn(Optional.of(order))
+                .when(orderRepository)
+                .findById(any(UUID.class));
+
+        doReturn(OrderStatus.COMPLETE)
+                .when(order)
+                .getOrderStatus();
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(orderId, OrderStatus.COMPLETE));
+        assertThat(e.getMessage()).isEqualTo("Invalid order status");
+    }
+
+    @Test
+    @DisplayName("음식점 사장 주문상태 변경 실패 테스트 - RECEIPT > CANCELED")
+    public void changeOrderStatusTest10(){
+        UUID orderId = UUID.randomUUID();
+
+        doReturn(Optional.of(order))
+                .when(orderRepository)
+                .findById(any(UUID.class));
+
+        doReturn(OrderStatus.RECEIPT)
+                .when(order)
+                .getOrderStatus();
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(orderId, OrderStatus.CANCELED));
+        assertThat(e.getMessage()).isEqualTo("Invalid order status");
+    }
+
+    @Test
+    @DisplayName("주문 조회 성공 테스트")
+    public void getOrderTest1(){
+        UUID orderId = UUID.randomUUID();
+        Order order = Order.createOrder(
+                OrderType.ONLINE, OrderStatus.WAIT, new BigDecimal(10000),
+                "서울", "문앞에 놓고 노크", new Restaurant()
+        );
+
+        doReturn(Optional.of(order))
+                .when(orderRepository)
+                .findById(any(UUID.class));
+
+
+        OrderResponseDto orderResponseDto = orderService.getOrder(orderId);
+        assertEquals(order.getOrderStatus(), orderResponseDto.getOrderStatus());
+        assertEquals(order.getOrderType(), orderResponseDto.getOrderType());
+        assertEquals(order.getDeliveryAddress(), orderResponseDto.getDeliveryAddress());
+        assertEquals(order.getDeliveryDetails(), orderResponseDto.getDeliveryDetails());
+    }
+
+    @Test
+    @DisplayName("주문 조회 실패 테스트 - 주문 기록 없음")
+    public void getOrderTest2(){
+        doReturn(Optional.empty())
+                .when(orderRepository)
+                .findById(any(UUID.class));
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> orderService.getOrder(UUID.randomUUID()));
+        assertThat(e.getMessage()).isEqualTo("Order not found");
+    }
+
+    @Test
+    @DisplayName("주문 삭제 성공 테스트")
+    public void deleteOrderTest1(){
+        UUID orderId = UUID.randomUUID();
+
+        doReturn(Optional.of(order))
+                .when(orderRepository)
+                .findById(any(UUID.class));
+
+        doNothing()
+                .when(order)
+                .deleteBy(any(User.class));
+
+        orderService.deleteOrder(orderId, new User());
+    }
+
+    @Test
+    @DisplayName("주문 삭제 실패 테스트 - 주문 기록 없음")
+    public void deleteOrderTest2(){
+        UUID orderId = UUID.randomUUID();
+
+        doReturn(Optional.empty())
+                .when(orderRepository)
+                .findById(any(UUID.class));
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> orderService.deleteOrder(orderId, new User()));
+        assertThat(e.getMessage()).isEqualTo("Order not found");
+    }
 
 }
