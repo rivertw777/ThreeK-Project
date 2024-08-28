@@ -2,6 +2,7 @@ package com.ThreeK_Project.api_server.domain.restaurant.controller;
 
 
 import com.ThreeK_Project.api_server.domain.product.dto.ProductRequest;
+import com.ThreeK_Project.api_server.domain.product.dto.ProductResponse;
 import com.ThreeK_Project.api_server.domain.product.service.ProductService;
 import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantRequest;
 import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantResponse;
@@ -84,12 +85,18 @@ public class RestaurantsController {
                                                              @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
         // 가게 주인 / 상품 생성(role: OWNER 이상)
         User user = userDetailsCustom.getUser();
-        Restaurant restaurant= restaurantService.validateAndGetRestaurant(restaurantId, user);
+        Restaurant restaurant = restaurantService.validateAndGetRestaurant(restaurantId, user);
         String result = productService.createProduct(productRequest, restaurant);
         return ResponseEntity.ok().body(Map.of("message", result));
     }
 
-
+    @GetMapping("/{restaurantId}/products")
+    public ResponseEntity<List<ProductResponse>> searchProductsByRestaurantId(@PathVariable UUID restaurantId) {
+        // 가게 상품 전체 조회(role: x)
+        Restaurant restaurant = restaurantService.getRestaurant(restaurantId);
+        List<ProductResponse> productResponseList  = productService.loadProductsByRestaurantId(restaurant);
+        return ResponseEntity.ok().body(productResponseList);
+    }
 
 
 

@@ -116,4 +116,12 @@ public class RestaurantService {
         // 검증된 레스토랑 엔티티 반환
         return restaurant;
     }
+
+    public Restaurant getRestaurant(UUID restaurantId) {
+        // 레스토랑 존재 여부 확인
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new EntityNotFoundException("가게 조회 실패"));
+        // 검증된 레스토랑 엔티티 반환
+        return restaurant;
+    }
 }
