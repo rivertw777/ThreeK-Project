@@ -102,4 +102,18 @@ public class RestaurantService {
 
         return "가게 삭제 성공";
     }
+
+    public Restaurant validateAndGetRestaurant(UUID restaurantId, User user) {
+        // 레스토랑 존재 여부 확인
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new EntityNotFoundException("가게 조회 실패"));
+
+        // 권한 확인: 가게 주인인지 검증
+        if (!restaurant.getUser().equals(user)) {
+            throw new SecurityException("가게에 대한 권한이 없습니다.");
+        }
+
+        // 검증된 레스토랑 엔티티 반환
+        return restaurant;
+    }
 }
