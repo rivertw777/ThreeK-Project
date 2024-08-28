@@ -1,8 +1,5 @@
 package com.ThreeK_Project.api_server.domain.restaurant.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import com.ThreeK_Project.api_server.domain.restaurant.repository.RestaurantRepository;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
@@ -12,11 +9,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.ResponseEntity;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
 class DeleteRestaurantTest {
 
@@ -47,8 +46,10 @@ class DeleteRestaurantTest {
 
         // Then
         assertEquals("가게 삭제 성공", result);
-        verify(restaurantRepository, times(1)).deleteById(restaurantId);
+        verify(restaurantRepository, times(1)).save(restaurant); // Verifies that save was called
+        verify(restaurantRepository, never()).deleteById(any(UUID.class)); // Verifies that deleteById was not called
     }
+
 
 
 
