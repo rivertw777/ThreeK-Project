@@ -4,11 +4,13 @@ import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMes
 import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMessage.INVALID_ROLE;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.ASSIGN_ROLE_SUCCESS;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.DELETE_USER_SUCCESS;
+import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.REVOKE_ROLE_SUCCESS;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.SIGN_UP_SUCCESS;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.UPDATE_USER_INFO_SUCCESS;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.ThreeK_Project.api_server.domain.user.dto.AssignRoleRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.RevokeRoleRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.SignUpRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.UpdateUserInfoRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.UserInfoResponse;
@@ -159,8 +161,28 @@ public class UserServiceTest {
         // Then
         verify(userRepository).findByUsername(customer.getUsername());
         List<Role> roles = new ArrayList<>(Arrays.asList(Role.CUSTOMER, Role.MANAGER));
-        assertEquals(customer.getRoles(), roles);
+        assertEquals(roles, customer.getRoles());
         assertEquals(ASSIGN_ROLE_SUCCESS.getValue(), response.message());
+    }
+
+    @Test
+    @DisplayName("MASTER 권한 회수 - 성공 테스트")
+    void revokeRoleFromUser_Success() {
+        // Given
+        RevokeRoleRequest request = new RevokeRoleRequest("manager");
+        User manager = User.createUser("customer", "123456", Role.CUSTOMER,
+                "01012345678", "address");
+        manager.addRole(Role.MANAGER, user);
+        when(userRepository.findByUsername(manager.getUsername())).thenReturn(Optional.of(manager));
+
+        // When
+        SuccessResponse response = userService.revokeRoleFromUser(user, manager.getUsername(), request);
+
+        // Then
+        verify(userRepository).findByUsername(manager.getUsername());
+        List<Role> roles = new ArrayList<>(List.of(Role.CUSTOMER));
+        assertEquals(roles, manager.getRoles());
+        assertEquals(REVOKE_ROLE_SUCCESS.getValue(), response.message());
     }
 
 }
