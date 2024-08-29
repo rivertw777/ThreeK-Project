@@ -8,11 +8,12 @@ import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessa
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.SIGN_UP_SUCCESS;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.UPDATE_USER_INFO_SUCCESS;
 
-import com.ThreeK_Project.api_server.domain.user.dto.AssignRoleRequest;
-import com.ThreeK_Project.api_server.domain.user.dto.RevokeRoleRequest;
-import com.ThreeK_Project.api_server.domain.user.dto.SignUpRequest;
-import com.ThreeK_Project.api_server.domain.user.dto.UpdateUserInfoRequest;
-import com.ThreeK_Project.api_server.domain.user.dto.UserInfoResponse;
+import com.ThreeK_Project.api_server.domain.user.dto.request.AssignRoleRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.response.ManagerUserInfoResponse;
+import com.ThreeK_Project.api_server.domain.user.dto.request.RevokeRoleRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.request.SignUpRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.request.UpdateUserInfoRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.response.UserInfoResponse;
 import com.ThreeK_Project.api_server.domain.user.enums.Role;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.domain.user.repository.UserRepository;
@@ -22,6 +23,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,6 +117,7 @@ public class UserService {
     }
 
     // MASTER 권한 회수
+    @Transactional
     public SuccessResponse revokeRoleFromUser(User master, String username, RevokeRoleRequest requestParam) {
         User findUser = findUser(username);
         Role role = Role.fromValue(requestParam.role());
@@ -121,4 +125,12 @@ public class UserService {
         findUser.removeRole(role, master);
         return new SuccessResponse(REVOKE_ROLE_SUCCESS.getValue());
     }
+
+    // MANAGER 회원 조회
+    @Transactional(readOnly = true)
+    public Page<ManagerUserInfoResponse> getManagerUserInfos(Pageable pageable) {
+        Page<User> users = userRepository.findAll(pageable);
+        return users.map(user -> new ManagerUserInfoResponse(user));
+    }
+
 }
