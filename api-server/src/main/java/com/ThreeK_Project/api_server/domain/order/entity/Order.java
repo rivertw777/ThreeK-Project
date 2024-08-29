@@ -42,7 +42,7 @@ public class Order extends BaseEntity {
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
     private List<OrderProduct> orderProducts;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(mappedBy ="order", fetch = FetchType.LAZY)
     private Payment payment;
 
     public static Order createOrder(
