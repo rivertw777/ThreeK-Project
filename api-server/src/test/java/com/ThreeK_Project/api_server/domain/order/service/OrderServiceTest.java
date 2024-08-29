@@ -1,10 +1,16 @@
 package com.ThreeK_Project.api_server.domain.order.service;
 
+import com.ThreeK_Project.api_server.domain.order.dto.OrderRequestDto;
 import com.ThreeK_Project.api_server.domain.order.dto.OrderResponseDto;
+import com.ThreeK_Project.api_server.domain.order.dto.ProductRequestData;
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
+import com.ThreeK_Project.api_server.domain.order.entity.OrderProduct;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderStatus;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderType;
+import com.ThreeK_Project.api_server.domain.order.repository.OrderProductRepository;
 import com.ThreeK_Project.api_server.domain.order.repository.OrderRepository;
+import com.ThreeK_Project.api_server.domain.product.entity.Product;
+import com.ThreeK_Project.api_server.domain.product.service.ProductService;
 import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.domain.user.enums.Role;
@@ -19,14 +25,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
@@ -34,10 +41,69 @@ class OrderServiceTest {
     private OrderRepository orderRepository;
 
     @Mock
+    private OrderProductRepository orderProductRepository;
+
+    @Mock
+    private ProductService productService;
+
+    @Mock
     private Order order;
 
     @InjectMocks
     private OrderService orderService;
+
+
+    @Test
+    @DisplayName("주문 생성 성공 테스트")
+    public void createOrderTest1(){
+
+        List<ProductRequestData> products = new ArrayList<>();
+        products.add(new ProductRequestData(UUID.randomUUID(), 2, new BigDecimal(5000)));
+        OrderRequestDto requestDto = new OrderRequestDto(
+                new BigDecimal(10000), "서울시", "문앞에 두고 노크",
+                OrderType.ONLINE, UUID.randomUUID(), products
+        );
+        Restaurant restaurant = new Restaurant();
+
+        doReturn(new Order())
+                .when(orderRepository)
+                .save(any(Order.class));
+
+        doReturn(Product.createProduct("이름", 2000, "설명", restaurant))
+                .when(productService)
+                .getProductById(any(UUID.class));
+
+        doReturn(new OrderProduct())
+                .when(orderProductRepository)
+                .save(any(OrderProduct.class));
+
+        orderService.createOrder(requestDto, restaurant);
+    }
+
+    @Test
+    @DisplayName("주문 생성 실패 테스트 - 존재하지 않는 상품")
+    public void createOrderTest4(){
+
+        List<ProductRequestData> products = new ArrayList<>();
+        products.add(new ProductRequestData(UUID.randomUUID(), 2, new BigDecimal(5000)));
+        OrderRequestDto requestDto = new OrderRequestDto(
+                new BigDecimal(10000), "서울시", "문앞에 두고 노크",
+                OrderType.ONLINE, UUID.randomUUID(), products
+        );
+        Restaurant restaurant = new Restaurant();
+
+        doReturn(new Order())
+                .when(orderRepository)
+                .save(any(Order.class));
+
+        doThrow(new ApplicationException("상품을 찾을 수 없습니다."))
+                .when(productService)
+                .getProductById(any(UUID.class));
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> orderService.createOrder(requestDto, restaurant));
+        assertThat(e.getMessage()).isEqualTo("상품을 찾을 수 없습니다.");
+    }
 
     @Test
     @DisplayName("주문 취소 성공 테스트")
