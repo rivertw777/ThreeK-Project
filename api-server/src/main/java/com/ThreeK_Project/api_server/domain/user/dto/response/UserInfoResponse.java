@@ -1,4 +1,4 @@
-package com.ThreeK_Project.api_server.domain.user.dto;
+package com.ThreeK_Project.api_server.domain.user.dto.response;
 
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.domain.user.enums.Role;

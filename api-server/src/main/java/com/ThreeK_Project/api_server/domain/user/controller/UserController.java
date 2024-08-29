@@ -1,10 +1,11 @@
 package com.ThreeK_Project.api_server.domain.user.controller;
 
-import com.ThreeK_Project.api_server.domain.user.dto.AssignRoleRequest;
-import com.ThreeK_Project.api_server.domain.user.dto.RevokeRoleRequest;
-import com.ThreeK_Project.api_server.domain.user.dto.SignUpRequest;
-import com.ThreeK_Project.api_server.domain.user.dto.UpdateUserInfoRequest;
-import com.ThreeK_Project.api_server.domain.user.dto.UserInfoResponse;
+import com.ThreeK_Project.api_server.domain.user.dto.request.AssignRoleRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.response.ManagerUserInfoResponse;
+import com.ThreeK_Project.api_server.domain.user.dto.request.RevokeRoleRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.request.SignUpRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.request.UpdateUserInfoRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.response.UserInfoResponse;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.domain.user.service.UserService;
 import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
@@ -12,6 +13,8 @@ import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -81,6 +84,13 @@ public class UserController {
         User user = userDetails.getUser();
         SuccessResponse response = userService.revokeRoleFromUser(user, username, requestParam);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "MANAGER 회원 조회")
+    @GetMapping("/api/admin/users")
+    public ResponseEntity<Page<ManagerUserInfoResponse>> getManagerUserInfos(Pageable pageable) {
+        Page<ManagerUserInfoResponse> responses = userService.getManagerUserInfos(pageable);
+        return ResponseEntity.ok(responses);
     }
 
 }
