@@ -129,8 +129,8 @@ public class UserService {
     // MANAGER 회원 조회
     @Transactional(readOnly = true)
     public Page<ManagerUserInfoResponse> getManagerUserInfos(Pageable pageable) {
-        Page<User> users = userRepository.findAll(pageable);
-        return users.map(user -> new ManagerUserInfoResponse(user));
+        Page<User> userPage = userRepository.findAll(pageable);
+        return userPage.map(user -> new ManagerUserInfoResponse(user));
     }
 
 }
