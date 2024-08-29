@@ -266,5 +266,60 @@ class ProductServiceTest {
         verify(productRepository, never()).findById(any(UUID.class));
     }
 
+    @Test
+    void testDeleteProduct_Success() {
+        UUID productId = UUID.randomUUID();
+        Restaurant restaurant = mock(Restaurant.class);
+
+        // 기존 상품을 설정
+        Product existingProduct = Product.createProduct("Test Product", 1000, "Test Description", restaurant);
+        ReflectionTestUtils.setField(existingProduct, "productId", productId); // force set the productId
+
+        when(productRepository.findById(productId)).thenReturn(Optional.of(existingProduct));
+
+        String result = productService.deleteProduct(productId, restaurant, mockUser);
+
+        assertEquals("상품 삭제 성공", result);
+        verify(productRepository, times(1)).save(existingProduct); // 논리적 삭제 후 save가 호출되어야 함
+    }
+
+    @Test
+    void testDeleteProduct_NotFound() {
+        UUID productId = UUID.randomUUID();
+        Restaurant restaurant = mock(Restaurant.class);
+
+        when(productRepository.findById(productId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () ->
+                productService.deleteProduct(productId, restaurant, mockUser));
+        verify(productRepository, never()).deleteById(productId); // 삭제가 시도되지 않아야 함
+    }
+
+    @Test
+    void testDeleteProduct_RestaurantMismatch() {
+        UUID productId = UUID.randomUUID();
+        Restaurant restaurant = mock(Restaurant.class);
+        Restaurant otherRestaurant = mock(Restaurant.class); // 다른 레스토랑
+
+        // 기존 상품을 설정
+        Product existingProduct = Product.createProduct("Test Product", 1000, "Test Description", restaurant);
+        ReflectionTestUtils.setField(existingProduct, "productId", productId); // force set the productId
+
+        when(productRepository.findById(productId)).thenReturn(Optional.of(existingProduct));
+
+        assertThrows(SecurityException.class, () ->
+                productService.deleteProduct(productId, otherRestaurant, mockUser));
+        verify(productRepository, never()).deleteById(productId); // 삭제가 시도되지 않아야 함
+    }
+
+    @Test
+    void testDeleteProduct_RestaurantIsNull() {
+        UUID productId = UUID.randomUUID();
+
+        assertThrows(IllegalArgumentException.class, () ->
+                productService.deleteProduct(productId, null, mockUser));
+        verify(productRepository, never()).findById(any(UUID.class));
+    }
+
 
 }

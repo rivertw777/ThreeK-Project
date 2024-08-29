@@ -5,6 +5,7 @@ import com.ThreeK_Project.api_server.domain.product.dto.ProductResponse;
 import com.ThreeK_Project.api_server.domain.product.entity.Product;
 import com.ThreeK_Project.api_server.domain.product.repository.ProductRepository;
 import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
+import com.ThreeK_Project.api_server.domain.user.entity.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -75,4 +76,27 @@ public class ProductService {
 
         return "상품 수정 성공";
     }
+
+    @Transactional
+    public String deleteProduct(UUID productId, Restaurant restaurant, User user) {
+        if (restaurant == null) {
+            throw new IllegalArgumentException("Restaurant cannot be null");
+        }
+
+        // 상품을 데이터베이스에서 조회, 존재하지 않으면 예외 발생
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
+
+        // 상품이 속한 레스토랑이 일치하는지 확인
+        if (!product.getRestaurant().equals(restaurant)) {
+            throw new SecurityException("해당 레스토랑에 대한 권한이 없습니다.");
+        }
+
+        // 논리적 삭제(기록 후 저장)
+        product.deleteBy(user);
+        productRepository.save(product);
+
+        return "상품 삭제 성공";
+    }
+
 }
