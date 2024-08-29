@@ -7,6 +7,7 @@ import com.ThreeK_Project.api_server.domain.payment.entity.Payment;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentMethod;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentStatus;
 import com.ThreeK_Project.api_server.domain.payment.repository.PaymentRepository;
+import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.global.exception.ApplicationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -74,4 +75,29 @@ class PaymentServiceTest {
         assertThat(e.getMessage()).isEqualTo("Payment not found");
     }
 
+    @Test
+    @DisplayName("결제 정보 삭제 성공 테스트")
+    public void deletePaymentTest() {
+        UUID paymentId = UUID.randomUUID();
+
+        doReturn(Optional.of(new Payment()))
+                .when(paymentRepository)
+                .findById(paymentId);
+
+        paymentService.deletePayment(paymentId, new User());
+    }
+
+    @Test
+    @DisplayName("결제 정보 삭제 실패 테스트 - 결제 정보 없음")
+    public void deletePaymentTest2() {
+        UUID paymentId = UUID.randomUUID();
+
+        doReturn(Optional.empty())
+                .when(paymentRepository)
+                .findById(paymentId);
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> paymentService.deletePayment(paymentId, new User()));
+        assertThat(e.getMessage()).isEqualTo("Payment not found");
+    }
 }
