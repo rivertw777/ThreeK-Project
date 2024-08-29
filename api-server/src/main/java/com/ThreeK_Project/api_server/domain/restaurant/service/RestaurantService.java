@@ -109,7 +109,9 @@ public class RestaurantService {
                 .orElseThrow(() -> new EntityNotFoundException("가게 조회 실패"));
 
         // 권한 확인: 가게 주인인지 검증
-        if (!restaurant.getUser().getUsername().equals(user.getUsername())) {
+        if (!restaurant.getUser().getUsername().equals(user.getUsername())
+                || user.getRoles().equals("MANAGER")
+                || user.getRoles().equals("MASTER")) {
             throw new SecurityException("가게에 대한 권한이 없습니다.");
         }
 

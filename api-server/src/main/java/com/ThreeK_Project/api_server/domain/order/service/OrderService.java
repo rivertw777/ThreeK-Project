@@ -9,16 +9,14 @@ import com.ThreeK_Project.api_server.domain.order.enums.OrderStatus;
 import com.ThreeK_Project.api_server.domain.order.repository.OrderProductRepository;
 import com.ThreeK_Project.api_server.domain.order.repository.OrderRepository;
 import com.ThreeK_Project.api_server.domain.product.entity.Product;
-import com.ThreeK_Project.api_server.domain.product.repository.ProductRepository;
+import com.ThreeK_Project.api_server.domain.product.service.ProductService;
 import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
-import com.ThreeK_Project.api_server.domain.restaurant.repository.RestaurantRepository;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -27,9 +25,36 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderService {
 
-    private final OrderRepository orderRepository;private final OrderProductRepository orderProductRepository;
-    private final ProductRepository productRepository;
-    private final RestaurantRepository restaurantRepository;
+    private final OrderRepository orderRepository;
+    private final OrderProductRepository orderProductRepository;
+    private final ProductService productService;
+
+
+    public String createOrder(OrderRequestDto requestDto, Restaurant restaurant) {
+        Order savedOrder = saveOrder(requestDto, restaurant);
+        requestDto.getProductList()
+                .forEach(productData -> {saveOrderProduct(productData, savedOrder);});
+
+        return "주문 생성 성공";
+    }
+
+    public Order saveOrder(OrderRequestDto requestDto, Restaurant restaurant) {
+        Order order = Order.createOrder(
+                requestDto.getOrderType(), OrderStatus.WAIT, requestDto.getOrderAmount(),
+                requestDto.getDeliveryAddress(), requestDto.getRequestDetails(), restaurant
+        );
+        return orderRepository.save(order);
+    }
+
+    public OrderProduct saveOrderProduct(ProductRequestData productData, Order order) {
+        Product product = productService.getProductById(productData.getProductId());
+
+        OrderProduct orderProduct = OrderProduct.createOrderProduct(
+                productData.getQuantity(), productData.getProductAmount(), order, product
+        );
+        return orderProductRepository.save(orderProduct);
+    }
+
 
     public OrderResponseDto getOrder(UUID orderId) {
         Order order = findOrderById(orderId);

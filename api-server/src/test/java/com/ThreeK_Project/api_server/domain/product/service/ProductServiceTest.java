@@ -1,5 +1,6 @@
 package com.ThreeK_Project.api_server.domain.product.service;
 
+import com.ThreeK_Project.api_server.domain.order.dto.ProductRequestData;
 import com.ThreeK_Project.api_server.domain.product.dto.ProductRequest;
 import com.ThreeK_Project.api_server.domain.product.dto.ProductResponse;
 import com.ThreeK_Project.api_server.domain.product.entity.Product;
@@ -280,6 +281,7 @@ class ProductServiceTest {
         String result = productService.deleteProduct(productId, restaurant, mockUser);
 
         assertEquals("상품 삭제 성공", result);
+        verify(existingProduct, times(1)).deleteBy(mockUser); // 논리적 삭제가 호출되었는지 확인
         verify(productRepository, times(1)).save(existingProduct); // 논리적 삭제 후 save가 호출되어야 함
     }
 
@@ -292,7 +294,7 @@ class ProductServiceTest {
 
         assertThrows(EntityNotFoundException.class, () ->
                 productService.deleteProduct(productId, restaurant, mockUser));
-        verify(productRepository, never()).deleteById(productId); // 삭제가 시도되지 않아야 함
+        verify(productRepository, never()).save(any(Product.class)); // 논리적 삭제가 호출되지 않았는지 확인
     }
 
     @Test
@@ -309,7 +311,7 @@ class ProductServiceTest {
 
         assertThrows(SecurityException.class, () ->
                 productService.deleteProduct(productId, otherRestaurant, mockUser));
-        verify(productRepository, never()).deleteById(productId); // 삭제가 시도되지 않아야 함
+        verify(productRepository, never()).save(any(Product.class)); // 논리적 삭제가 호출되지 않았는지 확인
     }
 
     @Test
@@ -320,6 +322,60 @@ class ProductServiceTest {
                 productService.deleteProduct(productId, null, mockUser));
         verify(productRepository, never()).findById(any(UUID.class));
     }
+    @Test
+    void testGetProductsByIds_Success() {
+        UUID productId1 = UUID.randomUUID();
+        UUID productId2 = UUID.randomUUID();
 
+        Product product1 = mock(Product.class);
+        Product product2 = mock(Product.class);
+
+        when(productRepository.findAllById(Arrays.asList(productId1, productId2)))
+                .thenReturn(Arrays.asList(product1, product2));
+
+        List<ProductRequestData> productRequestDataList = Arrays.asList(
+                new ProductRequestData(productId1, 1, null),
+                new ProductRequestData(productId2, 1, null)
+        );
+
+        List<Product> products = productService.getProductsByIds(productRequestDataList);
+
+        assertNotNull(products);
+        assertEquals(2, products.size());
+        verify(productRepository, times(1)).findAllById(Arrays.asList(productId1, productId2));
+    }
+
+    @Test
+    void testGetProductsByIds_PartialNotFound() {
+        UUID productId1 = UUID.randomUUID();
+        UUID productId2 = UUID.randomUUID();
+
+        Product product1 = mock(Product.class);
+
+        when(productRepository.findAllById(Arrays.asList(productId1, productId2)))
+                .thenReturn(Arrays.asList(product1));  // productId2가 누락됨
+
+        List<ProductRequestData> productRequestDataList = Arrays.asList(
+                new ProductRequestData(productId1, 1, null),
+                new ProductRequestData(productId2, 1, null)
+        );
+
+        assertThrows(EntityNotFoundException.class, () ->
+                productService.getProductsByIds(productRequestDataList)
+        );
+
+        verify(productRepository, times(1)).findAllById(Arrays.asList(productId1, productId2));
+    }
+
+    @Test
+    void testGetProductsByIds_EmptyList() {
+        List<ProductRequestData> productRequestDataList = Arrays.asList();
+
+        List<Product> products = productService.getProductsByIds(productRequestDataList);
+
+        assertNotNull(products);
+        assertTrue(products.isEmpty());
+        verify(productRepository, times(1)).findAllById(Arrays.asList());
+    }
 
 }

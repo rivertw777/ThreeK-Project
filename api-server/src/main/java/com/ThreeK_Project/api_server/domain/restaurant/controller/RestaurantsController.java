@@ -1,8 +1,11 @@
 package com.ThreeK_Project.api_server.domain.restaurant.controller;
 
 
+import com.ThreeK_Project.api_server.domain.order.dto.OrderRequestDto;
+import com.ThreeK_Project.api_server.domain.order.service.OrderService;
 import com.ThreeK_Project.api_server.domain.product.dto.ProductRequest;
 import com.ThreeK_Project.api_server.domain.product.dto.ProductResponse;
+import com.ThreeK_Project.api_server.domain.product.entity.Product;
 import com.ThreeK_Project.api_server.domain.product.service.ProductService;
 import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantRequest;
 import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantResponse;
@@ -29,6 +32,7 @@ public class RestaurantsController {
     private final RestaurantService restaurantService;
     private final RestaurantRepository restaurantRepository;
     private final ProductService productService;
+    private final OrderService orderService;
 
     /*
         location과 category를 DB에 미리 추가 해주어야 함
@@ -121,21 +125,29 @@ public class RestaurantsController {
         return ResponseEntity.ok().body(Map.of("message", result));
     }
 
+    // Order 관련 컨트롤러
+    @Operation(summary = "사용자 / 주문 생성")
+    @PostMapping("/{restaurantId}/orders")
+    public ResponseEntity<Map<String, String>> createOrder(@PathVariable UUID restaurantId,
+                                                           @RequestBody OrderRequestDto orderRequestDto) {
+        Restaurant restaurant = restaurantService.getRestaurant(restaurantId);
+        List<Product> products = productService.getProductsByIds(orderRequestDto.getProductList());
+        String result = orderService.createOrder(orderRequestDto, restaurant);
 
+        return ResponseEntity.ok().body(Map.of("message", result));
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+/*
+    @Operation(summary = "가게 주인 / 주문 전체 조회")
+    @GetMapping("/{restaurantId}/orders}")
+    public ResponseEntity<List<OrderResponseDto>> readAllByRestaurantOrders(@PathVariable UUID restaurantId,
+                                                          @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
+        User user = userDetailsCustom.getUser();
+        Restaurant restaurant = restaurantService.validateAndGetRestaurant(restaurantId, user);
+        List<OrderResponseDto> resultList = orderService.readAllByRestaurantOrders(restaurant, user);
+        return ResponseEntity.ok().body(resultList);
+    }
+*/
 
 
 
