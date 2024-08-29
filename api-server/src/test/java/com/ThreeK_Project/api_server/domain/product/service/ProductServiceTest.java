@@ -273,7 +273,7 @@ class ProductServiceTest {
         Restaurant restaurant = mock(Restaurant.class);
 
         // 기존 상품을 설정
-        Product existingProduct = Product.createProduct("Test Product", 1000, "Test Description", restaurant);
+        Product existingProduct = spy(Product.createProduct("Test Product", 1000, "Test Description", restaurant));
         ReflectionTestUtils.setField(existingProduct, "productId", productId); // force set the productId
 
         when(productRepository.findById(productId)).thenReturn(Optional.of(existingProduct));
