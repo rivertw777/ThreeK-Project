@@ -47,13 +47,15 @@ public class User extends UserAuditEntity {
 
     @NotNull
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "p_user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @CollectionTable(name = "p_user_roles", joinColumns = @JoinColumn(name = "username"))
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private List<Role> roles = new ArrayList<>();
 
-    public static User createUser(String username, String encodedPassword, List<Role> roles, String phoneNumber,
+    public static User createUser(String username, String encodedPassword, Role role, String phoneNumber,
                                   String address) {
+        List<Role> roles = new ArrayList<>();
+        roles.add(role);
         User user =  User.builder()
                 .username(username)
                 .password(encodedPassword)
@@ -65,21 +67,21 @@ public class User extends UserAuditEntity {
         return user;
     }
 
-    public static User updateUser(String username, String encodedPassword, List<Role> roles, String phoneNumber,
-                                  String address, LocalDateTime originalCreatedAt) {
+    public static User updateUser(String username, String encodedPassword, List<Role> originalRoles, String phoneNumber, String address, LocalDateTime originalCreatedAt) {
         User user =  User.builder()
                 .username(username)
                 .password(encodedPassword)
-                .roles(roles)
                 .phoneNumber(phoneNumber)
                 .address(address)
+                .roles(originalRoles)
                 .build();
-        user.updateUserAuditData(user, originalCreatedAt);
+        user.initUserAuditData(user);
+        user.setOriginalCreatedAt(originalCreatedAt);
         return user;
     }
 
     public void deleteUser(User user) {
-        user.deleteUserAuditData(user);
+        this.deleteUserAuditData(user);
     }
 
     public void setUsername(String username) {
@@ -96,6 +98,20 @@ public class User extends UserAuditEntity {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public void addRole(Role role, User master) {
+        if (!this.roles.contains(role)) {
+            this.roles.add(role);
+            this.updateUserAuditData(master);
+        }
+    }
+
+    public void removeRole(Role role, User master) {
+        if (this.roles.contains(role)) {
+            this.roles.remove(role);
+            this.updateUserAuditData(master);
+        }
     }
 
 }

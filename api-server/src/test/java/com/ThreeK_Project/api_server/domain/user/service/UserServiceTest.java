@@ -2,12 +2,15 @@ package com.ThreeK_Project.api_server.domain.user.service;
 
 import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMessage.DUPLICATE_NAME;
 import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMessage.INVALID_ROLE;
-import static com.ThreeK_Project.api_server.domain.user.message.UserExceptionMessage.USER_REGISTRATION_RESTRICTION;
+import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.ASSIGN_ROLE_SUCCESS;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.DELETE_USER_SUCCESS;
+import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.REVOKE_ROLE_SUCCESS;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.SIGN_UP_SUCCESS;
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.UPDATE_USER_INFO_SUCCESS;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.ThreeK_Project.api_server.domain.user.dto.AssignRoleRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.RevokeRoleRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.SignUpRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.UpdateUserInfoRequest;
 import com.ThreeK_Project.api_server.domain.user.dto.UserInfoResponse;
@@ -16,6 +19,8 @@ import com.ThreeK_Project.api_server.domain.user.enums.Role;
 import com.ThreeK_Project.api_server.domain.user.repository.UserRepository;
 import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
 import com.ThreeK_Project.api_server.global.exception.ApplicationException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -52,12 +57,12 @@ public class UserServiceTest {
     void setUp() {
         signUpRequest = new SignUpRequest("username", "123456", "customer",
                 "01012345678", "address");
-        user = User.createUser("username", "123456", Collections.singletonList(Role.CUSTOMER),
+        user = User.createUser("username", "123456", Role.CUSTOMER,
                 "01012345678", "address");
     }
 
     @Test
-    @DisplayName("회원가입 - 성공 테스트")
+    @DisplayName("회원 가입 - 성공 테스트")
     void signUp_Success() {
         // When
         SuccessResponse response = userService.signUp(signUpRequest);
@@ -95,25 +100,8 @@ public class UserServiceTest {
     }
 
     @Test
-    @DisplayName("회원 가입 - 허용되지 않은 권한 테스트")
-    void signUp_UnauthorizedRole_ThrowsException() {
-        // Given
-        SignUpRequest testRequest = new SignUpRequest("username", "123456", "manager",
-                "01012345678", "address");
-
-        // When & Then
-        ApplicationException exception = assertThrows(ApplicationException.class,
-                () -> userService.signUp(testRequest));
-        assertEquals(USER_REGISTRATION_RESTRICTION.getValue(), exception.getMessage());
-    }
-
-    @Test
     @DisplayName("회원 정보 조회 - 성공 테스트")
     void getUserInfo_Success() {
-        // Given
-        User user = User.createUser("username", "123456", Collections.singletonList(Role.CUSTOMER),
-                "01012345678", "address");
-
         // When
         UserInfoResponse response = userService.getUserInfo(user);
 
@@ -155,8 +143,46 @@ public class UserServiceTest {
 
         // Then
         verify(userRepository).findByUsername(user.getUsername());
-        assertNotNull(user.getDeletedAt());
         assertEquals(DELETE_USER_SUCCESS.getValue(), response.message());
+    }
+
+    @Test
+    @DisplayName("MASTER 권한 부여 - 성공 테스트")
+    void assignRoleToUser_Success() {
+        // Given
+        AssignRoleRequest request = new AssignRoleRequest("manager");
+        User customer = User.createUser("customer", "123456", Role.CUSTOMER,
+                "01012345678", "address");
+        when(userRepository.findByUsername(customer.getUsername())).thenReturn(Optional.of(customer));
+
+        // When
+        SuccessResponse response = userService.assignRoleToUser(user, customer.getUsername(), request);
+
+        // Then
+        verify(userRepository).findByUsername(customer.getUsername());
+        List<Role> roles = new ArrayList<>(Arrays.asList(Role.CUSTOMER, Role.MANAGER));
+        assertEquals(roles, customer.getRoles());
+        assertEquals(ASSIGN_ROLE_SUCCESS.getValue(), response.message());
+    }
+
+    @Test
+    @DisplayName("MASTER 권한 회수 - 성공 테스트")
+    void revokeRoleFromUser_Success() {
+        // Given
+        RevokeRoleRequest request = new RevokeRoleRequest("manager");
+        User manager = User.createUser("customer", "123456", Role.CUSTOMER,
+                "01012345678", "address");
+        manager.addRole(Role.MANAGER, user);
+        when(userRepository.findByUsername(manager.getUsername())).thenReturn(Optional.of(manager));
+
+        // When
+        SuccessResponse response = userService.revokeRoleFromUser(user, manager.getUsername(), request);
+
+        // Then
+        verify(userRepository).findByUsername(manager.getUsername());
+        List<Role> roles = new ArrayList<>(List.of(Role.CUSTOMER));
+        assertEquals(roles, manager.getRoles());
+        assertEquals(REVOKE_ROLE_SUCCESS.getValue(), response.message());
     }
 
 }
