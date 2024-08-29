@@ -1,6 +1,7 @@
 package com.ThreeK_Project.api_server.domain.payment.entity;
 
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
+import com.ThreeK_Project.api_server.domain.payment.dto.UpdatePaymentDto;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentMethod;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentStatus;
 import com.ThreeK_Project.api_server.domain.payment.enums.converter.PaymentMethodConverter;
@@ -41,5 +42,11 @@ public class Payment extends BaseEntity {
                 .paymentAmount(paymentAmount)
                 .order(order)
                 .build();
+    }
+
+    public void updatePayment(UpdatePaymentDto requestDto) {
+        this.paymentMethod = requestDto.getPaymentMethod();
+        this.paymentStatus = requestDto.getPaymentStatus();
+        this.paymentAmount = requestDto.getAmount();
     }
 }
