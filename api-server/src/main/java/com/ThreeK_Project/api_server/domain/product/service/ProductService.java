@@ -1,5 +1,6 @@
 package com.ThreeK_Project.api_server.domain.product.service;
 
+import com.ThreeK_Project.api_server.domain.order.dto.ProductRequestData;
 import com.ThreeK_Project.api_server.domain.product.dto.ProductRequest;
 import com.ThreeK_Project.api_server.domain.product.dto.ProductResponse;
 import com.ThreeK_Project.api_server.domain.product.entity.Product;
@@ -99,4 +100,24 @@ public class ProductService {
         return "상품 삭제 성공";
     }
 
+    public List<Product> getProductsByIds(List<ProductRequestData> productRequestDataList) {
+        List<UUID> productIds = productRequestDataList.stream()
+                .map(ProductRequestData::getProductId)
+                .collect(Collectors.toList());
+
+        List<Product> products = productRepository.findAllById(productIds);
+
+        if (products.size() != productIds.size()) {
+            throw new EntityNotFoundException("상품을 찾을 수 없습니다.");
+        }
+        return products;
+    }
+
+    public Product getProductById(UUID productId) {
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
+
+        return product;
+    }
 }
