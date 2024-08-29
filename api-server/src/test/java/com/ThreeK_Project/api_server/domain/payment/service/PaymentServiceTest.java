@@ -3,6 +3,7 @@ package com.ThreeK_Project.api_server.domain.payment.service;
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
 import com.ThreeK_Project.api_server.domain.payment.dto.PaymentRequestDto;
 import com.ThreeK_Project.api_server.domain.payment.dto.PaymentResponseDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.UpdatePaymentDto;
 import com.ThreeK_Project.api_server.domain.payment.entity.Payment;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentMethod;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentStatus;
@@ -42,6 +43,39 @@ class PaymentServiceTest {
                 PaymentMethod.CARD, new BigDecimal(10000));
 
         paymentService.createPayment(order, requestDto);
+    }
+
+    @Test
+    @DisplayName("결제 정보 수정 성공 테스트")
+    public void updatePaymentTest() {
+        UUID paymentId = UUID.randomUUID();
+        Payment payment = new Payment();
+        UpdatePaymentDto updatePaymentDto = new UpdatePaymentDto(
+                PaymentMethod.CARD, PaymentStatus.FAIL, new BigDecimal(10000)
+        );
+
+        doReturn(Optional.of(payment))
+                .when(paymentRepository)
+                .findById(paymentId);
+
+        paymentService.updatePayment(paymentId, updatePaymentDto);
+    }
+
+    @Test
+    @DisplayName("결제 정보 수정 실패 테스트 - 결제 정보 없음")
+    public void updatePaymentTest2() {
+        UUID paymentId = UUID.randomUUID();
+        UpdatePaymentDto updatePaymentDto = new UpdatePaymentDto(
+                PaymentMethod.CARD, PaymentStatus.FAIL, new BigDecimal(10000)
+        );
+
+        doReturn(Optional.empty())
+                .when(paymentRepository)
+                .findById(paymentId);
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> paymentService.updatePayment(paymentId, updatePaymentDto));
+        assertThat(e.getMessage()).isEqualTo("Payment not found");
     }
 
     @Test

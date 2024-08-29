@@ -1,6 +1,7 @@
 package com.ThreeK_Project.api_server.domain.payment.controller;
 
 import com.ThreeK_Project.api_server.domain.payment.dto.PaymentResponseDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.UpdatePaymentDto;
 import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
 import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
@@ -17,6 +18,12 @@ import java.util.UUID;
 public class PaymentController {
 
     private final PaymentService paymentService;
+
+    @PutMapping("/{paymentId}")
+    public ResponseEntity<SuccessResponse> updatePayment(@PathVariable UUID paymentId, @RequestBody UpdatePaymentDto requestDto) {
+        paymentService.updatePayment(paymentId, requestDto);
+        return ResponseEntity.ok(new SuccessResponse("결제 정보 수정 성공"));
+    }
 
     @GetMapping("/{paymentId}")
     public ResponseEntity<PaymentResponseDto> getPayment(@PathVariable("paymentId") UUID paymentId) {

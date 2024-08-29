@@ -3,6 +3,7 @@ package com.ThreeK_Project.api_server.domain.payment.controller;
 import com.ThreeK_Project.api_server.customMockUser.WithCustomMockUser;
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
 import com.ThreeK_Project.api_server.domain.payment.dto.PaymentResponseDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.UpdatePaymentDto;
 import com.ThreeK_Project.api_server.domain.payment.entity.Payment;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentMethod;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentStatus;
@@ -15,9 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -27,8 +27,7 @@ import java.util.UUID;
 
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,7 +47,27 @@ class PaymentControllerTest {
     }
 
     @Test
-    @DisplayName("결제 정보 조회 테스트")
+    @DisplayName("결제 정보 수정 성공 테스트")
+    public void updatePaymentTest() throws Exception {
+        UUID paymentId = UUID.randomUUID();
+        UpdatePaymentDto updatePaymentDto = new UpdatePaymentDto(
+                PaymentMethod.CARD, PaymentStatus.FAIL, new BigDecimal(10000)
+        );
+        String content = updatePaymentDto.toString();
+
+        doNothing()
+                .when(paymentService)
+                .updatePayment(paymentId, updatePaymentDto);
+
+        mockMvc.perform(put("api/payments/" + paymentId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("message").value("결제 정보 수정 성공"));
+    }
+
+    @Test
+    @DisplayName("결제 정보 조회 성공 테스트")
     public void getPaymentTest() throws Exception {
         UUID paymentId = UUID.randomUUID();
         Payment payment = Payment.createPayment(
@@ -67,7 +86,7 @@ class PaymentControllerTest {
     }
 
     @Test
-    @DisplayName("결제 정보 삭제 테스트")
+    @DisplayName("결제 정보 삭제 성공 테스트")
     @WithCustomMockUser
     public void deletePaymentTest() throws Exception {
         UUID paymentId = UUID.randomUUID();
