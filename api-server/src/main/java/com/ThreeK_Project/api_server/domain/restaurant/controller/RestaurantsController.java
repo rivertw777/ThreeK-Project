@@ -110,7 +110,16 @@ public class RestaurantsController {
         return ResponseEntity.ok().body(Map.of("message", result));
     }
 
-
+    @Operation(summary = "가게 주인 / 상품 단일 삭제")
+    @DeleteMapping("/{restaurantId}/products/{productId}")
+    public ResponseEntity<Map<String, String>> deleteProduct(@PathVariable UUID restaurantId,
+                                                             @PathVariable UUID productId,
+                                                             @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
+        User user = userDetailsCustom.getUser();
+        Restaurant restaurant = restaurantService.validateAndGetRestaurant(restaurantId, user);
+        String result = productService.deleteProduct(productId, restaurant, user);
+        return ResponseEntity.ok().body(Map.of("message", result));
+    }
 
 
 
