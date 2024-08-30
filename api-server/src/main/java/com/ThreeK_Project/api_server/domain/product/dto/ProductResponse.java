@@ -13,14 +13,14 @@ import java.util.UUID;
 public class ProductResponse {
     private UUID productId;
     private String name;
-    private String price;
+    private Integer price;
     private String description;
     private UUID restaurantId;
 
     public ProductResponse(Product product) {
         this.productId = product.getProductId();
         this.name = product.getName();
-        this.price = product.getPrice().toString();
+        this.price = product.getPrice();
         this.description = product.getDescription();
         this.restaurantId = product.getRestaurant().getRestaurantId();
     }
