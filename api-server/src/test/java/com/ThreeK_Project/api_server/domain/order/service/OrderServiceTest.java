@@ -382,7 +382,7 @@ class OrderServiceTest {
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
-                .findById(any(UUID.class));
+                .findByIdWithProductsAndPayment(orderId);
 
 
         OrderResponseDto orderResponseDto = orderService.getOrder(orderId);
@@ -397,7 +397,7 @@ class OrderServiceTest {
     public void getOrderTest2(){
         doReturn(Optional.empty())
                 .when(orderRepository)
-                .findById(any(UUID.class));
+                .findByIdWithProductsAndPayment(any(UUID.class));
 
         ApplicationException e = Assertions.
                 assertThrows(ApplicationException.class, () -> orderService.getOrder(UUID.randomUUID()));
@@ -405,8 +405,8 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("주문 검색 성공 테스트")
-    public void searchOrdersTest(){
+    @DisplayName("사용자 주문 검색 성공 테스트")
+    public void searchUserOrdersTest(){
         String username = "test";
         OrderSearchDTO orderSearchDTO = new OrderSearchDTO();
         orderSearchDTO.setUsername(username);
@@ -423,14 +423,26 @@ class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("주문 검색 실패 테스트 - 다른 사용자 정보 조회")
-    public void searchOrdersTest2(){
+    @DisplayName("사용자 주문 검색 실패 테스트 - 다른 사용자 정보 조회")
+    public void searchUserOrdersTest2(){
         String username = "test1";
         OrderSearchDTO orderSearchDTO = new OrderSearchDTO();
         orderSearchDTO.setUsername("test2");
 
         ApplicationException e = Assertions.
                 assertThrows(ApplicationException.class, () -> orderService.searchUserOrders(username, orderSearchDTO));
+        assertThat(e.getMessage()).isEqualTo("Invalid user");
+    }
+
+    @Test
+    @DisplayName("가게 주인 주문 검색 실패 테스트 - 다른 사용자 정보 조회")
+    public void searchRestaurantOrdersTest2(){
+        String restaurantName = "restaurant1";
+        OrderSearchDTO orderSearchDTO = new OrderSearchDTO();
+        orderSearchDTO.setUsername("restaurant2");
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> orderService.searchUserOrders(restaurantName, orderSearchDTO));
         assertThat(e.getMessage()).isEqualTo("Invalid user");
     }
 

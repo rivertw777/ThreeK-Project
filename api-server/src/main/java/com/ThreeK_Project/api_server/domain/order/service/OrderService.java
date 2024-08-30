@@ -99,6 +99,16 @@ public class OrderService {
         return searchOrders(searchDTO);
     }
 
+    // 가게 주인 주문 검색
+    public Page<OrderResponseDto> searchRestaurantOrders(String restaurantName, OrderSearchDTO searchDTO) {
+        if(searchDTO.getRestaurantName() == null)
+            searchDTO.setRestaurantName(restaurantName);
+        else if(!searchDTO.getRestaurantName().equals(restaurantName))
+            throw new ApplicationException("Invalid restaurant");
+
+        return searchOrders(searchDTO);
+    }
+
     // 주문 검색
     public Page<OrderResponseDto> searchOrders(OrderSearchDTO searchDTO) {
         Sort sort = searchDTO.getAscending() ? Sort.by(Sort.Direction.DESC, "createdAt"). ascending()
