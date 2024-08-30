@@ -5,7 +5,6 @@ import com.ThreeK_Project.api_server.domain.order.dto.OrderRequestDto;
 import com.ThreeK_Project.api_server.domain.order.service.OrderService;
 import com.ThreeK_Project.api_server.domain.product.dto.ProductRequest;
 import com.ThreeK_Project.api_server.domain.product.dto.ProductResponse;
-import com.ThreeK_Project.api_server.domain.product.entity.Product;
 import com.ThreeK_Project.api_server.domain.product.service.ProductService;
 import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantRequest;
 import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantResponse;
@@ -15,14 +14,10 @@ import com.ThreeK_Project.api_server.domain.restaurant.service.RestaurantService
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -138,12 +133,12 @@ public class RestaurantsController {
     public ResponseEntity<Map<String, String>> createOrder(@PathVariable UUID restaurantId,
                                                            @RequestBody OrderRequestDto orderRequestDto) {
         Restaurant restaurant = restaurantService.getRestaurant(restaurantId);
-        List<Product> products = productService.getProductsByIds(orderRequestDto.getProductList());
         String result = orderService.createOrder(orderRequestDto, restaurant);
 
         return ResponseEntity.ok().body(Map.of("message", result));
     }
 
+    @Operation(summary = "가게 검색")
     @GetMapping("/search")
     public Page<RestaurantResponse> searchRestaurants(
             @RequestParam(required = false) String name,
