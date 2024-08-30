@@ -42,14 +42,15 @@ public class Order extends BaseEntity {
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
     private List<OrderProduct> orderProducts;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @Setter
+    @OneToOne(mappedBy ="order", fetch = FetchType.LAZY)
     private Payment payment;
 
     public static Order createOrder(
             OrderType orderType, OrderStatus orderStatus, BigDecimal orderAmount, String deliveryAddress,
             String deliveryDetails, Restaurant restaurant
     ) {
-        return Order.builder()
+        Order order =  Order.builder()
                 .orderType(orderType)
                 .orderStatus(orderStatus)
                 .orderAmount(orderAmount)
@@ -58,6 +59,14 @@ public class Order extends BaseEntity {
                 .restaurant(restaurant)
                 .orderProducts(new ArrayList<>())
                 .build();
+
+        // restaurant에 order 넣어야됨
+
+        return order;
+    }
+
+    public void addOrderProduct(OrderProduct orderProduct) {
+        orderProducts.add(orderProduct);
     }
 
     public void changeStatus(OrderStatus orderStatus) {

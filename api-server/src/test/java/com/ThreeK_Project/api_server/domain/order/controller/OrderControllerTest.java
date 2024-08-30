@@ -1,15 +1,20 @@
 package com.ThreeK_Project.api_server.domain.order.controller;
 
 import com.ThreeK_Project.api_server.customMockUser.WithCustomMockUser;
-import com.ThreeK_Project.api_server.domain.order.dto.OrderResponseDto;
-import com.ThreeK_Project.api_server.domain.order.dto.OrderStatusRequestDto;
-import com.ThreeK_Project.api_server.domain.order.dto.ProductResponseData;
+import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.OrderResponseDto;
+import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.ProductResponseData;
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
+import com.ThreeK_Project.api_server.domain.order.entity.OrderProduct;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderStatus;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderType;
 import com.ThreeK_Project.api_server.domain.order.service.OrderService;
 import com.ThreeK_Project.api_server.domain.payment.dto.PaymentRequestDto;
+import com.ThreeK_Project.api_server.domain.payment.entity.Payment;
+import com.ThreeK_Project.api_server.domain.payment.enums.PaymentMethod;
+import com.ThreeK_Project.api_server.domain.payment.enums.PaymentStatus;
 import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
+import com.ThreeK_Project.api_server.domain.product.entity.Product;
+import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,21 +95,33 @@ class OrderControllerTest {
     @DisplayName("주문 조회 성공 태스트")
     public void getOrder() throws Exception {
         UUID orderId = UUID.randomUUID();
-        List<ProductResponseData> products = new ArrayList<>();
-        products.add(new ProductResponseData(UUID.randomUUID(), "product", 2, new BigDecimal(5000)));
-        OrderResponseDto responseDto = new OrderResponseDto(
-                orderId, OrderStatus.WAIT, OrderType.ONLINE, new BigDecimal(10000),
-                "서울시", "문앞에 두고 노크",  products
+        Restaurant restaurant = new Restaurant();
+        Order order = Order.createOrder(
+                OrderType.ONLINE, OrderStatus.WAIT, new BigDecimal(10000),
+                "서울", "문앞에 놓고 노크", restaurant
         );
+        Product product = Product.createProduct(
+            "햄버거", 5000, "햄버거 단품", restaurant
+        );
+        OrderProduct orderProduct = OrderProduct.createOrderProduct(
+            2, new BigDecimal(10000), order, product
+        );
+        Payment payment = Payment.createPayment(
+            PaymentMethod.CARD, PaymentStatus.SUCCESS, new BigDecimal(10000), order
+        );
+        OrderResponseDto responseDto = new OrderResponseDto(order);
 
-        doReturn(responseDto).when(orderService).getOrder(orderId);
+        doReturn(responseDto)
+                .when(orderService)
+                .getOrder(orderId);
 
         mockMvc.perform(get("/api/orders/" + orderId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("orderId").value(orderId.toString()))
                 .andExpect(jsonPath("orderStatus").value(OrderStatus.WAIT.toString()))
                 .andExpect(jsonPath("orderType").value(OrderType.ONLINE.toString()))
-                .andExpect(jsonPath("deliveryAddress").value("서울시"));
+                .andExpect(jsonPath("deliveryAddress").value("서울"))
+                .andExpect(jsonPath("orderPayment.paymentStatus").value("SUCCESS"))
+                .andExpect(jsonPath("orderedProducts[0].productName").value("햄버거"));
     }
 
     @Test

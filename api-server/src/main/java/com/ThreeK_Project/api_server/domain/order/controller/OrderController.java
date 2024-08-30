@@ -1,8 +1,7 @@
 package com.ThreeK_Project.api_server.domain.order.controller;
 
-import com.ThreeK_Project.api_server.domain.order.dto.OrderRequestDto;
-import com.ThreeK_Project.api_server.domain.order.dto.OrderResponseDto;
-import com.ThreeK_Project.api_server.domain.order.dto.OrderStatusRequestDto;
+import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.OrderResponseDto;
+import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderStatusRequestDto;
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
 import com.ThreeK_Project.api_server.domain.order.service.OrderService;
 import com.ThreeK_Project.api_server.domain.payment.dto.PaymentRequestDto;
@@ -25,7 +24,7 @@ public class OrderController {
     private final PaymentService paymentService;
 
     @PatchMapping("/{orderId}/cancel")
-    public ResponseEntity<SuccessResponse> cancelOrder(@PathVariable UUID orderId) {
+    public ResponseEntity<SuccessResponse> cancelOrder(@PathVariable("orderId") UUID orderId) {
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         orderService.cancelOrder(orderId, userDetails.getUser().getUsername());
         return ResponseEntity.ok(new SuccessResponse("주문 취소 성공"));
@@ -33,7 +32,7 @@ public class OrderController {
 
     @PatchMapping("/{orderId}/status")
     public ResponseEntity<SuccessResponse> updateOrderStatus(
-            @PathVariable UUID orderId,
+            @PathVariable("orderId") UUID orderId,
             @RequestBody OrderStatusRequestDto requestDto
     ) {
         orderService.updateOrderStatus(orderId, requestDto.getOrderStatus());
@@ -41,12 +40,12 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<OrderResponseDto> getOrder(@PathVariable UUID orderId) {
+    public ResponseEntity<OrderResponseDto> getOrder(@PathVariable("orderId") UUID orderId) {
         return ResponseEntity.ok(orderService.getOrder(orderId));
     }
 
     @DeleteMapping("/{orderId}")
-    public ResponseEntity<SuccessResponse> deleteOrder(@PathVariable UUID orderId) {
+    public ResponseEntity<SuccessResponse> deleteOrder(@PathVariable("orderId") UUID orderId) {
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         orderService.deleteOrder(orderId, userDetails.getUser());
         return ResponseEntity.ok(new SuccessResponse("주문 삭제 성공"));
@@ -54,7 +53,7 @@ public class OrderController {
 
     @PostMapping("{orderId}/payments")
     public ResponseEntity<SuccessResponse> createPayment(
-            @PathVariable UUID orderId, @RequestBody PaymentRequestDto requestDto
+            @PathVariable("orderId") UUID orderId, @RequestBody PaymentRequestDto requestDto
     ) {
         Order order = orderService.findOrderById(orderId);
         paymentService.createPayment(order, requestDto);
