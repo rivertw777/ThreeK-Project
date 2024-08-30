@@ -1,7 +1,7 @@
 package com.ThreeK_Project.api_server.domain.order.controller;
 
-import com.ThreeK_Project.api_server.domain.order.dto.OrderResponseDto;
-import com.ThreeK_Project.api_server.domain.order.dto.OrderStatusRequestDto;
+import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.OrderResponseDto;
+import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderStatusRequestDto;
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
 import com.ThreeK_Project.api_server.domain.order.service.OrderService;
 import com.ThreeK_Project.api_server.domain.payment.dto.PaymentRequestDto;

@@ -1,8 +1,8 @@
 package com.ThreeK_Project.api_server.domain.order.service;
 
-import com.ThreeK_Project.api_server.domain.order.dto.OrderRequestDto;
-import com.ThreeK_Project.api_server.domain.order.dto.OrderResponseDto;
-import com.ThreeK_Project.api_server.domain.order.dto.ProductRequestData;
+import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderRequestDto;
+import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.OrderResponseDto;
+import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.ProductRequestData;
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
 import com.ThreeK_Project.api_server.domain.order.entity.OrderProduct;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderStatus;

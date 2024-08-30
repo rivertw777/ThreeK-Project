@@ -1,4 +1,4 @@
-package com.ThreeK_Project.api_server.domain.order.dto;
+package com.ThreeK_Project.api_server.domain.order.dto.RequestDto;
 
 import com.ThreeK_Project.api_server.domain.order.enums.OrderType;
 import lombok.AllArgsConstructor;

@@ -34,11 +34,15 @@ public class OrderProduct extends BaseEntity {
     public static OrderProduct createOrderProduct(
             Integer quantity, BigDecimal totalPrice, Order order, Product product
     ) {
-        return OrderProduct.builder()
+        OrderProduct orderProduct =  OrderProduct.builder()
                 .quantity(quantity)
                 .totalPrice(totalPrice)
                 .order(order)
                 .product(product)
                 .build();
+
+        order.addOrderProduct(orderProduct);
+
+        return orderProduct;
     }
 }
