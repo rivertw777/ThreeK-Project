@@ -15,7 +15,14 @@ import com.ThreeK_Project.api_server.domain.restaurant.service.RestaurantService
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -136,6 +143,23 @@ public class RestaurantsController {
 
         return ResponseEntity.ok().body(Map.of("message", result));
     }
+
+    @GetMapping("/search")
+    public Page<RestaurantResponse> searchRestaurants(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String address,
+            @RequestParam(required = false) String phoneNumber,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) Integer locationId,
+            @RequestParam(required = false) Integer categoryId,
+            @PageableDefault(size = 10)
+            Pageable pageable) {
+
+        return restaurantService.searchRestaurants(name, address, phoneNumber, description, username, locationId, categoryId, pageable);
+    }
+
+
 
 /*
     @Operation(summary = "가게 주인 / 주문 전체 조회")

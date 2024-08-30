@@ -3,6 +3,8 @@ package com.ThreeK_Project.api_server.domain.restaurant.entity;
 import com.ThreeK_Project.api_server.domain.product.entity.Product;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.global.audit.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,6 +17,7 @@ import java.util.UUID;
 @Builder(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "p_restaurants")
+@JsonIgnoreProperties({"user", "location", "category"})
 public class Restaurant extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
