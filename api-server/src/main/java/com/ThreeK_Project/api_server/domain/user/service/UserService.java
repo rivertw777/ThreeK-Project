@@ -89,7 +89,6 @@ public class UserService {
     private void updateUser(User user, UpdateUserInfoRequest requestParam, String encodedPassword) {
         List<Role> originalRoles = user.getRoles();
         LocalDateTime originalCreatedAt = user.getCreatedAt();
-        System.out.println(originalCreatedAt);
 
         userRepository.delete(user);
         User newUser = User.updateUser(requestParam.username(), encodedPassword, originalRoles, requestParam.phoneNumber(),

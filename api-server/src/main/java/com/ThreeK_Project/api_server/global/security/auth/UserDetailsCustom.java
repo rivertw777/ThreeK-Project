@@ -2,6 +2,7 @@ package com.ThreeK_Project.api_server.global.security.auth;
 
 import com.ThreeK_Project.api_server.domain.user.enums.Role;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,7 +11,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 
-public class UserDetailsCustom implements UserDetails {
+public class UserDetailsCustom implements UserDetails, Serializable {
 
     private final User user;
 
