@@ -17,7 +17,6 @@ import java.util.UUID;
 @Builder(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "p_restaurants")
-@JsonIgnoreProperties({"user", "location", "category"})
 public class Restaurant extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

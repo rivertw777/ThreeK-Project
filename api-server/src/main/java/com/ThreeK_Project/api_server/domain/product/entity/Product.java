@@ -22,7 +22,6 @@ public class Product extends BaseEntity {
     private Integer price;
     private String description;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id")
     private Restaurant restaurant;
