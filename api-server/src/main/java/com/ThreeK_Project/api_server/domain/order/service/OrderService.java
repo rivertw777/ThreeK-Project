@@ -89,11 +89,18 @@ public class OrderService {
         return new OrderResponseDto(order);
     }
 
-    // 주문 조회
+    // 사용자 주문 검색
     public Page<OrderResponseDto> searchUserOrders(String username, OrderSearchDTO searchDTO) {
-        if(searchDTO.getUsername() == null || !searchDTO.getUsername().equals(username))
+        if(searchDTO.getUsername() == null)
+            searchDTO.setUsername(username);
+        else if(!searchDTO.getUsername().equals(username))
             throw new ApplicationException("Invalid user");
 
+        return searchOrders(searchDTO);
+    }
+
+    // 주문 검색
+    public Page<OrderResponseDto> searchOrders(OrderSearchDTO searchDTO) {
         Sort sort = searchDTO.getAscending() ? Sort.by(Sort.Direction.DESC, "createdAt"). ascending()
                 : Sort.by(Sort.Direction.ASC, "createdAt").descending();
 
