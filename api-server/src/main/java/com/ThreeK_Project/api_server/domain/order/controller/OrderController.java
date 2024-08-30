@@ -9,6 +9,7 @@ import com.ThreeK_Project.api_server.domain.payment.dto.PaymentRequestDto;
 import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
 import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ public class OrderController {
     private final PaymentService paymentService;
 
     @PatchMapping("/{orderId}/cancel")
+    @Operation(summary = "사용자 주문 취소")
     public ResponseEntity<SuccessResponse> cancelOrder(@PathVariable("orderId") UUID orderId) {
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         orderService.cancelOrder(orderId, userDetails.getUser().getUsername());
@@ -33,6 +35,7 @@ public class OrderController {
     }
 
     @PatchMapping("/{orderId}/status")
+    @Operation(summary = "가게 주인 주문 상태 변경")
     public ResponseEntity<SuccessResponse> updateOrderStatus(
             @PathVariable("orderId") UUID orderId,
             @RequestBody OrderStatusRequestDto requestDto
@@ -42,17 +45,20 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}")
+    @Operation(summary = "사용자 주문 확인")
     public ResponseEntity<OrderResponseDto> getOrder(@PathVariable("orderId") UUID orderId) {
         return ResponseEntity.ok(orderService.getOrder(orderId));
     }
 
     @GetMapping
-    public ResponseEntity<Page<OrderResponseDto>> searchOrders(@ModelAttribute OrderSearchDTO searchDTO) {
+    @Operation(summary = "사용자 주문 검색")
+    public ResponseEntity<Page<OrderResponseDto>> searchUserOrders(@ModelAttribute OrderSearchDTO searchDTO) {
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(orderService.searchUserOrders(userDetails.getUser().getUsername(), searchDTO));
     }
 
     @PostMapping("{orderId}/payments")
+    @Operation(summary = "사용자 결제 정보 생성")
     public ResponseEntity<SuccessResponse> createPayment(
             @PathVariable("orderId") UUID orderId, @RequestBody PaymentRequestDto requestDto
     ) {
