@@ -1,8 +1,8 @@
 package com.ThreeK_Project.api_server.domain.order.controller;
 
 import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderSearchDTO;
-import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.OrderResponseDto;
 import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderStatusRequestDto;
+import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.OrderResponseDto;
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
 import com.ThreeK_Project.api_server.domain.order.service.OrderService;
 import com.ThreeK_Project.api_server.domain.payment.dto.PaymentRequestDto;
@@ -11,12 +11,10 @@ import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -52,13 +50,6 @@ public class OrderController {
     public ResponseEntity<Page<OrderResponseDto>> searchOrders(@ModelAttribute OrderSearchDTO searchDTO) {
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(orderService.searchUserOrders(userDetails.getUser().getUsername(), searchDTO));
-    }
-
-    @DeleteMapping("/{orderId}")
-    public ResponseEntity<SuccessResponse> deleteOrder(@PathVariable("orderId") UUID orderId) {
-        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        orderService.deleteOrder(orderId, userDetails.getUser());
-        return ResponseEntity.ok(new SuccessResponse("주문 삭제 성공"));
     }
 
     @PostMapping("{orderId}/payments")

@@ -127,22 +127,6 @@ class OrderControllerTest {
     }
 
     @Test
-    @DisplayName("주문 삭제 성공 테스트")
-    @WithCustomMockUser
-    public void deleteOrder() throws Exception {
-        UUID orderId = UUID.randomUUID();
-        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User user = userDetails.getUser();
-
-        doNothing().when(orderService).deleteOrder(orderId, user);
-
-        mockMvc.perform(delete("/api/orders/" + orderId))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("message").value("주문 삭제 성공"));
-    }
-
-    @Test
     @DisplayName("결제 정보 생성 성공 테스트")
     public void createPaymentTest() throws Exception {
         UUID orderId = UUID.randomUUID();
