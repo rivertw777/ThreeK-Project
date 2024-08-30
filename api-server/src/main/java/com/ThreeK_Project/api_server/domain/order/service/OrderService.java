@@ -1,6 +1,7 @@
 package com.ThreeK_Project.api_server.domain.order.service;
 
 import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderRequestDto;
+import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderSearchDTO;
 import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.OrderResponseDto;
 import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.ProductRequestData;
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
@@ -14,11 +15,16 @@ import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -83,6 +89,19 @@ public class OrderService {
         return new OrderResponseDto(order);
     }
 
+    // 주문 조회
+    public Page<OrderResponseDto> searchUserOrders(String username, OrderSearchDTO searchDTO) {
+        if(searchDTO.getUsername() == null || !searchDTO.getUsername().equals(username))
+            throw new ApplicationException("Invalid user");
+
+        Sort sort = searchDTO.getAscending() ? Sort.by(Sort.Direction.DESC, "createdAt"). ascending()
+                : Sort.by(Sort.Direction.ASC, "createdAt").descending();
+
+        Pageable pageable = PageRequest.of(searchDTO.getPage(), searchDTO.getSize(), sort);
+
+        return orderRepository.searchOrders(pageable, searchDTO).map(OrderResponseDto::new);
+    }
+
     // 주문 삭제
     @Transactional
     public void deleteOrder(UUID orderId, User user) {
@@ -117,5 +136,4 @@ public class OrderService {
         return orderRepository.findByIdWithProductsAndPayment(orderId)
                 .orElseThrow(() -> new ApplicationException("Order not found"));
     }
-
 }

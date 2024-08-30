@@ -1,6 +1,7 @@
 package com.ThreeK_Project.api_server.domain.order.controller;
 
 import com.ThreeK_Project.api_server.customMockUser.WithCustomMockUser;
+import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderSearchDTO;
 import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.OrderResponseDto;
 import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.ProductResponseData;
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
@@ -25,6 +26,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;

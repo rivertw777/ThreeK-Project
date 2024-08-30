@@ -1,6 +1,7 @@
 package com.ThreeK_Project.api_server.domain.order.service;
 
 import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderRequestDto;
+import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderSearchDTO;
 import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.OrderResponseDto;
 import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.ProductRequestData;
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -400,6 +402,36 @@ class OrderServiceTest {
         ApplicationException e = Assertions.
                 assertThrows(ApplicationException.class, () -> orderService.getOrder(UUID.randomUUID()));
         assertThat(e.getMessage()).isEqualTo("Order not found");
+    }
+
+    @Test
+    @DisplayName("주문 검색 성공 테스트")
+    public void searchOrdersTest(){
+        String username = "test";
+        OrderSearchDTO orderSearchDTO = new OrderSearchDTO();
+        orderSearchDTO.setUsername(username);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        List<Order> orders = new ArrayList<>();
+        Page<Order> pages = new PageImpl<>(orders, pageable, 0);
+
+        doReturn(pages)
+                .when(orderRepository)
+                .searchOrders(pageable, orderSearchDTO);
+
+        Page<OrderResponseDto> result = orderService.searchUserOrders(username, orderSearchDTO);
+        assertEquals(result.getTotalElements(), 0);
+    }
+
+    @Test
+    @DisplayName("주문 검색 실패 테스트 - 다른 사용자 정보 조회")
+    public void searchOrdersTest2(){
+        String username = "test1";
+        OrderSearchDTO orderSearchDTO = new OrderSearchDTO();
+        orderSearchDTO.setUsername("test2");
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> orderService.searchUserOrders(username, orderSearchDTO));
+        assertThat(e.getMessage()).isEqualTo("Invalid user");
     }
 
     @Test
