@@ -9,11 +9,12 @@ import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessa
 import static com.ThreeK_Project.api_server.domain.user.message.UserSuccessMessage.UPDATE_USER_INFO_SUCCESS;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.ThreeK_Project.api_server.domain.user.dto.AssignRoleRequest;
-import com.ThreeK_Project.api_server.domain.user.dto.RevokeRoleRequest;
-import com.ThreeK_Project.api_server.domain.user.dto.SignUpRequest;
-import com.ThreeK_Project.api_server.domain.user.dto.UpdateUserInfoRequest;
-import com.ThreeK_Project.api_server.domain.user.dto.UserInfoResponse;
+import com.ThreeK_Project.api_server.domain.user.dto.request.AssignRoleRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.request.RevokeRoleRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.request.SignUpRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.request.UpdateUserInfoRequest;
+import com.ThreeK_Project.api_server.domain.user.dto.response.ManagerUserInfoResponse;
+import com.ThreeK_Project.api_server.domain.user.dto.response.UserInfoResponse;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.domain.user.enums.Role;
 import com.ThreeK_Project.api_server.domain.user.repository.UserRepository;
@@ -33,6 +34,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -183,6 +187,25 @@ public class UserServiceTest {
         List<Role> roles = new ArrayList<>(List.of(Role.CUSTOMER));
         assertEquals(roles, manager.getRoles());
         assertEquals(REVOKE_ROLE_SUCCESS.getValue(), response.message());
+    }
+
+    @Test
+    @DisplayName("MANAGER 회원 조회 - 성공 테스트")
+    void getManagerUserInfos_Success() {
+        // Given
+        List<User> users = Arrays.asList(user, user, user);
+        Page<User> userPage = new PageImpl<>(users);
+        Pageable pageable = Pageable.ofSize(3);
+
+        when(userRepository.findAll(pageable)).thenReturn(userPage);
+
+        // When
+        Page<ManagerUserInfoResponse> responses = userService.getManagerUserInfos(pageable);
+
+        // Then
+        verify(userRepository).findAll(pageable);
+        assertEquals(3, responses.getTotalElements());
+        assertEquals("username", responses.getContent().get(0).username());
     }
 
 }

@@ -20,7 +20,7 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PutMapping("/{paymentId}")
-    public ResponseEntity<SuccessResponse> updatePayment(@PathVariable UUID paymentId, @RequestBody UpdatePaymentDto requestDto) {
+    public ResponseEntity<SuccessResponse> updatePayment(@PathVariable("paymentId") UUID paymentId, @RequestBody UpdatePaymentDto requestDto) {
         paymentService.updatePayment(paymentId, requestDto);
         return ResponseEntity.ok(new SuccessResponse("결제 정보 수정 성공"));
     }

@@ -12,17 +12,17 @@ import java.util.UUID;
 @Builder(access = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "p_ai_request_logs")
-public class AIRequestLog extends BaseEntity {
+public class AiRequestLog extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID aiRequestLogId;
     private String question;
     private String answer;
 
-    public static AIRequestLog createAIRequestLog(
+    public static AiRequestLog createAIRequestLog(
             String question, String answer
     ) {
-        return AIRequestLog.builder()
+        return AiRequestLog.builder()
                 .question(question)
                 .answer(answer)
                 .build();
