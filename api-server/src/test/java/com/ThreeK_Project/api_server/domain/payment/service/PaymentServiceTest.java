@@ -144,6 +144,18 @@ class PaymentServiceTest {
     }
 
     @Test
+    @DisplayName("가게 주인 주문 검색 실패 테스트 - 다른 가게 정보 조회")
+    public void searchRestaurantOrdersTest(){
+        String restaurantName = "test1";
+        PaymentSearchDto paymentSearchDto = new PaymentSearchDto();
+        paymentSearchDto.setRestaurantName("test2");
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> paymentService.searchRestaurantPayments(restaurantName, paymentSearchDto));
+        assertThat(e.getMessage()).isEqualTo("Invalid restaurant");
+    }
+
+    @Test
     @DisplayName("결제 정보 삭제 성공 테스트")
     public void deletePaymentTest() {
         UUID paymentId = UUID.randomUUID();

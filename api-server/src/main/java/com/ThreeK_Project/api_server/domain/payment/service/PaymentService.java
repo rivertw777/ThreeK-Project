@@ -60,7 +60,17 @@ public class PaymentService {
         return searchPayments(searchDto);
     }
 
-    //결제 검색
+    // 가게 주인 결제 검색
+    public Page<PaymentResponseDto> searchRestaurantPayments(String restaurantName, PaymentSearchDto searchDto) {
+        if(searchDto.getRestaurantName() == null)
+            searchDto.setRestaurantName(restaurantName);
+        else if(!searchDto.getRestaurantName().equals(restaurantName))
+            throw new ApplicationException("Invalid restaurant");
+
+        return searchPayments(searchDto);
+    }
+
+    // 결제 검색
     public Page<PaymentResponseDto> searchPayments(PaymentSearchDto searchDto) {
         Sort sort = searchDto.getAscending() ? Sort.by(Sort.Direction.ASC, searchDto.getSortBy().getValue())
                 : Sort.by(Sort.Direction.DESC, searchDto.getSortBy().getValue());
