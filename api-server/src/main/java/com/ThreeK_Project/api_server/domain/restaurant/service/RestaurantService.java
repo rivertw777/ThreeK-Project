@@ -11,6 +11,10 @@ import com.ThreeK_Project.api_server.domain.restaurant.repository.RestaurantRepo
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 
@@ -125,5 +129,12 @@ public class RestaurantService {
                 .orElseThrow(() -> new EntityNotFoundException("가게 조회 실패"));
         // 검증된 레스토랑 엔티티 반환
         return restaurant;
+    }
+
+    public Page<RestaurantResponse> searchRestaurants(String name, String address, String phoneNumber, String description, String username, Integer locationId, Integer categoryId, Pageable pageable) {
+        Sort sort = Sort.by(Sort.Order.asc("createdAt"), Sort.Order.asc("updatedAt"));
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+        return restaurantRepository.searchRestaurants(name, address, phoneNumber, description, username, locationId, categoryId, pageable)
+                .map(RestaurantResponse::new); // map을 사용하여 Page<Restaurant>를 Page<RestaurantResponse>로 변환
     }
 }

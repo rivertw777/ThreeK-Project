@@ -10,6 +10,7 @@ import com.ThreeK_Project.api_server.domain.payment.enums.PaymentStatus;
 import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,13 +54,14 @@ class PaymentControllerTest {
         UpdatePaymentDto updatePaymentDto = new UpdatePaymentDto(
                 PaymentMethod.CARD, PaymentStatus.FAIL, new BigDecimal(10000)
         );
-        String content = updatePaymentDto.toString();
+        ObjectMapper objectMapper = new ObjectMapper();
+        String content = objectMapper.writeValueAsString(updatePaymentDto);
 
         doNothing()
                 .when(paymentService)
                 .updatePayment(paymentId, updatePaymentDto);
 
-        mockMvc.perform(put("api/payments/" + paymentId)
+        mockMvc.perform(put("/api/payments/" + paymentId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(content))
                 .andExpect(status().isOk())

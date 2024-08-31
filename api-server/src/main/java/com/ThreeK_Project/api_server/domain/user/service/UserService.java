@@ -89,7 +89,6 @@ public class UserService {
     private void updateUser(User user, UpdateUserInfoRequest requestParam, String encodedPassword) {
         List<Role> originalRoles = user.getRoles();
         LocalDateTime originalCreatedAt = user.getCreatedAt();
-        System.out.println(originalCreatedAt);
 
         userRepository.delete(user);
         User newUser = User.updateUser(requestParam.username(), encodedPassword, originalRoles, requestParam.phoneNumber(),
@@ -129,8 +128,8 @@ public class UserService {
     // MANAGER 회원 조회
     @Transactional(readOnly = true)
     public Page<ManagerUserInfoResponse> getManagerUserInfos(Pageable pageable) {
-        Page<User> users = userRepository.findAll(pageable);
-        return users.map(user -> new ManagerUserInfoResponse(user));
+        Page<User> userPage = userRepository.findAll(pageable);
+        return userPage.map(user -> new ManagerUserInfoResponse(user));
     }
 
 }

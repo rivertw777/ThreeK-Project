@@ -2,6 +2,7 @@ package com.ThreeK_Project.api_server.domain.product.entity;
 
 import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import com.ThreeK_Project.api_server.global.audit.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
