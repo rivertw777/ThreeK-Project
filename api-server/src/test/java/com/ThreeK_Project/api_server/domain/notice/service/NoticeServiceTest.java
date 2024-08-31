@@ -1,8 +1,13 @@
 package com.ThreeK_Project.api_server.domain.notice.service;
 
 import com.ThreeK_Project.api_server.domain.notice.dto.RequestDto.NoticeRequestDto;
+import com.ThreeK_Project.api_server.domain.notice.dto.ResponseDto.NoticeResponseDto;
 import com.ThreeK_Project.api_server.domain.notice.entity.Notice;
 import com.ThreeK_Project.api_server.domain.notice.repository.NoticeRepository;
+import com.ThreeK_Project.api_server.domain.user.entity.User;
+import com.ThreeK_Project.api_server.domain.user.enums.Role;
+import com.ThreeK_Project.api_server.global.exception.ApplicationException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,7 +15,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -18,6 +28,9 @@ class NoticeServiceTest {
 
     @Mock
     private NoticeRepository noticeRepository;
+
+    @Mock
+    private Notice notice;
 
     @InjectMocks
     private NoticeService noticeService;
@@ -29,6 +42,42 @@ class NoticeServiceTest {
 
         noticeService.createNotice(requestDto);
         verify(noticeRepository, times(1)).save(any(Notice.class));
+    }
+
+    @Test
+    @DisplayName("공지사항 단건 조회 성공 테스트")
+    public void getNoticeTest() {
+        UUID noticeId = UUID.randomUUID();
+        User user = User.createUser(
+                "admin", "000000", Role.MANAGER, "00000000000", "address"
+        );
+        LocalDateTime createdAt = LocalDateTime.now();
+
+        doReturn(noticeId).when(notice).getNoticeId();
+        doReturn("제목").when(notice).getTitle();
+        doReturn("내용").when(notice).getContent();
+        doReturn(user).when(notice).getCreatedBy();
+        doReturn(createdAt).when(notice).getCreatedAt();
+        doReturn(Optional.of(notice)).when(noticeRepository).findById(noticeId);
+
+        NoticeResponseDto responseDto = noticeService.getNotice(noticeId);
+        assertEquals(responseDto.getNoticeId(), noticeId);
+        assertEquals(responseDto.getTitle(), "제목");
+        assertEquals(responseDto.getContent(), "내용");
+        assertEquals(responseDto.getCreatedBy(), user.getUsername());
+        assertEquals(responseDto.getCreatedAt(), createdAt);
+    }
+
+    @Test
+    @DisplayName("공지사항 단건 조회 실패 테스트 - 존재하지 않는 공지사항")
+    public void getNoticeTest2() {
+        UUID noticeId = UUID.randomUUID();
+
+        doReturn(Optional.empty()).when(noticeRepository).findById(noticeId);
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> noticeService.getNotice(noticeId));
+        assertThat(e.getMessage()).isEqualTo("Notice not found");
     }
 
 }
