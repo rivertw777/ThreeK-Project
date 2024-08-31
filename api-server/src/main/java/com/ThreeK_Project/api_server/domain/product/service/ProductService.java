@@ -9,6 +9,8 @@ import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -121,4 +123,8 @@ public class ProductService {
         return product;
     }
 
+    public Page<ProductResponse> searchProduct(String keyword, Pageable pageable) {
+        return productRepository.searchProductsByKeyword(keyword, pageable)
+                .map(ProductResponse::new);
+    }
 }

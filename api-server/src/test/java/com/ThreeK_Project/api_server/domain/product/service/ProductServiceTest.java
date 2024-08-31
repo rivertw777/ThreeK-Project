@@ -15,15 +15,18 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 class ProductServiceTest {
 
@@ -173,7 +176,7 @@ class ProductServiceTest {
         assertNotNull(productResponse);
         assertEquals(productId, productResponse.getProductId());
         assertEquals("Test Product", productResponse.getName());
-        assertEquals("1000", productResponse.getPrice());
+        assertEquals(1000, productResponse.getPrice());
         assertEquals("Test Description", productResponse.getDescription());
         verify(productRepository, times(1)).findById(productId);
     }
@@ -376,6 +379,30 @@ class ProductServiceTest {
         assertNotNull(products);
         assertTrue(products.isEmpty());
         verify(productRepository, times(1)).findAllById(Arrays.asList());
+    }
+
+    @Test
+    void testSearchProduct() {
+        // Given
+        Pageable pageable = PageRequest.of(0, 10);
+        Restaurant restaurant = new Restaurant(); // Assuming you have a builder for Restaurant
+        Product product = Product.createProduct("Test Product", 1000, "Test Description", restaurant);
+
+        List<Product> products = Collections.singletonList(product);
+        Page<Product> productPage = new PageImpl<>(products);
+
+        when(productRepository.searchProductsByKeyword(any(String.class), any(Pageable.class)))
+                .thenReturn(productPage);
+
+        // When
+        Page<ProductResponse> result = productService.searchProduct("testKeyword", pageable);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getContent()).isNotEmpty();
+        assertThat(result.getContent().get(0).getName()).isEqualTo("Test Product");
+        assertThat(result.getContent().get(0).getPrice()).isEqualTo(1000);
+        assertThat(result.getContent().get(0).getDescription()).isEqualTo("Test Description");
     }
 
 }
