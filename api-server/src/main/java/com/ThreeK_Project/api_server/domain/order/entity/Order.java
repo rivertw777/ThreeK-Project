@@ -40,7 +40,8 @@ public class Order extends BaseEntity {
     private Restaurant restaurant;
 
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
-    private List<OrderProduct> orderProducts;
+    @Builder.Default
+    private List<OrderProduct> orderProducts = new ArrayList<>();
 
     @Setter
     @OneToOne(mappedBy ="order", fetch = FetchType.LAZY)

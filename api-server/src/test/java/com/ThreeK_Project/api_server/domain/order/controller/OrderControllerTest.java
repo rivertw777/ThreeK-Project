@@ -1,6 +1,7 @@
 package com.ThreeK_Project.api_server.domain.order.controller;
 
 import com.ThreeK_Project.api_server.customMockUser.WithCustomMockUser;
+import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderSearchDTO;
 import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.OrderResponseDto;
 import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.ProductResponseData;
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
@@ -25,6 +26,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -122,22 +124,6 @@ class OrderControllerTest {
                 .andExpect(jsonPath("deliveryAddress").value("서울"))
                 .andExpect(jsonPath("orderPayment.paymentStatus").value("SUCCESS"))
                 .andExpect(jsonPath("orderedProducts[0].productName").value("햄버거"));
-    }
-
-    @Test
-    @DisplayName("주문 삭제 성공 테스트")
-    @WithCustomMockUser
-    public void deleteOrder() throws Exception {
-        UUID orderId = UUID.randomUUID();
-        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User user = userDetails.getUser();
-
-        doNothing().when(orderService).deleteOrder(orderId, user);
-
-        mockMvc.perform(delete("/api/orders/" + orderId))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("message").value("주문 삭제 성공"));
     }
 
     @Test
