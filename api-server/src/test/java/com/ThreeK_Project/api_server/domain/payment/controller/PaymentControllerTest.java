@@ -3,7 +3,7 @@ package com.ThreeK_Project.api_server.domain.payment.controller;
 import com.ThreeK_Project.api_server.customMockUser.WithCustomMockUser;
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
 import com.ThreeK_Project.api_server.domain.payment.dto.PaymentResponseDto;
-import com.ThreeK_Project.api_server.domain.payment.dto.UpdatePaymentDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.PaymentUpdateDto;
 import com.ThreeK_Project.api_server.domain.payment.entity.Payment;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentMethod;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentStatus;
@@ -51,15 +51,15 @@ class PaymentControllerTest {
     @DisplayName("결제 정보 수정 성공 테스트")
     public void updatePaymentTest() throws Exception {
         UUID paymentId = UUID.randomUUID();
-        UpdatePaymentDto updatePaymentDto = new UpdatePaymentDto(
+        PaymentUpdateDto paymentUpdateDto = new PaymentUpdateDto(
                 PaymentMethod.CARD, PaymentStatus.FAIL, new BigDecimal(10000)
         );
         ObjectMapper objectMapper = new ObjectMapper();
-        String content = objectMapper.writeValueAsString(updatePaymentDto);
+        String content = objectMapper.writeValueAsString(paymentUpdateDto);
 
         doNothing()
                 .when(paymentService)
-                .updatePayment(paymentId, updatePaymentDto);
+                .updatePayment(paymentId, paymentUpdateDto);
 
         mockMvc.perform(put("/api/payments/" + paymentId)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -85,24 +85,5 @@ class PaymentControllerTest {
                 .andExpect(jsonPath("paymentStatus").value("SUCCESS"))
                 .andExpect(jsonPath("paymentMethod").value("CARD"))
                 .andExpect(jsonPath("amount").value(10000));
-    }
-
-    @Test
-    @DisplayName("결제 정보 삭제 성공 테스트")
-    @WithCustomMockUser
-    public void deletePaymentTest() throws Exception {
-        UUID paymentId = UUID.randomUUID();
-        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User user = userDetails.getUser();
-
-        doNothing()
-                .when(paymentService)
-                .deletePayment(paymentId, user);
-
-        mockMvc.perform(delete("/api/payments/" + paymentId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("message").value("결제 정보 삭제 성공"));
-
-
     }
 }

@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdatePaymentDto {
+public class PaymentUpdateDto {
     private PaymentMethod paymentMethod;
     private PaymentStatus paymentStatus;
     private BigDecimal amount;
