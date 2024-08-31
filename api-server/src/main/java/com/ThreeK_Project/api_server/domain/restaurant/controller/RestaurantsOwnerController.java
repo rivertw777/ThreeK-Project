@@ -3,6 +3,7 @@ package com.ThreeK_Project.api_server.domain.restaurant.controller;
 import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderSearchDTO;
 import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.OrderResponseDto;
 import com.ThreeK_Project.api_server.domain.order.service.OrderService;
+import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
 import com.ThreeK_Project.api_server.domain.product.dto.ProductRequest;
 import com.ThreeK_Project.api_server.domain.product.service.ProductService;
 import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantRequest;
@@ -28,6 +29,7 @@ public class RestaurantsOwnerController {
     private final RestaurantService restaurantService;
     private final ProductService productService;
     private final OrderService orderService;
+    private final PaymentService paymentService;
 
     /*
         location과 category를 DB에 미리 추가 해주어야 함
@@ -105,5 +107,14 @@ public class RestaurantsOwnerController {
         User user = userDetailsCustom.getUser();
         String restaurantName = restaurantService.validateAndGetRestaurant(restaurantId, user).getName();
         return orderService.searchRestaurantOrders(restaurantName, orderSearchDTO);
+    }
+
+    @Operation(summary = "가게 주인 / 주문 검색")
+    @GetMapping("{restaurantId}/payments/search")
+    public Page<OrderResponseDto> searchRestaurantPayments(@PathVariable UUID restaurantId, @ModelAttribute PaymentSearchDto paymentSearchDto,
+                                                         @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
+        User user = userDetailsCustom.getUser();
+        String restaurantName = restaurantService.validateAndGetRestaurant(restaurantId, user).getName();
+        return paymentService.searchRestaurantPayments(restaurantName, paymentSearchDto);
     }
 }
