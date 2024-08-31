@@ -133,4 +133,12 @@ public class RestaurantService {
         return restaurantRepository.searchRestaurants(name, address, phoneNumber, description, username, locationId, categoryId, pageable)
                 .map(RestaurantResponse::new); // map을 사용하여 Page<Restaurant>를 Page<RestaurantResponse>로 변환
     }
+
+    public String getRestaurantName(UUID restaurantId) {
+        // 레스토랑 존재 여부 확인
+        Restaurant restaurant = restaurantRepository.findById(restaurantId)
+                .orElseThrow(() -> new EntityNotFoundException("가게 조회 실패"));
+        // 검증된 레스토랑 엔티티 반환
+        return restaurant.getName();
+    }
 }
