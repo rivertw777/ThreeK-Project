@@ -1,7 +1,7 @@
 package com.ThreeK_Project.api_server.domain.restaurant.controller;
 
 
-import com.ThreeK_Project.api_server.domain.order.dto.OrderRequestDto;
+import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderRequestDto;
 import com.ThreeK_Project.api_server.domain.order.service.OrderService;
 import com.ThreeK_Project.api_server.domain.product.dto.ProductResponse;
 import com.ThreeK_Project.api_server.domain.product.service.ProductService;

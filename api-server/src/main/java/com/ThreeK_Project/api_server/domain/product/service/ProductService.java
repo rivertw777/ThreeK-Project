@@ -1,6 +1,6 @@
 package com.ThreeK_Project.api_server.domain.product.service;
 
-import com.ThreeK_Project.api_server.domain.order.dto.ProductRequestData;
+import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.ProductRequestData;
 import com.ThreeK_Project.api_server.domain.product.dto.ProductRequest;
 import com.ThreeK_Project.api_server.domain.product.dto.ProductResponse;
 import com.ThreeK_Project.api_server.domain.product.entity.Product;

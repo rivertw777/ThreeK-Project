@@ -36,12 +36,16 @@ public class Payment extends BaseEntity {
     public static Payment createPayment(
             PaymentMethod paymentMethod, PaymentStatus paymentStatus, BigDecimal paymentAmount, Order order
     ) {
-        return Payment.builder()
+        Payment payment =  Payment.builder()
                 .paymentMethod(paymentMethod)
                 .paymentStatus(paymentStatus)
                 .paymentAmount(paymentAmount)
                 .order(order)
                 .build();
+
+        order.setPayment(payment);
+
+        return payment;
     }
 
     public void updatePayment(UpdatePaymentDto requestDto) {
