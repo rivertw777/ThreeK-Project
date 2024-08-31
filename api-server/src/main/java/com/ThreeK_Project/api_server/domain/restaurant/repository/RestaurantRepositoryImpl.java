@@ -23,9 +23,6 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
     public Page<Restaurant> searchRestaurants(String name, String address, String phoneNumber, String description, String username, Integer locationId, Integer categoryId, Pageable pageable) {
         QRestaurant restaurant = QRestaurant.restaurant;
 
-        Sort sort = Sort.by(Sort.Order.asc("createdAt"), Sort.Order.asc("updatedAt"));
-        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
-
         JPAQuery<Restaurant> query = queryFactory.selectFrom(restaurant)
                 .where(
                         name != null ? restaurant.name.containsIgnoreCase(name) : null,
@@ -35,15 +32,8 @@ public class RestaurantRepositoryImpl implements RestaurantRepositoryCustom {
                         username != null ? restaurant.user.username.containsIgnoreCase(username) : null,
                         locationId != null ? restaurant.location.locationId.eq(locationId) : null,
                         categoryId != null ? restaurant.category.categoryId.eq(categoryId) : null
-                );
-        // Sort를 적용합니다.
-        for (Sort.Order order : pageable.getSort()) {
-            PathBuilder<?> entityPath = new PathBuilder<>(restaurant.getType(), restaurant.getMetadata());
-            query.orderBy(new OrderSpecifier(
-                    order.isAscending() ? com.querydsl.core.types.Order.ASC : com.querydsl.core.types.Order.DESC,
-                    entityPath.get(order.getProperty())
-            ));
-        }
+                )
+                .orderBy(restaurant.createdAt.desc(), restaurant.updatedAt.desc());  // 정렬 조건 추가
 
         // 페이징을 적용합니다.
         long total = query.fetchCount();
