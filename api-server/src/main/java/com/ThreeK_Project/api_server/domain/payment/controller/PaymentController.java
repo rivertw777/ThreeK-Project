@@ -37,11 +37,4 @@ public class PaymentController {
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(paymentService.searchUserPayments(userDetails.getUser().getUsername(), searchDto));
     }
-
-    @DeleteMapping("/{paymentId}")
-    public ResponseEntity<SuccessResponse> deletePayment(@PathVariable("paymentId") UUID paymentId) {
-        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        paymentService.deletePayment(paymentId, userDetails.getUser());
-        return ResponseEntity.ok(new SuccessResponse("결제 정보 삭제 성공"));
-    }
 }

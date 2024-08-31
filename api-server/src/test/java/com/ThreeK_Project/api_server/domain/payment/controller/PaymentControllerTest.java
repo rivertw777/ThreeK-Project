@@ -86,23 +86,4 @@ class PaymentControllerTest {
                 .andExpect(jsonPath("paymentMethod").value("CARD"))
                 .andExpect(jsonPath("amount").value(10000));
     }
-
-    @Test
-    @DisplayName("결제 정보 삭제 성공 테스트")
-    @WithCustomMockUser
-    public void deletePaymentTest() throws Exception {
-        UUID paymentId = UUID.randomUUID();
-        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User user = userDetails.getUser();
-
-        doNothing()
-                .when(paymentService)
-                .deletePayment(paymentId, user);
-
-        mockMvc.perform(delete("/api/payments/" + paymentId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("message").value("결제 정보 삭제 성공"));
-
-
-    }
 }
