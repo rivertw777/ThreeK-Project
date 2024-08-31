@@ -3,7 +3,8 @@ package com.ThreeK_Project.api_server.domain.payment.service;
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
 import com.ThreeK_Project.api_server.domain.payment.dto.PaymentRequestDto;
 import com.ThreeK_Project.api_server.domain.payment.dto.PaymentResponseDto;
-import com.ThreeK_Project.api_server.domain.payment.dto.UpdatePaymentDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.PaymentSearchDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.PaymentUpdateDto;
 import com.ThreeK_Project.api_server.domain.payment.entity.Payment;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentMethod;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentStatus;
@@ -17,8 +18,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -50,7 +54,7 @@ class PaymentServiceTest {
     public void updatePaymentTest() {
         UUID paymentId = UUID.randomUUID();
         Payment payment = new Payment();
-        UpdatePaymentDto updatePaymentDto = new UpdatePaymentDto(
+        PaymentUpdateDto paymentUpdateDto = new PaymentUpdateDto(
                 PaymentMethod.CARD, PaymentStatus.FAIL, new BigDecimal(10000)
         );
 
@@ -58,14 +62,14 @@ class PaymentServiceTest {
                 .when(paymentRepository)
                 .findById(paymentId);
 
-        paymentService.updatePayment(paymentId, updatePaymentDto);
+        paymentService.updatePayment(paymentId, paymentUpdateDto);
     }
 
     @Test
     @DisplayName("결제 정보 수정 실패 테스트 - 결제 정보 없음")
     public void updatePaymentTest2() {
         UUID paymentId = UUID.randomUUID();
-        UpdatePaymentDto updatePaymentDto = new UpdatePaymentDto(
+        PaymentUpdateDto paymentUpdateDto = new PaymentUpdateDto(
                 PaymentMethod.CARD, PaymentStatus.FAIL, new BigDecimal(10000)
         );
 
@@ -74,7 +78,7 @@ class PaymentServiceTest {
                 .findById(paymentId);
 
         ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> paymentService.updatePayment(paymentId, updatePaymentDto));
+                assertThrows(ApplicationException.class, () -> paymentService.updatePayment(paymentId, paymentUpdateDto));
         assertThat(e.getMessage()).isEqualTo("Payment not found");
     }
 
@@ -107,6 +111,36 @@ class PaymentServiceTest {
         ApplicationException e = Assertions.
                 assertThrows(ApplicationException.class, () -> paymentService.getPayment(paymentId));
         assertThat(e.getMessage()).isEqualTo("Payment not found");
+    }
+
+    @Test
+    @DisplayName("사용자 주문 검색 성공 테스트")
+    public void searchUserOrdersTest(){
+        String username = "test";
+        PaymentSearchDto paymentSearchDto = new PaymentSearchDto();
+        paymentSearchDto.setUsername(username);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "created_at"));
+        List<Payment> payments = new ArrayList<>();
+        Page<Payment> pages = new PageImpl<>(payments, pageable, 0);
+
+        doReturn(pages)
+                .when(paymentRepository)
+                .searchPayments(pageable, paymentSearchDto);
+
+        Page<PaymentResponseDto> result = paymentService.searchUserPayments(username, paymentSearchDto);
+        assertEquals(result.getTotalElements(), 0);
+    }
+
+    @Test
+    @DisplayName("사용자 주문 검색 실패 테스트 - 다른 사용자 정보 조회")
+    public void searchUserOrdersTest2(){
+        String username = "test1";
+        PaymentSearchDto paymentSearchDto = new PaymentSearchDto();
+        paymentSearchDto.setUsername("test2");
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> paymentService.searchUserPayments(username, paymentSearchDto));
+        assertThat(e.getMessage()).isEqualTo("Invalid user");
     }
 
     @Test
