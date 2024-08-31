@@ -6,6 +6,7 @@ import com.ThreeK_Project.api_server.domain.payment.dto.PaymentUpdateDto;
 import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
 import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -22,17 +23,20 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PutMapping("/{paymentId}")
+    @Operation(summary = "사용자 결제 정보 수정")
     public ResponseEntity<SuccessResponse> updatePayment(@PathVariable("paymentId") UUID paymentId, @RequestBody PaymentUpdateDto requestDto) {
         paymentService.updatePayment(paymentId, requestDto);
         return ResponseEntity.ok(new SuccessResponse("결제 정보 수정 성공"));
     }
 
     @GetMapping("/{paymentId}")
+    @Operation(summary = "사용자 결제 정보 조회")
     public ResponseEntity<PaymentResponseDto> getPayment(@PathVariable("paymentId") UUID paymentId) {
         return ResponseEntity.ok(paymentService.getPayment(paymentId));
     }
 
     @GetMapping
+    @Operation(summary = "사용자 결제 정보 검색")
     public ResponseEntity<Page<PaymentResponseDto>> searchUserPayments(@ModelAttribute PaymentSearchDto searchDto) {
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(paymentService.searchUserPayments(userDetails.getUser().getUsername(), searchDto));
