@@ -106,7 +106,7 @@ class UpdateRestaurantTest {
             restaurantService.updateRestaurant(request, restaurantId, differentUser);
         });
 
-        assertEquals("가게를 수정할 권한이 없습니다.", exception.getMessage());
+        assertEquals("가게에 대한 권한이 없습니다.", exception.getMessage());
         verify(restaurant, never()).updateRestaurant(anyString(), anyString(), anyString(), anyString(), any(Location.class), any(Category.class));
         verify(restaurantRepository, never()).save(restaurant);
     }

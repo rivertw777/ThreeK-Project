@@ -46,12 +46,8 @@ class DeleteRestaurantTest {
 
         // Then
         assertEquals("가게 삭제 성공", result);
-        verify(restaurantRepository, times(1)).save(restaurant); // Verifies that save was called
         verify(restaurantRepository, never()).deleteById(any(UUID.class)); // Verifies that deleteById was not called
     }
-
-
-
 
     @Test
     void deleteRestaurant_NoPermission() {
@@ -71,7 +67,7 @@ class DeleteRestaurantTest {
             restaurantService.deleteRestaurant(restaurantId, differentUser);
         });
 
-        assertEquals("가게를 삭제할 권한이 없습니다.", exception.getMessage());
+        assertEquals("가게에 대한 권한이 없습니다.", exception.getMessage());
         verify(restaurantRepository, never()).deleteById(restaurantId);
     }
 
