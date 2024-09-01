@@ -3,6 +3,8 @@ package com.ThreeK_Project.api_server.domain.restaurant.controller;
 import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderSearchDTO;
 import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.OrderResponseDto;
 import com.ThreeK_Project.api_server.domain.order.service.OrderService;
+import com.ThreeK_Project.api_server.domain.payment.dto.PaymentResponseDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.PaymentSearchDto;
 import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
 import com.ThreeK_Project.api_server.domain.product.dto.ProductRequest;
 import com.ThreeK_Project.api_server.domain.product.service.ProductService;
@@ -109,10 +111,10 @@ public class RestaurantsOwnerController {
         return orderService.searchRestaurantOrders(restaurantName, orderSearchDTO);
     }
 
-    @Operation(summary = "가게 주인 / 주문 검색")
+    @Operation(summary = "가게 주인 / 결제 검색")
     @GetMapping("{restaurantId}/payments/search")
-    public Page<OrderResponseDto> searchRestaurantPayments(@PathVariable UUID restaurantId, @ModelAttribute PaymentSearchDto paymentSearchDto,
-                                                         @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
+    public Page<PaymentResponseDto> searchRestaurantPayments(@PathVariable UUID restaurantId, @ModelAttribute PaymentSearchDto paymentSearchDto,
+                                                             @AuthenticationPrincipal UserDetailsCustom userDetailsCustom) {
         User user = userDetailsCustom.getUser();
         String restaurantName = restaurantService.validateAndGetRestaurant(restaurantId, user).getName();
         return paymentService.searchRestaurantPayments(restaurantName, paymentSearchDto);
