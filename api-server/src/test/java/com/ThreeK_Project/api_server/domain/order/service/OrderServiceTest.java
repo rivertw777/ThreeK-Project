@@ -246,10 +246,6 @@ class OrderServiceTest {
                 .when(orderRepository)
                 .findById(any(UUID.class));
 
-        doReturn(user)
-                .when(order)
-                .getCreatedBy();
-
         doReturn(roles)
                 .when(user)
                 .getRoles();
@@ -258,7 +254,7 @@ class OrderServiceTest {
                 .when(order)
                 .getOrderStatus();
 
-        orderService.updateOrderStatus(orderId, OrderStatus.CANCELED);
+        orderService.updateOrderStatus(user, orderId, OrderStatus.CANCELED);
     }
 
     @Test
@@ -272,10 +268,6 @@ class OrderServiceTest {
                 .when(orderRepository)
                 .findById(any(UUID.class));
 
-        doReturn(user)
-                .when(order)
-                .getCreatedBy();
-
         doReturn(roles)
                 .when(user)
                 .getRoles();
@@ -284,7 +276,7 @@ class OrderServiceTest {
                 .when(order)
                 .getOrderStatus();
 
-        orderService.updateOrderStatus(orderId, OrderStatus.RECEIPT);
+        orderService.updateOrderStatus(user, orderId, OrderStatus.RECEIPT);
     }
 
     @Test
@@ -298,10 +290,6 @@ class OrderServiceTest {
                 .when(orderRepository)
                 .findById(any(UUID.class));
 
-        doReturn(user)
-                .when(order)
-                .getCreatedBy();
-
         doReturn(roles)
                 .when(user)
                 .getRoles();
@@ -310,7 +298,7 @@ class OrderServiceTest {
                 .when(order)
                 .getOrderStatus();
 
-        orderService.updateOrderStatus(orderId, OrderStatus.COMPLETE);
+        orderService.updateOrderStatus(user, orderId, OrderStatus.COMPLETE);
     }
 
     @Test
@@ -319,7 +307,7 @@ class OrderServiceTest {
         UUID orderId = UUID.randomUUID();
 
         ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(orderId, OrderStatus.WAIT));
+                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(user, orderId, OrderStatus.WAIT));
         assertThat(e.getMessage()).isEqualTo("Invalid order status");
     }
 
@@ -333,7 +321,7 @@ class OrderServiceTest {
                 .findById(orderId);
 
         ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(orderId, OrderStatus.RECEIPT));
+                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(user, orderId, OrderStatus.RECEIPT));
         assertThat(e.getMessage()).isEqualTo("Order not found");
     }
 
@@ -348,10 +336,6 @@ class OrderServiceTest {
                 .when(orderRepository)
                 .findById(any(UUID.class));
 
-        doReturn(user)
-                .when(order)
-                .getCreatedBy();
-
         doReturn(roles)
                 .when(user)
                 .getRoles();
@@ -361,7 +345,7 @@ class OrderServiceTest {
                 .getOrderStatus();
 
         ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(orderId, OrderStatus.COMPLETE));
+                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(user, orderId, OrderStatus.COMPLETE));
         assertThat(e.getMessage()).isEqualTo("Invalid order status");
     }
 
@@ -376,10 +360,6 @@ class OrderServiceTest {
                 .when(orderRepository)
                 .findById(any(UUID.class));
 
-        doReturn(user)
-                .when(order)
-                .getCreatedBy();
-
         doReturn(roles)
                 .when(user)
                 .getRoles();
@@ -389,7 +369,7 @@ class OrderServiceTest {
                 .getOrderStatus();
 
         ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(orderId, OrderStatus.COMPLETE));
+                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(user, orderId, OrderStatus.COMPLETE));
         assertThat(e.getMessage()).isEqualTo("Invalid order status");
     }
 
@@ -404,10 +384,6 @@ class OrderServiceTest {
                 .when(orderRepository)
                 .findById(any(UUID.class));
 
-        doReturn(user)
-                .when(order)
-                .getCreatedBy();
-
         doReturn(roles)
                 .when(user)
                 .getRoles();
@@ -417,7 +393,7 @@ class OrderServiceTest {
                 .getOrderStatus();
 
         ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(orderId, OrderStatus.COMPLETE));
+                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(user, orderId, OrderStatus.COMPLETE));
         assertThat(e.getMessage()).isEqualTo("Invalid order status");
     }
 
@@ -432,10 +408,6 @@ class OrderServiceTest {
                 .when(orderRepository)
                 .findById(any(UUID.class));
 
-        doReturn(user)
-                .when(order)
-                .getCreatedBy();
-
         doReturn(roles)
                 .when(user)
                 .getRoles();
@@ -445,7 +417,7 @@ class OrderServiceTest {
                 .getOrderStatus();
 
         ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(orderId, OrderStatus.CANCELED));
+                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(user, orderId, OrderStatus.CANCELED));
         assertThat(e.getMessage()).isEqualTo("Invalid order status");
     }
 

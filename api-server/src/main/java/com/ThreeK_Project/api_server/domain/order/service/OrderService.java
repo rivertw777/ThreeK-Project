@@ -70,13 +70,12 @@ public class OrderService {
 
     // 주문 상태 변경
     @Transactional
-    public void updateOrderStatus(UUID orderId, OrderStatus newStatus) {
+    public void updateOrderStatus(User user, UUID orderId, OrderStatus newStatus) {
         if(newStatus == OrderStatus.WAIT)
             throw new ApplicationException("Invalid order status");
 
         Order order = findOrderById(orderId);
 
-        User user = order.getCreatedBy();
         if(!(user.getRoles().contains(Role.MASTER) || user.getRoles().contains(Role.MANAGER))
             && !order.getRestaurant().getUser().getUsername().equals(user.getUsername()))
             throw new ApplicationException("Invalid user");
