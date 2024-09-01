@@ -34,16 +34,6 @@ public class OrderController {
         return ResponseEntity.ok(new SuccessResponse("주문 취소 성공"));
     }
 
-    @PatchMapping("/{orderId}/status")
-    @Operation(summary = "가게 주인 주문 상태 변경")
-    public ResponseEntity<SuccessResponse> updateOrderStatus(
-            @PathVariable("orderId") UUID orderId,
-            @RequestBody OrderStatusRequestDto requestDto
-    ) {
-        orderService.updateOrderStatus(orderId, requestDto.getOrderStatus());
-        return ResponseEntity.ok(new SuccessResponse("주문 상태 변경 성공"));
-    }
-
     @GetMapping("/{orderId}")
     @Operation(summary = "사용자 주문 확인")
     public ResponseEntity<OrderResponseDto> getOrder(@PathVariable("orderId") UUID orderId) {

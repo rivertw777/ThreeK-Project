@@ -79,21 +79,6 @@ class OrderControllerTest {
     }
 
     @Test
-    @DisplayName("주문 상태 변경 성공 테스트")
-    public void updateOrderStatusTest() throws Exception {
-        UUID orderId = UUID.randomUUID();
-        String content = "{\"orderStatus\":\"CANCELED\"}";
-
-        doNothing().when(orderService).updateOrderStatus(orderId, OrderStatus.CANCELED);
-
-        mockMvc.perform(patch("/api/orders/" + orderId + "/status")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("message").value("주문 상태 변경 성공"));
-    }
-
-    @Test
     @DisplayName("주문 조회 성공 태스트")
     public void getOrder() throws Exception {
         UUID orderId = UUID.randomUUID();
