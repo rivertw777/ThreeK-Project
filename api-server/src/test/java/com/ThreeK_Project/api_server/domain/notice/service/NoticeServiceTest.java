@@ -130,4 +130,34 @@ class NoticeServiceTest {
         assertThat(e.getMessage()).isEqualTo("Notice not found");
     }
 
+    @Test
+    @DisplayName("공지사항 삭제 성공 테스트")
+    public void deleteNoticeTest() {
+        UUID noticeId = UUID.randomUUID();
+        User user = new User();
+        Notice notice = new Notice();
+
+        doReturn(Optional.of(notice))
+                .when(noticeRepository)
+                .findById(noticeId);
+
+        noticeService.deleteNotice(user, noticeId);
+        verify(noticeRepository, times(1)).findById(noticeId);
+    }
+
+    @Test
+    @DisplayName("공지사항 삭제 성공 테스트")
+    public void deleteNoticeTest2() {
+        UUID noticeId = UUID.randomUUID();
+        User user = new User();
+
+        doReturn(Optional.empty())
+                .when(noticeRepository)
+                .findById(noticeId);
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> noticeService.deleteNotice(user, noticeId));
+        assertThat(e.getMessage()).isEqualTo("Notice not found");
+    }
+
 }

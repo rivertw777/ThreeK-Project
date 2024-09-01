@@ -5,6 +5,7 @@ import com.ThreeK_Project.api_server.domain.notice.dto.RequestDto.NoticeSearchDt
 import com.ThreeK_Project.api_server.domain.notice.dto.ResponseDto.NoticeResponseDto;
 import com.ThreeK_Project.api_server.domain.notice.entity.Notice;
 import com.ThreeK_Project.api_server.domain.notice.repository.NoticeRepository;
+import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -51,6 +52,14 @@ public class NoticeService {
     public void updateNotice(UUID noticeId, NoticeRequestDto requestDto) {
         Notice notice = findNoticeById(noticeId);
         notice.updateNotice(requestDto.getTitle(), requestDto.getContent());
+        noticeRepository.save(notice);
+    }
+
+    // 공지사항 삭제
+    @Transactional
+    public void deleteNotice(User user, UUID noticeId) {
+        Notice notice = findNoticeById(noticeId);
+        notice.deleteBy(user);
         noticeRepository.save(notice);
     }
 
