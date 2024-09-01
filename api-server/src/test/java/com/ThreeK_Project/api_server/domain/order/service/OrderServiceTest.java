@@ -58,12 +58,11 @@ class OrderServiceTest {
     @Test
     @DisplayName("주문 생성 성공 테스트")
     public void createOrderTest1(){
-
         List<ProductRequestData> products = new ArrayList<>();
         products.add(new ProductRequestData(UUID.randomUUID(), 2, new BigDecimal(5000)));
         OrderRequestDto requestDto = new OrderRequestDto(
                 new BigDecimal(10000), "서울시", "문앞에 두고 노크",
-                OrderType.ONLINE, UUID.randomUUID(), products
+                OrderType.ONLINE, products
         );
         Restaurant restaurant = new Restaurant();
 
@@ -71,7 +70,7 @@ class OrderServiceTest {
                 .when(orderRepository)
                 .save(any(Order.class));
 
-        doReturn(Product.createProduct("이름", 2000, "설명", restaurant))
+        doReturn(new Product())
                 .when(productService)
                 .getProductById(any(UUID.class));
 
@@ -85,12 +84,11 @@ class OrderServiceTest {
     @Test
     @DisplayName("주문 생성 실패 테스트 - 존재하지 않는 상품")
     public void createOrderTest4(){
-
         List<ProductRequestData> products = new ArrayList<>();
         products.add(new ProductRequestData(UUID.randomUUID(), 2, new BigDecimal(5000)));
         OrderRequestDto requestDto = new OrderRequestDto(
                 new BigDecimal(10000), "서울시", "문앞에 두고 노크",
-                OrderType.ONLINE, UUID.randomUUID(), products
+                OrderType.ONLINE, products
         );
         Restaurant restaurant = new Restaurant();
 

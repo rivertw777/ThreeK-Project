@@ -9,6 +9,7 @@ import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantResponse;
 import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import com.ThreeK_Project.api_server.domain.restaurant.service.RestaurantService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -62,7 +63,7 @@ public class RestaurantsController {
     @Operation(summary = "사용자 / 주문 생성")
     @PostMapping("/{restaurantId}/orders")
     public ResponseEntity<Map<String, String>> createOrder(@PathVariable UUID restaurantId,
-                                                           @RequestBody OrderRequestDto orderRequestDto) {
+                                                           @RequestBody @Valid OrderRequestDto orderRequestDto) {
         Restaurant restaurant = restaurantService.getRestaurant(restaurantId);
         String result = orderService.createOrder(orderRequestDto, restaurant);
 

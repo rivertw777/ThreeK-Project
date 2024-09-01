@@ -2,8 +2,8 @@ package com.ThreeK_Project.api_server.domain.order.service;
 
 import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderRequestDto;
 import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderSearchDTO;
-import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.OrderResponseDto;
 import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.ProductRequestData;
+import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.OrderResponseDto;
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
 import com.ThreeK_Project.api_server.domain.order.entity.OrderProduct;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderStatus;
@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -36,6 +35,7 @@ public class OrderService {
     private final ProductService productService;
 
     // 사용자 -> 주문 생성
+    @Transactional
     public String createOrder(OrderRequestDto requestDto, Restaurant restaurant) {
         Order savedOrder = saveOrder(requestDto, restaurant);
         requestDto.getProductList()
@@ -45,6 +45,8 @@ public class OrderService {
     }
 
     // 사용자 -> 주문 취소
+    // createBy -> fetchJoin으로 한번에 가져오기
+    // 결제 취소도 불러오기
     @Transactional
     public void cancelOrder(UUID orderId, String username) {
         LocalDateTime now = LocalDateTime.now();
@@ -127,14 +129,16 @@ public class OrderService {
         orderRepository.save(order);
     }
 
+    @Transactional
     public Order saveOrder(OrderRequestDto requestDto, Restaurant restaurant) {
         Order order = Order.createOrder(
-                requestDto.getOrderType(), OrderStatus.WAIT, requestDto.getOrderAmount(),
+                requestDto.getOrderType(), OrderStatus.PAYMENT_WAIT, requestDto.getOrderAmount(),
                 requestDto.getDeliveryAddress(), requestDto.getRequestDetails(), restaurant
         );
         return orderRepository.save(order);
     }
 
+    @Transactional
     public OrderProduct saveOrderProduct(ProductRequestData productData, Order order) {
         Product product = productService.getProductById(productData.getProductId());
 
