@@ -6,6 +6,7 @@ import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.OrderResponseD
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
 import com.ThreeK_Project.api_server.domain.order.service.OrderService;
 import com.ThreeK_Project.api_server.domain.payment.dto.PaymentRequestDto;
+import com.ThreeK_Project.api_server.domain.payment.entity.Payment;
 import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
 import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;

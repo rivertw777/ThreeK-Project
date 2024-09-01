@@ -9,6 +9,8 @@ import com.ThreeK_Project.api_server.domain.order.entity.OrderProduct;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderStatus;
 import com.ThreeK_Project.api_server.domain.order.repository.OrderProductRepository;
 import com.ThreeK_Project.api_server.domain.order.repository.OrderRepository;
+import com.ThreeK_Project.api_server.domain.payment.entity.Payment;
+import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
 import com.ThreeK_Project.api_server.domain.product.entity.Product;
 import com.ThreeK_Project.api_server.domain.product.service.ProductService;
 import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
@@ -33,7 +35,9 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderProductRepository orderProductRepository;
+
     private final ProductService productService;
+    private final PaymentService paymentService;
 
     // 사용자 -> 주문 생성
     @Transactional
@@ -46,12 +50,10 @@ public class OrderService {
     }
 
     // 사용자 -> 주문 취소
-    // createBy -> fetchJoin으로 한번에 가져오기
-    // 결제 취소도 불러오기
     @Transactional
     public void cancelOrder(UUID orderId, String username) {
         LocalDateTime now = LocalDateTime.now();
-        Order order = findOrderById(orderId);
+        Order order = findOrderByIdWithPayment(orderId);
 
         if(!order.getCreatedBy().getUsername().equals(username))
             throw new ApplicationException("Invalid user");
@@ -64,6 +66,7 @@ public class OrderService {
 
         order.changeStatus(OrderStatus.CANCELED);
         orderRepository.save(order);
+        paymentService.canclePayment(order.getPayment());
     }
 
     // 가게 주인 -> 주문 상태 변경
@@ -153,6 +156,12 @@ public class OrderService {
     @Transactional
     public Order findOrderById(UUID orderId){
         return orderRepository.findById(orderId)
+                .orElseThrow(() -> new ApplicationException("Order not found"));
+    }
+
+    @Transactional
+    public Order findOrderByIdWithPayment(UUID orderId){
+        return orderRepository.findOrderByIdWithPayment(orderId)
                 .orElseThrow(() -> new ApplicationException("Order not found"));
     }
 

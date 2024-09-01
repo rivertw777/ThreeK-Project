@@ -10,6 +10,7 @@ import com.ThreeK_Project.api_server.domain.order.enums.OrderStatus;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderType;
 import com.ThreeK_Project.api_server.domain.order.repository.OrderProductRepository;
 import com.ThreeK_Project.api_server.domain.order.repository.OrderRepository;
+import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
 import com.ThreeK_Project.api_server.domain.product.entity.Product;
 import com.ThreeK_Project.api_server.domain.product.service.ProductService;
 import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
@@ -47,6 +48,9 @@ class OrderServiceTest {
 
     @Mock
     private ProductService productService;
+
+    @Mock
+    private PaymentService paymentService;
 
     @Mock
     private Order order;
@@ -122,7 +126,7 @@ class OrderServiceTest {
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
-                .findById(any(UUID.class));
+                .findOrderByIdWithPayment(any(UUID.class));
 
         doReturn(user)
                 .when(order)
@@ -146,7 +150,7 @@ class OrderServiceTest {
 
         doReturn(Optional.empty())
                 .when(orderRepository)
-                .findById(any(UUID.class));
+                .findOrderByIdWithPayment(any(UUID.class));
 
         ApplicationException e = Assertions.
                 assertThrows(ApplicationException.class, () -> orderService.cancelOrder(orderId, "test"));
@@ -164,7 +168,7 @@ class OrderServiceTest {
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
-                .findById(any(UUID.class));
+                .findOrderByIdWithPayment(any(UUID.class));
 
         doReturn(user)
                 .when(order)
@@ -186,7 +190,7 @@ class OrderServiceTest {
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
-                .findById(any(UUID.class));
+                .findOrderByIdWithPayment(any(UUID.class));
 
         doReturn(user)
                 .when(order)
@@ -212,7 +216,7 @@ class OrderServiceTest {
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
-                .findById(any(UUID.class));
+                .findOrderByIdWithPayment(any(UUID.class));
 
         doReturn(user)
                 .when(order)

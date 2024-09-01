@@ -17,4 +17,9 @@ public interface OrderRepository extends JpaRepository<Order, UUID>, OrderReposi
             "where o.orderId = :orderId")
     public Optional<Order> findByIdWithProductsAndPayment(@Param("orderId") UUID orderId);
 
+    @Query(value = "select o from Order o " +
+            "left join fetch o.payment " +
+            "where o.orderId = :orderId")
+    public Optional<Order> findOrderByIdWithPayment(UUID orderId);
+
 }

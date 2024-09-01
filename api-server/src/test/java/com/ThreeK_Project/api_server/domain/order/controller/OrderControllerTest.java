@@ -37,8 +37,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -71,11 +70,11 @@ class OrderControllerTest {
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userDetails.getUser();
 
-        doNothing().when(orderService).cancelOrder(UUID.randomUUID(), user.getUsername());
-
         mockMvc.perform(patch("/api/orders/" + orderId +"/cancel"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("message").value("주문 취소 성공"));
+
+        verify(orderService, times(1)).cancelOrder(orderId, user.getUsername());
     }
 
     @Test
