@@ -13,6 +13,7 @@ import com.ThreeK_Project.api_server.domain.product.entity.Product;
 import com.ThreeK_Project.api_server.domain.product.service.ProductService;
 import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
+import com.ThreeK_Project.api_server.domain.user.enums.Role;
 import com.ThreeK_Project.api_server.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -86,8 +87,9 @@ public class OrderService {
     }
 
     // 주문 조회
-    public OrderResponseDto getOrder(UUID orderId) {
+    public OrderResponseDto getOrder(User user, UUID orderId) {
         Order order = findOrderByIdWithProductsAndPayment(orderId);
+        validateOrder(user, order);
         return new OrderResponseDto(order);
     }
 
@@ -148,6 +150,7 @@ public class OrderService {
         return orderProductRepository.save(orderProduct);
     }
 
+    @Transactional
     public Order findOrderById(UUID orderId){
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new ApplicationException("Order not found"));
@@ -156,5 +159,16 @@ public class OrderService {
     public Order findOrderByIdWithProductsAndPayment(UUID orderId){
         return orderRepository.findByIdWithProductsAndPayment(orderId)
                 .orElseThrow(() -> new ApplicationException("Order not found"));
+    }
+
+    public void validateOrder(User user, Order order) {
+        if(user.getRoles().contains(Role.MANAGER) || user.getRoles().contains(Role.MASTER))
+            return;
+
+        if(user.getRoles().contains(Role.OWNER) && !order.getRestaurant().getUser().getUsername().equals(user.getUsername()))
+            throw new ApplicationException("Invalid user");
+
+        if(!user.getRoles().contains(Role.OWNER) && !order.getCreatedBy().getUsername().equals(user.getUsername()))
+            throw new ApplicationException("Invalid user");
     }
 }

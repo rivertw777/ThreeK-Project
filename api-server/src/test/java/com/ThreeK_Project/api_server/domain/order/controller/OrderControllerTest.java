@@ -80,8 +80,13 @@ class OrderControllerTest {
 
     @Test
     @DisplayName("주문 조회 성공 태스트")
+    @WithCustomMockUser
     public void getOrder() throws Exception {
         UUID orderId = UUID.randomUUID();
+
+        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userDetails.getUser();
+
         Restaurant restaurant = new Restaurant();
         Order order = Order.createOrder(
                 OrderType.ONLINE, OrderStatus.WAIT, new BigDecimal(10000),
@@ -100,7 +105,7 @@ class OrderControllerTest {
 
         doReturn(responseDto)
                 .when(orderService)
-                .getOrder(orderId);
+                .getOrder(user, orderId);
 
         mockMvc.perform(get("/api/orders/" + orderId))
                 .andExpect(status().isOk())

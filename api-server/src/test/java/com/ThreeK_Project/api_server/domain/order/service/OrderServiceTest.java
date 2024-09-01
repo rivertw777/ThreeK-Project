@@ -51,6 +51,9 @@ class OrderServiceTest {
     @Mock
     private Order order;
 
+    @Mock
+    private User user;
+
     @InjectMocks
     private OrderService orderService;
 
@@ -79,6 +82,9 @@ class OrderServiceTest {
                 .save(any(OrderProduct.class));
 
         orderService.createOrder(requestDto, restaurant);
+        verify(orderRepository, times(1)).save(any(Order.class));
+        verify(productService, times(1)).getProductById(any(UUID.class));
+        verify(orderProductRepository, times(1)).save(any(OrderProduct.class));
     }
 
     @Test
@@ -377,13 +383,18 @@ class OrderServiceTest {
                 OrderType.ONLINE, OrderStatus.WAIT, new BigDecimal(10000),
                 "서울", "문앞에 놓고 노크", new Restaurant()
         );
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.MANAGER);
+
+        doReturn(roles)
+                .when(user)
+                .getRoles();
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
                 .findByIdWithProductsAndPayment(orderId);
 
-
-        OrderResponseDto orderResponseDto = orderService.getOrder(orderId);
+        OrderResponseDto orderResponseDto = orderService.getOrder(user, orderId);
         assertEquals(order.getOrderStatus(), orderResponseDto.getOrderStatus());
         assertEquals(order.getOrderType(), orderResponseDto.getOrderType());
         assertEquals(order.getDeliveryAddress(), orderResponseDto.getDeliveryAddress());
@@ -393,12 +404,15 @@ class OrderServiceTest {
     @Test
     @DisplayName("주문 조회 실패 테스트 - 주문 기록 없음")
     public void getOrderTest2(){
+        UUID orderId = UUID.randomUUID();
+        User user = new User();
+
         doReturn(Optional.empty())
                 .when(orderRepository)
                 .findByIdWithProductsAndPayment(any(UUID.class));
 
         ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> orderService.getOrder(UUID.randomUUID()));
+                assertThrows(ApplicationException.class, () -> orderService.getOrder(user, orderId));
         assertThat(e.getMessage()).isEqualTo("Order not found");
     }
 
