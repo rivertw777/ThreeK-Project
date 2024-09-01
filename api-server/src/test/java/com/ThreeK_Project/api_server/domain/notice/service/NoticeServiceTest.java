@@ -1,6 +1,7 @@
 package com.ThreeK_Project.api_server.domain.notice.service;
 
 import com.ThreeK_Project.api_server.domain.notice.dto.RequestDto.NoticeRequestDto;
+import com.ThreeK_Project.api_server.domain.notice.dto.RequestDto.NoticeSearchDto;
 import com.ThreeK_Project.api_server.domain.notice.dto.ResponseDto.NoticeResponseDto;
 import com.ThreeK_Project.api_server.domain.notice.entity.Notice;
 import com.ThreeK_Project.api_server.domain.notice.repository.NoticeRepository;
@@ -14,8 +15,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -78,6 +82,23 @@ class NoticeServiceTest {
         ApplicationException e = Assertions.
                 assertThrows(ApplicationException.class, () -> noticeService.getNotice(noticeId));
         assertThat(e.getMessage()).isEqualTo("Notice not found");
+    }
+
+    @Test
+    @DisplayName("공지사항 검색 성공 테스트")
+    public void searchNoticeTest() {
+        NoticeSearchDto searchDto = new NoticeSearchDto();
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "created_at"));
+        List<Notice> notices = new ArrayList<>();
+        Page<Notice> pages = new PageImpl<>(notices, pageable, 0);
+
+        doReturn(pages)
+                .when(noticeRepository)
+                .searchNotices(pageable, searchDto);
+
+        Page<NoticeResponseDto> result = noticeService.searchNotices(searchDto);
+        assertEquals(result.getTotalElements(), 0);
+        verify(noticeRepository, times(1)).searchNotices(pageable, searchDto);
     }
 
 }
