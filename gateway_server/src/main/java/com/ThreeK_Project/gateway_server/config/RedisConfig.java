@@ -1,6 +1,6 @@
-package com.ThreeK_Project.api_server.global.redis;
+package com.ThreeK_Project.gateway_server.config;
 
-import com.ThreeK_Project.api_server.domain.user.entity.User;
+import com.ThreeK_Project.gateway_server.user.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
@@ -11,7 +11,6 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-
 
 @Configuration
 @RequiredArgsConstructor

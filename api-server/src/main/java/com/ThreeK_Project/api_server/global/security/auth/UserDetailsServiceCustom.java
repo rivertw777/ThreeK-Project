@@ -6,8 +6,6 @@ import com.ThreeK_Project.api_server.domain.user.entity.User;
 import com.ThreeK_Project.api_server.domain.user.repository.UserCacheRepository;
 import com.ThreeK_Project.api_server.domain.user.repository.UserRepository;
 import com.ThreeK_Project.api_server.global.exception.ApplicationException;
-import com.ThreeK_Project.api_server.global.security.jwt.TokenManager;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,7 +17,6 @@ import org.springframework.stereotype.Service;
 public class UserDetailsServiceCustom implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final TokenManager tokenManager;
     private final UserCacheRepository userCacheRepository;
 
     // 이름으로 회원 조회
@@ -39,10 +36,8 @@ public class UserDetailsServiceCustom implements UserDetailsService {
         return user;
     }
 
-    // 인증 정보 반환
-    public Authentication extractAuthentication(String token) {
-        Claims claims = tokenManager.parseClaims(token);
-        String username = claims.getSubject();
+    // 인증 객체 반환
+    public Authentication getAuthentication(String username) {
         UserDetailsCustom userDetails = loadUserByUsername(username);
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
