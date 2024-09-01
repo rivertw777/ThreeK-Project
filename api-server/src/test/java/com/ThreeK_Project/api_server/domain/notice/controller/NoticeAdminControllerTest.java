@@ -13,9 +13,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.UUID;
+
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -45,7 +48,24 @@ class NoticeAdminControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("message").value("공지사항 저장 성공"));
 
-        verify(noticeService).createNotice(any(NoticeRequestDto.class));
+        verify(noticeService, times(1))
+                .createNotice(any(NoticeRequestDto.class));
+    }
+
+    @Test
+    @DisplayName("공지사항 수정 성공 테스트")
+    public void updateNoticeTest() throws Exception {
+        UUID noticeId = UUID.randomUUID();
+        String content = "{\"title\": \"제목\", \"content\": \"내용\"}";
+
+        mockMvc.perform(put("/api/admin/notices/" + noticeId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("message").value("공지사항 수정 성공"));
+
+        verify(noticeService, times(1))
+                .updateNotice(eq(noticeId), any(NoticeRequestDto.class));
     }
 
 }

@@ -101,4 +101,33 @@ class NoticeServiceTest {
         verify(noticeRepository, times(1)).searchNotices(pageable, searchDto);
     }
 
+    @Test
+    @DisplayName("공지사항 수정 성공 테스트")
+    public void updateNoticeTest() {
+        UUID noticeId = UUID.randomUUID();
+        NoticeRequestDto requestDto = new NoticeRequestDto();
+
+        doReturn(Optional.of(new Notice()))
+                .when(noticeRepository)
+                .findById(noticeId);
+
+        noticeService.updateNotice(noticeId, requestDto);
+        verify(noticeRepository, times(1)).findById(noticeId);
+    }
+
+    @Test
+    @DisplayName("공지사항 수정 실패 테스트 - 존재하지 않는 공지사항")
+    public void updateNoticeTest2() {
+        UUID noticeId = UUID.randomUUID();
+        NoticeRequestDto requestDto = new NoticeRequestDto();
+
+        doReturn(Optional.empty())
+                .when(noticeRepository)
+                .findById(noticeId);
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> noticeService.updateNotice(noticeId, requestDto));
+        assertThat(e.getMessage()).isEqualTo("Notice not found");
+    }
+
 }

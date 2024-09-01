@@ -26,4 +26,9 @@ public class Notice extends BaseEntity {
                 .build();
     }
 
+    public void updateNotice(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
+
 }

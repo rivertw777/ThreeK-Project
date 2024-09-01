@@ -31,6 +31,7 @@ public class NoticeService {
     }
 
     // 공지사항 단건 조회
+    @Transactional(readOnly = true)
     public NoticeResponseDto getNotice(UUID noticeId) {
         return new NoticeResponseDto(findNoticeById(noticeId));
     }
@@ -45,6 +46,15 @@ public class NoticeService {
         return noticeRepository.searchNotices(pageable, searchDto).map(NoticeResponseDto::new);
     }
 
+    // 공지사항 수정
+    @Transactional
+    public void updateNotice(UUID noticeId, NoticeRequestDto requestDto) {
+        Notice notice = findNoticeById(noticeId);
+        notice.updateNotice(requestDto.getTitle(), requestDto.getContent());
+        noticeRepository.save(notice);
+    }
+
+    @Transactional
     public Notice findNoticeById(UUID noticeId) {
         return noticeRepository.findById(noticeId)
                 .orElseThrow(() -> new ApplicationException("Notice not found"));
