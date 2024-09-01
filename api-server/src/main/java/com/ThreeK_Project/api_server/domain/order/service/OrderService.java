@@ -9,7 +9,6 @@ import com.ThreeK_Project.api_server.domain.order.entity.OrderProduct;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderStatus;
 import com.ThreeK_Project.api_server.domain.order.repository.OrderProductRepository;
 import com.ThreeK_Project.api_server.domain.order.repository.OrderRepository;
-import com.ThreeK_Project.api_server.domain.payment.entity.Payment;
 import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
 import com.ThreeK_Project.api_server.domain.product.entity.Product;
 import com.ThreeK_Project.api_server.domain.product.service.ProductService;
@@ -69,21 +68,24 @@ public class OrderService {
         paymentService.canclePayment(order.getPayment());
     }
 
-    // 가게 주인 -> 주문 상태 변경
+    // 주문 상태 변경
     @Transactional
-    public void updateOrderStatus(UUID orderId, OrderStatus newOrderStatus) {
-        if(newOrderStatus == OrderStatus.WAIT)
+    public void updateOrderStatus(UUID orderId, OrderStatus newStatus) {
+        if(newStatus == OrderStatus.WAIT)
             throw new ApplicationException("Invalid order status");
 
         Order order = findOrderById(orderId);
 
-        OrderStatus oldOrderStatus = order.getOrderStatus();
-        if(oldOrderStatus == OrderStatus.WAIT && newOrderStatus == OrderStatus.CANCELED)
-            order.changeStatus(OrderStatus.CANCELED);
-        else if(oldOrderStatus == OrderStatus.WAIT && newOrderStatus == OrderStatus.RECEIPT)
-            order.changeStatus(OrderStatus.RECEIPT);
-        else if(oldOrderStatus == OrderStatus.RECEIPT && newOrderStatus == OrderStatus.COMPLETE)
-            order.changeStatus(OrderStatus.COMPLETE);
+        User user = order.getCreatedBy();
+        if(!(user.getRoles().contains(Role.MASTER) || user.getRoles().contains(Role.MANAGER))
+            && !order.getRestaurant().getUser().getUsername().equals(user.getUsername()))
+            throw new ApplicationException("Invalid user");
+
+        OrderStatus oldStatus = order.getOrderStatus();
+        if((oldStatus == OrderStatus.WAIT && newStatus == OrderStatus.CANCELED)
+            || (oldStatus == OrderStatus.WAIT && newStatus == OrderStatus.RECEIPT)
+            || (oldStatus == OrderStatus.RECEIPT && newStatus == OrderStatus.COMPLETE))
+            order.changeStatus(newStatus);
         else
             throw new ApplicationException("Invalid order status");
         orderRepository.save(order);
@@ -120,7 +122,6 @@ public class OrderService {
     public Page<OrderResponseDto> searchOrders(OrderSearchDTO searchDTO) {
         Sort sort = searchDTO.getAscending() ? Sort.by(Sort.Direction.DESC, "createdAt"). ascending()
                 : Sort.by(Sort.Direction.ASC, "createdAt").descending();
-
         Pageable pageable = PageRequest.of(searchDTO.getPage(), searchDTO.getSize(), sort);
 
         return orderRepository.searchOrders(pageable, searchDTO).map(OrderResponseDto::new);

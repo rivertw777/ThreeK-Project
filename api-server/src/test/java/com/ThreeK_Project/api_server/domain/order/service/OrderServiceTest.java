@@ -239,10 +239,20 @@ class OrderServiceTest {
     @DisplayName("음식점 사장 주문상태 변경 성공 테스트 - WAIT > CANCELED")
     public void changeOrderStatusTest(){
         UUID orderId = UUID.randomUUID();
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.MANAGER);
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
                 .findById(any(UUID.class));
+
+        doReturn(user)
+                .when(order)
+                .getCreatedBy();
+
+        doReturn(roles)
+                .when(user)
+                .getRoles();
 
         doReturn(OrderStatus.WAIT)
                 .when(order)
@@ -255,10 +265,20 @@ class OrderServiceTest {
     @DisplayName("음식점 사장 주문상태 변경 성공 테스트 - WAIT > RECEIPT")
     public void changeOrderStatusTest2(){
         UUID orderId = UUID.randomUUID();
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.MANAGER);
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
                 .findById(any(UUID.class));
+
+        doReturn(user)
+                .when(order)
+                .getCreatedBy();
+
+        doReturn(roles)
+                .when(user)
+                .getRoles();
 
         doReturn(OrderStatus.WAIT)
                 .when(order)
@@ -271,10 +291,20 @@ class OrderServiceTest {
     @DisplayName("음식점 사장 주문상태 변경 성공 테스트 - RECEIPT > COMPLETE")
     public void changeOrderStatusTest3(){
         UUID orderId = UUID.randomUUID();
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.MANAGER);
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
                 .findById(any(UUID.class));
+
+        doReturn(user)
+                .when(order)
+                .getCreatedBy();
+
+        doReturn(roles)
+                .when(user)
+                .getRoles();
 
         doReturn(OrderStatus.RECEIPT)
                 .when(order)
@@ -311,10 +341,20 @@ class OrderServiceTest {
     @DisplayName("음식점 사장 주문상태 변경 실패 테스트 - WAIT > COMPLETE")
     public void changeOrderStatusTest6(){
         UUID orderId = UUID.randomUUID();
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.MANAGER);
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
                 .findById(any(UUID.class));
+
+        doReturn(user)
+                .when(order)
+                .getCreatedBy();
+
+        doReturn(roles)
+                .when(user)
+                .getRoles();
 
         doReturn(OrderStatus.WAIT)
                 .when(order)
@@ -329,10 +369,20 @@ class OrderServiceTest {
     @DisplayName("음식점 사장 주문상태 변경 실패 테스트 - CANCLED > anything")
     public void changeOrderStatusTest7(){
         UUID orderId = UUID.randomUUID();
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.MANAGER);
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
                 .findById(any(UUID.class));
+
+        doReturn(user)
+                .when(order)
+                .getCreatedBy();
+
+        doReturn(roles)
+                .when(user)
+                .getRoles();
 
         doReturn(OrderStatus.CANCELED)
                 .when(order)
@@ -347,10 +397,20 @@ class OrderServiceTest {
     @DisplayName("음식점 사장 주문상태 변경 실패 테스트 - COMPLETE > anything")
     public void changeOrderStatusTest9(){
         UUID orderId = UUID.randomUUID();
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.MANAGER);
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
                 .findById(any(UUID.class));
+
+        doReturn(user)
+                .when(order)
+                .getCreatedBy();
+
+        doReturn(roles)
+                .when(user)
+                .getRoles();
 
         doReturn(OrderStatus.COMPLETE)
                 .when(order)
@@ -365,10 +425,20 @@ class OrderServiceTest {
     @DisplayName("음식점 사장 주문상태 변경 실패 테스트 - RECEIPT > CANCELED")
     public void changeOrderStatusTest10(){
         UUID orderId = UUID.randomUUID();
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.MANAGER);
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
                 .findById(any(UUID.class));
+
+        doReturn(user)
+                .when(order)
+                .getCreatedBy();
+
+        doReturn(roles)
+                .when(user)
+                .getRoles();
 
         doReturn(OrderStatus.RECEIPT)
                 .when(order)
