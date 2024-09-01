@@ -120,8 +120,8 @@ public class OrderService {
 
     // 주문 검색
     public Page<OrderResponseDto> searchOrders(OrderSearchDTO searchDTO) {
-        Sort sort = searchDTO.getAscending() ? Sort.by(Sort.Direction.DESC, "createdAt"). ascending()
-                : Sort.by(Sort.Direction.ASC, "createdAt").descending();
+        Sort sort = searchDTO.getAscending() ? Sort.by(Sort.Direction.ASC, "createdAt")
+                : Sort.by(Sort.Direction.DESC, "createdAt");
         Pageable pageable = PageRequest.of(searchDTO.getPage(), searchDTO.getSize(), sort);
 
         return orderRepository.searchOrders(pageable, searchDTO).map(OrderResponseDto::new);
