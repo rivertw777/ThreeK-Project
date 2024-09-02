@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.Getter;
 
 @Getter
-public class User {
+public class UserCache {
 
     private String username;
 

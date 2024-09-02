@@ -6,7 +6,7 @@ import static com.ThreeK_Project.gateway_server.enums.JwtProperties.TOKEN_PREFIX
 import com.ThreeK_Project.gateway_server.enums.ApiPrefix;
 import com.ThreeK_Project.gateway_server.enums.ErrorMessage;
 import com.ThreeK_Project.gateway_server.user.Role;
-import com.ThreeK_Project.gateway_server.user.User;
+import com.ThreeK_Project.gateway_server.user.UserCache;
 import com.ThreeK_Project.gateway_server.user.UserCacheRepository;
 import com.ThreeK_Project.gateway_server.utils.ResponseWriter;
 import com.ThreeK_Project.gateway_server.utils.TokenManager;
@@ -46,7 +46,7 @@ public class JwtAuthorizationFilter {
             if (tokenManager.validateToken(token)) {
                 Claims claims = tokenManager.parseClaims(token);
                 String username = claims.getSubject();
-                User user = userCacheRepository.getUserCache(username);
+                UserCache user = userCacheRepository.getUserCache(username);
 
                 // UserCache Null
                 if (user == null) {
