@@ -15,10 +15,15 @@ public class GatewayConfig {
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
+                // public api
+                .route("api-server", r -> r.path("/api/public/**")
+                        .uri("lb://api-server"))
+                // auth api
                 .route("api-server", r -> r.path("/api/**")
-                        .filters(f -> f.filter((exchange, chain) -> jwtAuthorizationFilter.filter(exchange).then(chain.filter(exchange))))
+                        .filters(f -> f.filter((exchange, chain) -> jwtAuthorizationFilter.filter(exchange, chain)))
                         .uri("lb://api-server"))
                 .build();
     }
+
 }
 

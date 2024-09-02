@@ -33,7 +33,7 @@ public class UserController {
     private final UserService userService;
 
     @Operation(summary = "회원 가입")
-    @PostMapping("/api/users")
+    @PostMapping("/api/public/users")
     public ResponseEntity<SuccessResponse> signUp(@Valid @RequestBody SignUpRequest reqeustParam) {
         SuccessResponse response = userService.signUp(reqeustParam);
         return ResponseEntity.ok(response);

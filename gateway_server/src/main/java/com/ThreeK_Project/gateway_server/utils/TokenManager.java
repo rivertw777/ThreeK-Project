@@ -1,4 +1,4 @@
-package com.ThreeK_Project.gateway_server.config;
+package com.ThreeK_Project.gateway_server.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

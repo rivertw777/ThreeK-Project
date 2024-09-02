@@ -16,17 +16,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CustomAuthenticationFilter extends OncePerRequestFilter {
+public class AuthenticationFilterCustom extends OncePerRequestFilter {
+
+    private final String HEADER_NAME = "X-User-Name";
 
     private final UserDetailsServiceCustom userDetailsServiceCustom;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-
         // 헤더 확인
-        String username = request.getHeader("Username");
-
+        String username = request.getHeader(HEADER_NAME);
         if (username == null) {
             chain.doFilter(request, response);
             return;
