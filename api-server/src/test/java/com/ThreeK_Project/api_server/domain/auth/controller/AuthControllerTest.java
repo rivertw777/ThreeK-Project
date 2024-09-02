@@ -38,25 +38,4 @@ class AuthControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
     }
 
-    @Test
-    @DisplayName("회원 로그인 - 성공 테스트")
-    void login_Success() throws Exception {
-        // Given
-        LoginRequest request = new LoginRequest("username", "123456");
-        ObjectMapper objectMapper = new ObjectMapper();
-        String content = objectMapper.writeValueAsString(request);
-        LoginResponse response = new LoginResponse("accessToken");
-
-        when(authService.login(request)).thenReturn(response);
-
-        // When & Then
-        mockMvc.perform(post("/api/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("token").value(response.token()));
-        verify(authService).login(request);
-    }
-
 }

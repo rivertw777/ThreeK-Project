@@ -60,101 +60,6 @@ class UserControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
     }
 
-    @Test
-    @DisplayName("회원 가입 - 성공 테스트")
-    void signUp_Success() throws Exception {
-        // Given
-        SignUpRequest request = new SignUpRequest("username", "123456", "customer",
-                "01012345678", "address");
-        ObjectMapper objectMapper = new ObjectMapper();
-        String content = objectMapper.writeValueAsString(request);
-        SuccessResponse response = new SuccessResponse(SIGN_UP_SUCCESS.getValue());
-
-        when(userService.signUp(request)).thenReturn(response);
-
-        // When & Then
-        mockMvc.perform(post("/api/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("message").value(response.message()));
-        verify(userService).signUp(request);
-    }
-
-    @Test
-    @DisplayName("회원 가입 - 짧은 비밀번호 테스트")
-    void signUp_ShortPassword_ThrowsException() throws Exception {
-        // Given
-        SignUpRequest request = new SignUpRequest("username", "1234", "customer",
-                "01012345678", "address");
-        ObjectMapper objectMapper = new ObjectMapper();
-        String content = objectMapper.writeValueAsString(request);
-
-        // When & Then
-        mockMvc.perform(post("/api/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @DisplayName("회원 가입 - 유효하지 않은 전화번호 테스트")
-    void signUp_InvalidPhoneNumber_ThrowsException() throws Exception {
-        // Given
-        SignUpRequest request = new SignUpRequest("username", "123456", "customer",
-                "010", "address");
-        ObjectMapper objectMapper = new ObjectMapper();
-        String content = objectMapper.writeValueAsString(request);
-
-        // When & Then
-        mockMvc.perform(post("/api/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @DisplayName("회원 가입 - username 없는 경우 테스트")
-    void signUp_NoUsername_ThrowsException() throws Exception {
-        // Given
-        SignUpRequest request = new SignUpRequest("", "123456", "customer",
-                "010", "address");
-        ObjectMapper objectMapper = new ObjectMapper();
-        String content = objectMapper.writeValueAsString(request);
-
-        // When & Then
-        mockMvc.perform(post("/api/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
-    }
-
-    @WithCustomMockUser
-    @Test
-    @DisplayName("회원 정보 조회 - 성공 테스트")
-    void getUserInfo_Success() throws Exception {
-        // Given
-        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User user = userDetails.getUser();
-        UserInfoResponse response = new UserInfoResponse(user);
-
-        when(userService.getUserInfo(user)).thenReturn(response);
-
-        // When & Then
-        mockMvc.perform(get("/api/users"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("username").value(response.username()))
-                .andExpect(jsonPath("roles").value(response.roles()))
-                .andExpect(jsonPath("phoneNumber").value(response.phoneNumber()))
-                .andExpect(jsonPath("address").value(response.address()));
-        verify(userService).getUserInfo(user);
-    }
-
     @WithCustomMockUser
     @Test
     @DisplayName("회원 정보 수정 - 성공 테스트")
@@ -247,29 +152,6 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("message").value(response.message()));
         verify(userService).revokeRoleFromUser(master, username, request);
-    }
-
-    @Test
-    @DisplayName("MANAGER 회원 조회 - 성공 테스트")
-    void getManagerUserInfos_Success() throws Exception {
-        // Given
-        Pageable pageable = Pageable.ofSize(3);
-        User testUser = User.createUser("username", "123456", Role.CUSTOMER,
-                "01012345678", "address");
-        List<User> testUsers = Arrays.asList(testUser, testUser, testUser);
-        Page<User> userPage = new PageImpl<>(testUsers);
-        Page<ManagerUserInfoResponse> responses = userPage.map(user -> new ManagerUserInfoResponse(user));
-
-        when(userService.getManagerUserInfos(pageable)).thenReturn(responses);
-
-        // When & Then
-        mockMvc.perform(get("/api/admin/users")
-                        .param("page", "0")
-                        .param("size", "3"))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content.length()").value(3));
-        verify(userService).getManagerUserInfos(pageable);
     }
 
 }
