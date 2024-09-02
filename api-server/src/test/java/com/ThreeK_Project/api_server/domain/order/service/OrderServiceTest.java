@@ -10,6 +10,7 @@ import com.ThreeK_Project.api_server.domain.order.enums.OrderStatus;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderType;
 import com.ThreeK_Project.api_server.domain.order.repository.OrderProductRepository;
 import com.ThreeK_Project.api_server.domain.order.repository.OrderRepository;
+import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
 import com.ThreeK_Project.api_server.domain.product.entity.Product;
 import com.ThreeK_Project.api_server.domain.product.service.ProductService;
 import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
@@ -49,7 +50,13 @@ class OrderServiceTest {
     private ProductService productService;
 
     @Mock
+    private PaymentService paymentService;
+
+    @Mock
     private Order order;
+
+    @Mock
+    private User user;
 
     @InjectMocks
     private OrderService orderService;
@@ -58,12 +65,11 @@ class OrderServiceTest {
     @Test
     @DisplayName("주문 생성 성공 테스트")
     public void createOrderTest1(){
-
         List<ProductRequestData> products = new ArrayList<>();
         products.add(new ProductRequestData(UUID.randomUUID(), 2, new BigDecimal(5000)));
         OrderRequestDto requestDto = new OrderRequestDto(
                 new BigDecimal(10000), "서울시", "문앞에 두고 노크",
-                OrderType.ONLINE, UUID.randomUUID(), products
+                OrderType.ONLINE, products
         );
         Restaurant restaurant = new Restaurant();
 
@@ -71,7 +77,7 @@ class OrderServiceTest {
                 .when(orderRepository)
                 .save(any(Order.class));
 
-        doReturn(Product.createProduct("이름", 2000, "설명", restaurant))
+        doReturn(new Product())
                 .when(productService)
                 .getProductById(any(UUID.class));
 
@@ -80,17 +86,19 @@ class OrderServiceTest {
                 .save(any(OrderProduct.class));
 
         orderService.createOrder(requestDto, restaurant);
+        verify(orderRepository, times(1)).save(any(Order.class));
+        verify(productService, times(1)).getProductById(any(UUID.class));
+        verify(orderProductRepository, times(1)).save(any(OrderProduct.class));
     }
 
     @Test
     @DisplayName("주문 생성 실패 테스트 - 존재하지 않는 상품")
     public void createOrderTest4(){
-
         List<ProductRequestData> products = new ArrayList<>();
         products.add(new ProductRequestData(UUID.randomUUID(), 2, new BigDecimal(5000)));
         OrderRequestDto requestDto = new OrderRequestDto(
                 new BigDecimal(10000), "서울시", "문앞에 두고 노크",
-                OrderType.ONLINE, UUID.randomUUID(), products
+                OrderType.ONLINE, products
         );
         Restaurant restaurant = new Restaurant();
 
@@ -118,7 +126,7 @@ class OrderServiceTest {
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
-                .findById(any(UUID.class));
+                .findOrderByIdWithPayment(any(UUID.class));
 
         doReturn(user)
                 .when(order)
@@ -142,7 +150,7 @@ class OrderServiceTest {
 
         doReturn(Optional.empty())
                 .when(orderRepository)
-                .findById(any(UUID.class));
+                .findOrderByIdWithPayment(any(UUID.class));
 
         ApplicationException e = Assertions.
                 assertThrows(ApplicationException.class, () -> orderService.cancelOrder(orderId, "test"));
@@ -160,7 +168,7 @@ class OrderServiceTest {
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
-                .findById(any(UUID.class));
+                .findOrderByIdWithPayment(any(UUID.class));
 
         doReturn(user)
                 .when(order)
@@ -182,7 +190,7 @@ class OrderServiceTest {
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
-                .findById(any(UUID.class));
+                .findOrderByIdWithPayment(any(UUID.class));
 
         doReturn(user)
                 .when(order)
@@ -208,7 +216,7 @@ class OrderServiceTest {
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
-                .findById(any(UUID.class));
+                .findOrderByIdWithPayment(any(UUID.class));
 
         doReturn(user)
                 .when(order)
@@ -231,48 +239,66 @@ class OrderServiceTest {
     @DisplayName("음식점 사장 주문상태 변경 성공 테스트 - WAIT > CANCELED")
     public void changeOrderStatusTest(){
         UUID orderId = UUID.randomUUID();
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.MANAGER);
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
                 .findById(any(UUID.class));
 
+        doReturn(roles)
+                .when(user)
+                .getRoles();
+
         doReturn(OrderStatus.WAIT)
                 .when(order)
                 .getOrderStatus();
 
-        orderService.updateOrderStatus(orderId, OrderStatus.CANCELED);
+        orderService.updateOrderStatus(user, orderId, OrderStatus.CANCELED);
     }
 
     @Test
     @DisplayName("음식점 사장 주문상태 변경 성공 테스트 - WAIT > RECEIPT")
     public void changeOrderStatusTest2(){
         UUID orderId = UUID.randomUUID();
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.MANAGER);
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
                 .findById(any(UUID.class));
 
+        doReturn(roles)
+                .when(user)
+                .getRoles();
+
         doReturn(OrderStatus.WAIT)
                 .when(order)
                 .getOrderStatus();
 
-        orderService.updateOrderStatus(orderId, OrderStatus.RECEIPT);
+        orderService.updateOrderStatus(user, orderId, OrderStatus.RECEIPT);
     }
 
     @Test
     @DisplayName("음식점 사장 주문상태 변경 성공 테스트 - RECEIPT > COMPLETE")
     public void changeOrderStatusTest3(){
         UUID orderId = UUID.randomUUID();
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.MANAGER);
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
                 .findById(any(UUID.class));
 
+        doReturn(roles)
+                .when(user)
+                .getRoles();
+
         doReturn(OrderStatus.RECEIPT)
                 .when(order)
                 .getOrderStatus();
 
-        orderService.updateOrderStatus(orderId, OrderStatus.COMPLETE);
+        orderService.updateOrderStatus(user, orderId, OrderStatus.COMPLETE);
     }
 
     @Test
@@ -281,7 +307,7 @@ class OrderServiceTest {
         UUID orderId = UUID.randomUUID();
 
         ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(orderId, OrderStatus.WAIT));
+                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(user, orderId, OrderStatus.WAIT));
         assertThat(e.getMessage()).isEqualTo("Invalid order status");
     }
 
@@ -295,7 +321,7 @@ class OrderServiceTest {
                 .findById(orderId);
 
         ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(orderId, OrderStatus.RECEIPT));
+                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(user, orderId, OrderStatus.RECEIPT));
         assertThat(e.getMessage()).isEqualTo("Order not found");
     }
 
@@ -303,17 +329,23 @@ class OrderServiceTest {
     @DisplayName("음식점 사장 주문상태 변경 실패 테스트 - WAIT > COMPLETE")
     public void changeOrderStatusTest6(){
         UUID orderId = UUID.randomUUID();
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.MANAGER);
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
                 .findById(any(UUID.class));
+
+        doReturn(roles)
+                .when(user)
+                .getRoles();
 
         doReturn(OrderStatus.WAIT)
                 .when(order)
                 .getOrderStatus();
 
         ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(orderId, OrderStatus.COMPLETE));
+                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(user, orderId, OrderStatus.COMPLETE));
         assertThat(e.getMessage()).isEqualTo("Invalid order status");
     }
 
@@ -321,17 +353,23 @@ class OrderServiceTest {
     @DisplayName("음식점 사장 주문상태 변경 실패 테스트 - CANCLED > anything")
     public void changeOrderStatusTest7(){
         UUID orderId = UUID.randomUUID();
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.MANAGER);
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
                 .findById(any(UUID.class));
+
+        doReturn(roles)
+                .when(user)
+                .getRoles();
 
         doReturn(OrderStatus.CANCELED)
                 .when(order)
                 .getOrderStatus();
 
         ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(orderId, OrderStatus.COMPLETE));
+                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(user, orderId, OrderStatus.COMPLETE));
         assertThat(e.getMessage()).isEqualTo("Invalid order status");
     }
 
@@ -339,17 +377,23 @@ class OrderServiceTest {
     @DisplayName("음식점 사장 주문상태 변경 실패 테스트 - COMPLETE > anything")
     public void changeOrderStatusTest9(){
         UUID orderId = UUID.randomUUID();
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.MANAGER);
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
                 .findById(any(UUID.class));
+
+        doReturn(roles)
+                .when(user)
+                .getRoles();
 
         doReturn(OrderStatus.COMPLETE)
                 .when(order)
                 .getOrderStatus();
 
         ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(orderId, OrderStatus.COMPLETE));
+                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(user, orderId, OrderStatus.COMPLETE));
         assertThat(e.getMessage()).isEqualTo("Invalid order status");
     }
 
@@ -357,17 +401,23 @@ class OrderServiceTest {
     @DisplayName("음식점 사장 주문상태 변경 실패 테스트 - RECEIPT > CANCELED")
     public void changeOrderStatusTest10(){
         UUID orderId = UUID.randomUUID();
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.MANAGER);
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
                 .findById(any(UUID.class));
+
+        doReturn(roles)
+                .when(user)
+                .getRoles();
 
         doReturn(OrderStatus.RECEIPT)
                 .when(order)
                 .getOrderStatus();
 
         ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(orderId, OrderStatus.CANCELED));
+                assertThrows(ApplicationException.class, () -> orderService.updateOrderStatus(user, orderId, OrderStatus.CANCELED));
         assertThat(e.getMessage()).isEqualTo("Invalid order status");
     }
 
@@ -379,13 +429,18 @@ class OrderServiceTest {
                 OrderType.ONLINE, OrderStatus.WAIT, new BigDecimal(10000),
                 "서울", "문앞에 놓고 노크", new Restaurant()
         );
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.MANAGER);
+
+        doReturn(roles)
+                .when(user)
+                .getRoles();
 
         doReturn(Optional.of(order))
                 .when(orderRepository)
                 .findByIdWithProductsAndPayment(orderId);
 
-
-        OrderResponseDto orderResponseDto = orderService.getOrder(orderId);
+        OrderResponseDto orderResponseDto = orderService.getOrder(user, orderId);
         assertEquals(order.getOrderStatus(), orderResponseDto.getOrderStatus());
         assertEquals(order.getOrderType(), orderResponseDto.getOrderType());
         assertEquals(order.getDeliveryAddress(), orderResponseDto.getDeliveryAddress());
@@ -395,12 +450,15 @@ class OrderServiceTest {
     @Test
     @DisplayName("주문 조회 실패 테스트 - 주문 기록 없음")
     public void getOrderTest2(){
+        UUID orderId = UUID.randomUUID();
+        User user = new User();
+
         doReturn(Optional.empty())
                 .when(orderRepository)
                 .findByIdWithProductsAndPayment(any(UUID.class));
 
         ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> orderService.getOrder(UUID.randomUUID()));
+                assertThrows(ApplicationException.class, () -> orderService.getOrder(user, orderId));
         assertThat(e.getMessage()).isEqualTo("Order not found");
     }
 

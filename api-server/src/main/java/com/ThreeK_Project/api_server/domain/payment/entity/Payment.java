@@ -53,4 +53,8 @@ public class Payment extends BaseEntity {
         this.paymentStatus = requestDto.getPaymentStatus();
         this.paymentAmount = requestDto.getAmount();
     }
+
+    public void changeStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
 }

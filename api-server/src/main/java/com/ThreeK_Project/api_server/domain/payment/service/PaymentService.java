@@ -88,6 +88,12 @@ public class PaymentService {
     }
 
     @Transactional
+    public void canclePayment(Payment cancledPayment) {
+        cancledPayment.changeStatus(PaymentStatus.CANCELED);
+        paymentRepository.save(cancledPayment);
+    }
+
+    @Transactional
     public Payment findPaymentById(UUID paymentId) {
         return paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new ApplicationException("Payment not found"));

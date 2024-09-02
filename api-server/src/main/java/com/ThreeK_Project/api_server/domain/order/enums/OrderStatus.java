@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 @Getter
 public enum OrderStatus {
+    PAYMENT_WAIT("0", "주문 결제 대기"),
     WAIT("1", "주문 접수 대기"),
     CANCELED("2", "주문 취소"),
     RECEIPT("3", "주문 접수"),

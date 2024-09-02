@@ -37,8 +37,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -71,32 +70,22 @@ class OrderControllerTest {
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userDetails.getUser();
 
-        doNothing().when(orderService).cancelOrder(UUID.randomUUID(), user.getUsername());
-
         mockMvc.perform(patch("/api/orders/" + orderId +"/cancel"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("message").value("주문 취소 성공"));
-    }
 
-    @Test
-    @DisplayName("주문 상태 변경 성공 테스트")
-    public void updateOrderStatusTest() throws Exception {
-        UUID orderId = UUID.randomUUID();
-        String content = "{\"orderStatus\":\"CANCELED\"}";
-
-        doNothing().when(orderService).updateOrderStatus(orderId, OrderStatus.CANCELED);
-
-        mockMvc.perform(patch("/api/orders/" + orderId + "/status")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(content))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("message").value("주문 상태 변경 성공"));
+        verify(orderService, times(1)).cancelOrder(orderId, user.getUsername());
     }
 
     @Test
     @DisplayName("주문 조회 성공 태스트")
+    @WithCustomMockUser
     public void getOrder() throws Exception {
         UUID orderId = UUID.randomUUID();
+
+        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userDetails.getUser();
+
         Restaurant restaurant = new Restaurant();
         Order order = Order.createOrder(
                 OrderType.ONLINE, OrderStatus.WAIT, new BigDecimal(10000),
@@ -115,7 +104,7 @@ class OrderControllerTest {
 
         doReturn(responseDto)
                 .when(orderService)
-                .getOrder(orderId);
+                .getOrder(user, orderId);
 
         mockMvc.perform(get("/api/orders/" + orderId))
                 .andExpect(status().isOk())

@@ -6,6 +6,7 @@ import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.OrderResponseD
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
 import com.ThreeK_Project.api_server.domain.order.service.OrderService;
 import com.ThreeK_Project.api_server.domain.payment.dto.PaymentRequestDto;
+import com.ThreeK_Project.api_server.domain.payment.entity.Payment;
 import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
 import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
@@ -34,20 +35,11 @@ public class OrderController {
         return ResponseEntity.ok(new SuccessResponse("주문 취소 성공"));
     }
 
-    @PatchMapping("/{orderId}/status")
-    @Operation(summary = "가게 주인 주문 상태 변경")
-    public ResponseEntity<SuccessResponse> updateOrderStatus(
-            @PathVariable("orderId") UUID orderId,
-            @RequestBody OrderStatusRequestDto requestDto
-    ) {
-        orderService.updateOrderStatus(orderId, requestDto.getOrderStatus());
-        return ResponseEntity.ok(new SuccessResponse("주문 상태 변경 성공"));
-    }
-
     @GetMapping("/{orderId}")
-    @Operation(summary = "사용자 주문 확인")
+    @Operation(summary = "사용자 주문 조회")
     public ResponseEntity<OrderResponseDto> getOrder(@PathVariable("orderId") UUID orderId) {
-        return ResponseEntity.ok(orderService.getOrder(orderId));
+        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(orderService.getOrder(userDetails.getUser(), orderId));
     }
 
     @GetMapping
