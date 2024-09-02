@@ -36,23 +36,32 @@
 
 ### Back-end
 
-| <img src="https://profilinator.rishav.dev/skills-assets/java-original-wordmark.svg" alt="Java" width="50px" height="50px" /> | <img src="https://www.seekpng.com/png/full/142-1425436_spring-boot.png" alt="Spring-Boot" width="110px" height="50px" /> | <img src="https://seeklogo.com/images/J/jwt-logo-65D86B4640-seeklogo.com.png" alt="jwt" width="50px" height="50px" /> | <img src="https://img1.daumcdn.net/thumb/R800x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fzeffk%2Fbtrc3pNddy4%2FbTtid8MLs8HPjAmADYDfa0%2Fimg.png" alt="SpringSecurity" width="50px" height="50px"> |
-| :---: | :---: | :---: | :---: |
-| Java | Spring-Boot | JWT | SpringSecurity |
+| <img src="https://profilinator.rishav.dev/skills-assets/java-original-wordmark.svg" alt="Java" width="70px" height="70px" /> | <img src="https://www.seekpng.com/png/full/142-1425436_spring-boot.png" alt="Spring-Boot" width="70px" height="70px" /> | <img src="https://velog.velcdn.com/images/junyoungs7/post/868647fc-b2e6-439a-8260-6956b734fd2c/image.png" alt="Spring-Boot" width="70px" height="70px" /> | 
+|:----------------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------:|
+|                                                             Java                                                             |                                                       Spring-Boot                                                       |                                Spring Cloud                                 |
 
-| <img src="https://minkukjo.github.io/assets//img/spring-data-logo.png" alt="JPA" width="50px" height="50px"> | <img src="images/Postgre.png" alt="Postgresql" widty="70px" height="70px"> | <img src="https://profilinator.rishav.dev/skills-assets/redis-original-wordmark.svg" alt="Redis" widty="50px" height="50px"> |
-| :---: |:--------------------------------------------------------------------------:| :---: |
-| Spring Data JPA |                                 PostgreSQL                                 | Redis |
+| <img src="https://seeklogo.com/images/J/jwt-logo-65D86B4640-seeklogo.com.png" alt="jwt" width="70px" height="70px" /> | <img src="https://img1.daumcdn.net/thumb/R800x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fzeffk%2Fbtrc3pNddy4%2FbTtid8MLs8HPjAmADYDfa0%2Fimg.png" alt="SpringSecurity" width="70px" height="70px"> | <img src="images/Swagger.png" alt="QueryDSL" width="70px" height="70px"> |
+|:---------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------:|
+|                                                          JWT                                                          |                                                                                                     SpringSecurity                                                                                                     |                                 Swagger                                  |
+
+| <img src="https://minkukjo.github.io/assets//img/spring-data-logo.png" alt="JPA" width="70px" height="70px"> | <img src="https://blog.kakaocdn.net/dn/xdWQ8/btrPIFeXOCO/pkEovWQcHWznekbkRYC43k/img.png" alt="QueryDSL" width="70px" height="70px"> | 
+|:------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------:|
+|                                               Spring Data JPA                                                |                               QueryDSL                               |
+
+| <img src="https://seeklogo.com/images/P/postgresql-logo-5309879B58-seeklogo.com.png" alt="Postgresql" width="70px" height="70px"> | <img src="https://profilinator.rishav.dev/skills-assets/redis-original-wordmark.svg" alt="Redis" width="70px" height="70px"> |
+|:---------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------:|
+|                                                            PostgreSQL                                                             |                                                            Redis                                                             |
+
 
 ### Deploy
 
-| <img src="https://seeklogo.com/images/A/aws-ec2-elastic-compute-cloud-logo-2F9E73DBA5-seeklogo.com.png" alt="EC2" height="50px" width="50px" /> | <img src="https://profilinator.rishav.dev/skills-assets/docker-original-wordmark.svg" alt="docker" width="50px" height="50px" /> | <img src="https://profilinator.rishav.dev/skills-assets/nginx-original.svg" alt="NGiNX" width="50px" height="50px" /> |
-| :---: | :---: | :---: |
-| EC2 | Docker | NginX |
+| <img src="https://seeklogo.com/images/A/aws-ec2-elastic-compute-cloud-logo-2F9E73DBA5-seeklogo.com.png" alt="EC2" height="50px" width="50px" /> | <img src="https://profilinator.rishav.dev/skills-assets/docker-original-wordmark.svg" alt="docker" width="50px" height="50px" /> |
+| :---: | :---: |
+| EC2 | Docker |
 
-|<img src="https://profilinator.rishav.dev/skills-assets/git-scm-icon.svg" alt="Git" height="50px" width="50px" />  | <img src="https://avatars.githubusercontent.com/u/44036562?s=200&v=4" alt="Github Actions" height="70px" width="70px"> | <img src="https://profilinator.rishav.dev/skills-assets/linux-original.svg" alt="Linux" height="50px" width="50px" /> |
-| :---: | :---: | :---: |
-| Git | Github Actions | Linux |
+|<img src="https://profilinator.rishav.dev/skills-assets/git-scm-icon.svg" alt="Git" height="50px" width="50px" />  | <img src="https://avatars.githubusercontent.com/u/44036562?s=200&v=4" alt="Github Actions" height="70px" width="70px"> | 
+| :---: | :---: |
+| Git | Github Actions |
 
 ## 핵심 기능
 
@@ -106,5 +115,4 @@
    insert into p_categories(name) values ('한식');
 
 ### API 명세서
-[https://www.notion.so/Chapter-3-AI-6-91aa84bb6a944c068d0162e36dfbad2a?pvs=4
-](https://www.notion.so/Chapter-3-AI-6-91aa84bb6a944c068d0162e36dfbad2a?pvs=4)
+https://www.notion.so/Chapter-3-AI-6-91aa84bb6a944c068d0162e36dfbad2a?pvs=4
