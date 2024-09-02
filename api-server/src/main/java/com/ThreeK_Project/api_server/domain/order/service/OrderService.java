@@ -9,6 +9,7 @@ import com.ThreeK_Project.api_server.domain.order.entity.OrderProduct;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderStatus;
 import com.ThreeK_Project.api_server.domain.order.repository.OrderProductRepository;
 import com.ThreeK_Project.api_server.domain.order.repository.OrderRepository;
+import com.ThreeK_Project.api_server.domain.payment.dto.RequestDto.PaymentRequestDto;
 import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
 import com.ThreeK_Project.api_server.domain.product.entity.Product;
 import com.ThreeK_Project.api_server.domain.product.service.ProductService;
@@ -54,8 +55,7 @@ public class OrderService {
         LocalDateTime now = LocalDateTime.now();
         Order order = findOrderByIdWithPayment(orderId);
 
-        if(!order.getCreatedBy().getUsername().equals(username))
-            throw new ApplicationException("Invalid user");
+        validateCustomer(order, username);
 
         if(order.getOrderStatus() != OrderStatus.WAIT)
             throw new ApplicationException("Cannot cancel");
@@ -66,6 +66,16 @@ public class OrderService {
         order.changeStatus(OrderStatus.CANCELED);
         orderRepository.save(order);
         paymentService.canclePayment(order.getPayment());
+    }
+
+    @Transactional
+    public void changeOrderStatusToWait(UUID orderId, String username, PaymentRequestDto requestDto) {
+        Order order = findOrderById(orderId);
+        validateCustomer(order, username);
+
+        order.changeStatus(OrderStatus.WAIT);
+        paymentService.createPayment(order, requestDto);
+        orderRepository.save(order);
     }
 
     // 주문 상태 변경
@@ -93,7 +103,7 @@ public class OrderService {
     // 주문 조회
     public OrderResponseDto getOrder(User user, UUID orderId) {
         Order order = findOrderByIdWithProductsAndPayment(orderId);
-        validateOrder(user, order);
+        validateALL(user, order);
         return new OrderResponseDto(order);
     }
 
@@ -170,7 +180,12 @@ public class OrderService {
                 .orElseThrow(() -> new ApplicationException("Order not found"));
     }
 
-    public void validateOrder(User user, Order order) {
+    private void validateCustomer(Order order, String username) {
+        if(!order.getCreatedBy().getUsername().equals(username))
+            throw new ApplicationException("Invalid user");
+    }
+
+    public void validateALL(User user, Order order) {
         if(user.getRoles().contains(Role.MANAGER) || user.getRoles().contains(Role.MASTER)
         || order.getCreatedBy().getUsername().equals(user.getUsername()))
             return;

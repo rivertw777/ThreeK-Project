@@ -1,10 +1,10 @@
 package com.ThreeK_Project.api_server.domain.payment.service;
 
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
-import com.ThreeK_Project.api_server.domain.payment.dto.PaymentRequestDto;
-import com.ThreeK_Project.api_server.domain.payment.dto.PaymentResponseDto;
-import com.ThreeK_Project.api_server.domain.payment.dto.PaymentSearchDto;
-import com.ThreeK_Project.api_server.domain.payment.dto.PaymentUpdateDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.RequestDto.PaymentRequestDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.ResponseDto.PaymentResponseDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.RequestDto.PaymentSearchDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.RequestDto.PaymentUpdateDto;
 import com.ThreeK_Project.api_server.domain.payment.entity.Payment;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentStatus;
 import com.ThreeK_Project.api_server.domain.payment.repository.PaymentRepository;

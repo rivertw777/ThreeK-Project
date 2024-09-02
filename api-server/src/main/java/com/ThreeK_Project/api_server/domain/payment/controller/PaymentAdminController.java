@@ -1,7 +1,7 @@
 package com.ThreeK_Project.api_server.domain.payment.controller;
 
-import com.ThreeK_Project.api_server.domain.payment.dto.PaymentResponseDto;
-import com.ThreeK_Project.api_server.domain.payment.dto.PaymentSearchDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.ResponseDto.PaymentResponseDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.RequestDto.PaymentSearchDto;
 import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
 import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;

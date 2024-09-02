@@ -1,4 +1,4 @@
-package com.ThreeK_Project.api_server.domain.payment.dto;
+package com.ThreeK_Project.api_server.domain.payment.dto.RequestDto;
 
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentMethod;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentStatus;

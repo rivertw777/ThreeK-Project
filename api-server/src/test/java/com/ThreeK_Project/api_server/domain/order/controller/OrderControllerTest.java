@@ -1,15 +1,13 @@
 package com.ThreeK_Project.api_server.domain.order.controller;
 
 import com.ThreeK_Project.api_server.customMockUser.WithCustomMockUser;
-import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderSearchDTO;
 import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.OrderResponseDto;
-import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.ProductResponseData;
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
 import com.ThreeK_Project.api_server.domain.order.entity.OrderProduct;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderStatus;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderType;
 import com.ThreeK_Project.api_server.domain.order.service.OrderService;
-import com.ThreeK_Project.api_server.domain.payment.dto.PaymentRequestDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.RequestDto.PaymentRequestDto;
 import com.ThreeK_Project.api_server.domain.payment.entity.Payment;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentMethod;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentStatus;
@@ -26,14 +24,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -117,18 +112,12 @@ class OrderControllerTest {
 
     @Test
     @DisplayName("결제 정보 생성 성공 테스트")
+    @WithCustomMockUser
     public void createPaymentTest() throws Exception {
         UUID orderId = UUID.randomUUID();
-        Order order = new Order();
-        String content = "{\"paymentStatus\":\"WAIT\",\"paymentAmount\": \"10000\"}";
-
-        doReturn(order)
-                .when(orderService)
-                .findOrderById(any());
-
-        doNothing()
-                .when(paymentService)
-                .createPayment(order, new PaymentRequestDto());
+        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userDetails.getUser();
+        String content = "{\"paymentMethod\":\"CARD\",\"paymentAmount\": \"10000\"}";
 
         mockMvc.perform(post("/api/orders/" + orderId + "/payments")
                         .contentType(MediaType.APPLICATION_JSON)
