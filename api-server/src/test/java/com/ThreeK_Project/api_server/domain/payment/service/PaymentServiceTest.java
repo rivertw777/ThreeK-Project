@@ -10,6 +10,7 @@ import com.ThreeK_Project.api_server.domain.payment.enums.PaymentMethod;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentStatus;
 import com.ThreeK_Project.api_server.domain.payment.repository.PaymentRepository;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
+import com.ThreeK_Project.api_server.domain.user.enums.Role;
 import com.ThreeK_Project.api_server.global.exception.ApplicationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 
 import java.math.BigDecimal;
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +37,9 @@ class PaymentServiceTest {
 
     @Mock
     private PaymentRepository paymentRepository;
+
+    @Mock
+    private User user;
 
     @InjectMocks
     private PaymentService paymentService;
@@ -89,12 +94,18 @@ class PaymentServiceTest {
         UUID paymentId = UUID.randomUUID();
         Payment payment = Payment.createPayment(
                 PaymentMethod.CARD, PaymentStatus.SUCCESS, new BigDecimal(10000), new Order());
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.MANAGER);
 
         doReturn(Optional.of(payment))
                 .when(paymentRepository)
                 .findById(paymentId);
 
-        PaymentResponseDto responseDto = paymentService.getPayment(paymentId);
+        doReturn(roles)
+                .when(user)
+                .getRoles();
+
+        PaymentResponseDto responseDto = paymentService.getPayment(user, paymentId);
         assertEquals(responseDto.getPaymentMethod(), PaymentMethod.CARD);
         assertEquals(responseDto.getPaymentStatus(), PaymentStatus.SUCCESS);
         assertEquals(responseDto.getAmount(), new BigDecimal(10000));
@@ -110,7 +121,7 @@ class PaymentServiceTest {
                 .findById(paymentId);
 
         ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> paymentService.getPayment(paymentId));
+                assertThrows(ApplicationException.class, () -> paymentService.getPayment(user, paymentId));
         assertThat(e.getMessage()).isEqualTo("Payment not found");
     }
 

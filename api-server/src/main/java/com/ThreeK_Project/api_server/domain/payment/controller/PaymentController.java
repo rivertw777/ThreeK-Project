@@ -26,7 +26,8 @@ public class PaymentController {
     @GetMapping("/{paymentId}")
     @Operation(summary = "사용자 결제 정보 조회")
     public ResponseEntity<PaymentResponseDto> getPayment(@PathVariable("paymentId") @Valid UUID paymentId) {
-        return ResponseEntity.ok(paymentService.getPayment(paymentId));
+        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(paymentService.getPayment(userDetails.getUser(), paymentId));
     }
 
     @GetMapping
