@@ -1,11 +1,13 @@
 package com.ThreeK_Project.api_server.domain.payment.controller;
 
-import com.ThreeK_Project.api_server.domain.payment.dto.PaymentResponseDto;
-import com.ThreeK_Project.api_server.domain.payment.dto.PaymentSearchDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.RequestDto.PaymentSearchDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.RequestDto.PaymentUpdateDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.ResponseDto.PaymentResponseDto;
 import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
 import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +25,18 @@ public class PaymentAdminController {
 
     @GetMapping
     @Operation(summary = "관리자 결제 정보 검색")
-    public ResponseEntity<Page<PaymentResponseDto>> searchPayments(@ModelAttribute PaymentSearchDto searchDto) {
+    public ResponseEntity<Page<PaymentResponseDto>> searchPayments(@ModelAttribute @Valid PaymentSearchDto searchDto) {
         return ResponseEntity.ok(paymentService.searchPayments(searchDto));
+    }
+
+    @PutMapping("/{paymentId}")
+    @Operation(summary = "사용자 결제 정보 수정")
+    public ResponseEntity<SuccessResponse> updatePayment(
+            @PathVariable("paymentId") UUID paymentId,
+            @RequestBody @Valid PaymentUpdateDto requestDto
+    ) {
+        paymentService.updatePayment(paymentId, requestDto);
+        return ResponseEntity.ok(new SuccessResponse("결제 정보 수정 성공"));
     }
 
     @DeleteMapping("/{paymentId}")

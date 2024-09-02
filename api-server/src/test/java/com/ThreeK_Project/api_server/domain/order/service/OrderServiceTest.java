@@ -10,6 +10,8 @@ import com.ThreeK_Project.api_server.domain.order.enums.OrderStatus;
 import com.ThreeK_Project.api_server.domain.order.enums.OrderType;
 import com.ThreeK_Project.api_server.domain.order.repository.OrderProductRepository;
 import com.ThreeK_Project.api_server.domain.order.repository.OrderRepository;
+import com.ThreeK_Project.api_server.domain.payment.dto.RequestDto.PaymentRequestDto;
+import com.ThreeK_Project.api_server.domain.payment.enums.PaymentMethod;
 import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
 import com.ThreeK_Project.api_server.domain.product.entity.Product;
 import com.ThreeK_Project.api_server.domain.product.service.ProductService;
@@ -228,11 +230,76 @@ class OrderServiceTest {
 
         doReturn(LocalDateTime.now().minusMinutes(5))
                 .when(order)
-                .getCreatedAt();
+                    .getCreatedAt();
+
+            ApplicationException e = Assertions.
+                    assertThrows(ApplicationException.class, () -> orderService.cancelOrder(orderId, "test"));
+            assertThat(e.getMessage()).isEqualTo("Cancel Timeout");
+    }
+
+    @Test
+    @DisplayName("사용자 음식점 주문상태 대기변경 성공 테스트")
+    public void changeOrderStatusToWaitTest(){
+        UUID orderId = UUID.randomUUID();
+        String username = "test";
+        PaymentRequestDto requestDto = new PaymentRequestDto(
+                PaymentMethod.CARD, new BigDecimal(10000));
+
+        doReturn(Optional.of(order))
+                .when(orderRepository)
+                .findById(orderId);
+
+        doReturn(user)
+                .when(order)
+                .getCreatedBy();
+
+        doReturn(username)
+                .when(user)
+                .getUsername();
+
+        orderService.changeOrderStatusToWait(orderId, username, requestDto);
+    }
+
+    @Test
+    @DisplayName("사용자 음식점 주문상태 대기변경 실패 테스트 - 주문 존재하지 않음")
+    public void changeOrderStatusToWaitTest2(){
+        UUID orderId = UUID.randomUUID();
+        String username = "test";
+        PaymentRequestDto requestDto = new PaymentRequestDto(
+                PaymentMethod.CARD, new BigDecimal(10000));
+
+        doReturn(Optional.empty())
+                .when(orderRepository)
+                .findById(orderId);
 
         ApplicationException e = Assertions.
-                assertThrows(ApplicationException.class, () -> orderService.cancelOrder(orderId, "test"));
-        assertThat(e.getMessage()).isEqualTo("Cancel Timeout");
+                assertThrows(ApplicationException.class, () -> orderService.changeOrderStatusToWait(orderId, username, requestDto));
+        assertThat(e.getMessage()).isEqualTo("Order not found");
+    }
+
+    @Test
+    @DisplayName("사용자 음식점 주문상태 대기변경 실패 테스트 - 주문 생성자 아님")
+    public void changeOrderStatusToWaitTest3(){
+        UUID orderId = UUID.randomUUID();
+        String username = "test";
+        PaymentRequestDto requestDto = new PaymentRequestDto(
+                PaymentMethod.CARD, new BigDecimal(10000));
+
+        doReturn(Optional.of(order))
+                .when(orderRepository)
+                .findById(orderId);
+
+        doReturn(user)
+                .when(order)
+                .getCreatedBy();
+
+        doReturn("test2")
+                .when(user)
+                .getUsername();
+
+        ApplicationException e = Assertions.
+                assertThrows(ApplicationException.class, () -> orderService.changeOrderStatusToWait(orderId, username, requestDto));
+        assertThat(e.getMessage()).isEqualTo("Invalid user");
     }
 
     @Test

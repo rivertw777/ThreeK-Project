@@ -1,16 +1,13 @@
 package com.ThreeK_Project.api_server.domain.order.controller;
 
 import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderSearchDTO;
-import com.ThreeK_Project.api_server.domain.order.dto.RequestDto.OrderStatusRequestDto;
 import com.ThreeK_Project.api_server.domain.order.dto.ResponseDto.OrderResponseDto;
-import com.ThreeK_Project.api_server.domain.order.entity.Order;
 import com.ThreeK_Project.api_server.domain.order.service.OrderService;
-import com.ThreeK_Project.api_server.domain.payment.dto.PaymentRequestDto;
-import com.ThreeK_Project.api_server.domain.payment.entity.Payment;
-import com.ThreeK_Project.api_server.domain.payment.service.PaymentService;
+import com.ThreeK_Project.api_server.domain.payment.dto.RequestDto.PaymentRequestDto;
 import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
 import com.ThreeK_Project.api_server.global.security.auth.UserDetailsCustom;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +22,6 @@ import java.util.UUID;
 public class OrderController {
 
     private final OrderService orderService;
-    private final PaymentService paymentService;
 
     @PatchMapping("/{orderId}/cancel")
     @Operation(summary = "사용자 주문 취소")
@@ -44,7 +40,7 @@ public class OrderController {
 
     @GetMapping
     @Operation(summary = "사용자 주문 검색")
-    public ResponseEntity<Page<OrderResponseDto>> searchUserOrders(@ModelAttribute OrderSearchDTO searchDTO) {
+    public ResponseEntity<Page<OrderResponseDto>> searchUserOrders(@ModelAttribute @Valid OrderSearchDTO searchDTO) {
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(orderService.searchUserOrders(userDetails.getUser().getUsername(), searchDTO));
     }
@@ -52,10 +48,10 @@ public class OrderController {
     @PostMapping("{orderId}/payments")
     @Operation(summary = "사용자 결제 정보 생성")
     public ResponseEntity<SuccessResponse> createPayment(
-            @PathVariable("orderId") UUID orderId, @RequestBody PaymentRequestDto requestDto
+            @PathVariable("orderId") UUID orderId, @RequestBody @Valid PaymentRequestDto requestDto
     ) {
-        Order order = orderService.findOrderById(orderId);
-        paymentService.createPayment(order, requestDto);
+        UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        orderService.changeOrderStatusToWait(orderId, userDetails.getUser().getUsername(), requestDto);
         return ResponseEntity.ok(new SuccessResponse("결제 정보 생성 성공"));
     }
 

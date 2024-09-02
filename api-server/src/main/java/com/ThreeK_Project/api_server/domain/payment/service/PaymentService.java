@@ -1,14 +1,15 @@
 package com.ThreeK_Project.api_server.domain.payment.service;
 
 import com.ThreeK_Project.api_server.domain.order.entity.Order;
-import com.ThreeK_Project.api_server.domain.payment.dto.PaymentRequestDto;
-import com.ThreeK_Project.api_server.domain.payment.dto.PaymentResponseDto;
-import com.ThreeK_Project.api_server.domain.payment.dto.PaymentSearchDto;
-import com.ThreeK_Project.api_server.domain.payment.dto.PaymentUpdateDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.RequestDto.PaymentRequestDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.ResponseDto.PaymentResponseDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.RequestDto.PaymentSearchDto;
+import com.ThreeK_Project.api_server.domain.payment.dto.RequestDto.PaymentUpdateDto;
 import com.ThreeK_Project.api_server.domain.payment.entity.Payment;
 import com.ThreeK_Project.api_server.domain.payment.enums.PaymentStatus;
 import com.ThreeK_Project.api_server.domain.payment.repository.PaymentRepository;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
+import com.ThreeK_Project.api_server.domain.user.enums.Role;
 import com.ThreeK_Project.api_server.global.exception.ApplicationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -36,18 +37,12 @@ public class PaymentService {
         paymentRepository.save(payment);
     }
 
-    // 결제 정보 수정
-    @Transactional
-    public void updatePayment(UUID paymentId, PaymentUpdateDto requestDto) {
-        Payment payment = findPaymentById(paymentId);
-        payment.updatePayment(requestDto);
-        paymentRepository.save(payment);
-    }
-
     // 결제 단일 조회
     @Transactional(readOnly = true)
-    public PaymentResponseDto getPayment(UUID paymentId) {
-        return new PaymentResponseDto(findPaymentById(paymentId));
+    public PaymentResponseDto getPayment(User user, UUID paymentId) {
+        Payment payment = findPaymentById(paymentId);
+        validateAll(user, payment);
+        return new PaymentResponseDto(payment);
     }
 
     // 사용자 결제 검색
@@ -74,12 +69,27 @@ public class PaymentService {
     public Page<PaymentResponseDto> searchPayments(PaymentSearchDto searchDto) {
         Sort sort = searchDto.getAscending() ? Sort.by(Sort.Direction.ASC, searchDto.getSortBy().getValue())
                 : Sort.by(Sort.Direction.DESC, searchDto.getSortBy().getValue());
-
         Pageable pageable = PageRequest.of(searchDto.getPage(), searchDto.getSize(), sort);
 
         return paymentRepository.searchPayments(pageable, searchDto).map(PaymentResponseDto::new);
     }
 
+    // 결제 정보 수정
+    @Transactional
+    public void updatePayment(UUID paymentId, PaymentUpdateDto requestDto) {
+        Payment payment = findPaymentById(paymentId);
+        payment.updatePayment(requestDto);
+        paymentRepository.save(payment);
+    }
+
+    // 결제 취소
+    @Transactional
+    public void canclePayment(Payment cancledPayment) {
+        cancledPayment.changeStatus(PaymentStatus.CANCELED);
+        paymentRepository.save(cancledPayment);
+    }
+
+    // 결제 정보 삭제
     @Transactional
     public void deletePayment(UUID paymentId, User user) {
         Payment payment = findPaymentById(paymentId);
@@ -88,14 +98,19 @@ public class PaymentService {
     }
 
     @Transactional
-    public void canclePayment(Payment cancledPayment) {
-        cancledPayment.changeStatus(PaymentStatus.CANCELED);
-        paymentRepository.save(cancledPayment);
-    }
-
-    @Transactional
     public Payment findPaymentById(UUID paymentId) {
         return paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new ApplicationException("Payment not found"));
+    }
+
+    public void validateAll(User user, Payment payment){
+        if(user.getRoles().contains(Role.MANAGER) || user.getRoles().contains(Role.MASTER)
+                || payment.getCreatedBy().getUsername().equals(user.getUsername()))
+            return;
+
+        if(user.getRoles().contains(Role.OWNER) && payment.getOrder().getRestaurant().getUser().getUsername().equals(user.getUsername()))
+            return;
+
+        throw new ApplicationException("Invalid user");
     }
 }
