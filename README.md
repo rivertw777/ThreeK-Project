@@ -41,12 +41,12 @@
 |                                                             Java                                                             |                                                       Spring-Boot                                                       |                                Spring Cloud                                 |
 
 | <img src="https://seeklogo.com/images/J/jwt-logo-65D86B4640-seeklogo.com.png" alt="jwt" width="70px" height="70px" /> | <img src="https://img1.daumcdn.net/thumb/R800x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fzeffk%2Fbtrc3pNddy4%2FbTtid8MLs8HPjAmADYDfa0%2Fimg.png" alt="SpringSecurity" width="70px" height="70px"> | <img src="https://static-00.iconduck.com/assets.00/swagger-icon-512x512-halz44im.png" alt="QueryDSL" width="70px" height="70px"> |
-|:---------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------:|
-|                                                          JWT                                                          |                                                                                                     SpringSecurity                                                                                                     |                                 Swagger                                  |
+|:---------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------:|
+|                                                          JWT                                                          |                                                                                                     SpringSecurity                                                                                                     |                                                             Swagger                                                              |
 
 | <img src="https://minkukjo.github.io/assets//img/spring-data-logo.png" alt="JPA" width="70px" height="70px"> | <img src="https://blog.kakaocdn.net/dn/xdWQ8/btrPIFeXOCO/pkEovWQcHWznekbkRYC43k/img.png" alt="QueryDSL" width="70px" height="70px"> | 
-|:------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------:|
-|                                               Spring Data JPA                                                |                               QueryDSL                               |
+|:------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------:|
+|                                               Spring Data JPA                                                |                                                              QueryDSL                                                               |
 
 | <img src="https://seeklogo.com/images/P/postgresql-logo-5309879B58-seeklogo.com.png" alt="Postgresql" width="70px" height="70px"> | <img src="https://profilinator.rishav.dev/skills-assets/redis-original-wordmark.svg" alt="Redis" width="70px" height="70px"> |
 |:---------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------:|
@@ -82,13 +82,13 @@
 
 ## 프로젝트 구성도
 
-|                인프라 설계도(Infrastructure Diagram)                |
-|:-------------------------------------------------------------:|
-| <image src = "images/Infra.png" width="800px" height="500px"> |
+|                           인프라 설계도(Infrastructure Diagram)                            |
+|:------------------------------------------------------------------------------------:|
+| <image src = "https://i.postimg.cc/PrZLKSZp/Infra.png" width="800px" height="500px"> |
 
 |                       개체-관계 모델(ERD)                       |
 |:---------------------------------------------------------:|
-| <image src="images/Erd.png" width="800px" height="500px"> |
+| <image src="https://i.postimg.cc/CLW1qkQh/Erd.png" width="800px" height="500px"> |
 
 ## 개발 팀 소개
 
