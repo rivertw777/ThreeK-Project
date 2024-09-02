@@ -19,8 +19,8 @@ public class AuthController {
 
     @Operation(summary = "회원 로그인")
     @PostMapping("/api/public/auth/login")
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest reqeustParam) {
-        LoginResponse response = authService.login(reqeustParam);
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest requestParam) {
+        LoginResponse response = authService.login(requestParam);
         return ResponseEntity.ok(response);
     }
 
