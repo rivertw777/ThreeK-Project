@@ -1,5 +1,6 @@
 package com.ThreeK_Project.api_server.domain.restaurant.repository;
 
+import com.ThreeK_Project.api_server.domain.restaurant.dto.RestaurantSearch;
 import com.ThreeK_Project.api_server.domain.restaurant.entity.Restaurant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,13 +40,14 @@ class RestaurantRepositoryImplTest {
         List<Restaurant> restaurants = Collections.singletonList(restaurant);
         Page<Restaurant> expectedPage = new PageImpl<>(restaurants);
 
+        RestaurantSearch restaurantSearch = new RestaurantSearch();
+        restaurantSearch.setName("김치"); // 필요한 검색 필터 설정
+
         // When
-        when(restaurantRepository.searchRestaurants(
-                any(String.class), any(), any(), any(), any(), any(), any(), any(Pageable.class)))
+        when(restaurantRepository.searchRestaurants(any(RestaurantSearch.class), any(Pageable.class)))
                 .thenReturn(expectedPage);
 
-        Page<Restaurant> result = restaurantRepository.searchRestaurants(
-                "김치", null, null, null, null, null, null, pageable);
+        Page<Restaurant> result = restaurantRepository.searchRestaurants(restaurantSearch, pageable);
 
         // Then
         assertThat(result).isNotNull();
