@@ -106,4 +106,5 @@
    insert into p_categories(name) values ('한식');
 
 ### API 명세서
-https://www.notion.so/Chapter-3-AI-6-91aa84bb6a944c068d0162e36dfbad2a?pvs=4
+[https://www.notion.so/Chapter-3-AI-6-91aa84bb6a944c068d0162e36dfbad2a?pvs=4
+](https://www.notion.so/Chapter-3-AI-6-91aa84bb6a944c068d0162e36dfbad2a?pvs=4)
