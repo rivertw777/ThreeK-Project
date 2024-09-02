@@ -19,19 +19,19 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfig {
 
+    private final String HEADER_NAME = "X-User-Name";
+
     @Bean
     public OpenAPI openAPI(){
-        SecurityScheme securityScheme = new SecurityScheme()
-                .type(SecurityScheme.Type.HTTP)
-                .scheme("bearer")
-                .bearerFormat("JWT")
+        SecurityScheme userNameScheme = new SecurityScheme()
+                .type(SecurityScheme.Type.APIKEY)
                 .in(SecurityScheme.In.HEADER)
-                .name("Authorization");
+                .name(HEADER_NAME);
 
-        SecurityRequirement securityRequirement = new SecurityRequirement().addList("bearerAuth");
+        SecurityRequirement securityRequirement = new SecurityRequirement().addList("userNameAuth");
 
         return new OpenAPI()
-                .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
+                .components(new Components().addSecuritySchemes("userNameAuth", userNameScheme))
                 .security(Arrays.asList(securityRequirement));
     }
 
