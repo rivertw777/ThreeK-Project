@@ -25,52 +25,30 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     public String createProduct(ProductRequest productRequest, Restaurant restaurant) {
-        if (restaurant == null) {
-            throw new IllegalArgumentException("Restaurant cannot be null");
-        }
-        // 상품 생성 로직
-        Product product = Product.createProduct(
-                productRequest.getName(),
-                productRequest.getPrice(),
-                productRequest.getDescription(),
-                restaurant // 상품이 속한 가게를 설정
-        );
+        validateRestaurant(restaurant);
+        Product product = buildProductFromRequest(productRequest, restaurant);
         productRepository.save(product);
 
         return "상품 생성 성공";
     }
 
     public List<ProductResponse> loadProductsByRestaurantId(Restaurant restaurant) {
-        // restaurantId를 기준으로 모든 제품을 찾음
         List<Product> products = productRepository.findAllByRestaurant(restaurant);
-
-        // Product 엔티티를 ProductResponse DTO로 변환하여 반환
         return products.stream()
                 .map(ProductResponse::new)
                 .collect(Collectors.toList());
     }
 
     public ProductResponse getProduct(UUID productId) {
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
+        Product product = findProductById(productId);
         return new ProductResponse(product);
     }
 
     @Transactional
     public String updateProduct(UUID productId, ProductRequest productRequest, Restaurant restaurant) {
-        if (restaurant == null) {
-            throw new IllegalArgumentException("Restaurant cannot be null");
-        }
-        // 상품을 데이터베이스에서 조회, 존재하지 않으면 예외 발생
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
+        validateRestaurant(restaurant);
+        Product product = validateProductOwnership(productId, restaurant);
 
-        // 상품이 속한 레스토랑이 일치하는지 확인
-        if (!product.getRestaurant().equals(restaurant)) {
-            throw new SecurityException("해당 레스토랑에 대한 권한이 없습니다.");
-        }
-
-        // Product 엔티티의 필드들을 업데이트
         product.updateProduct(
                 productRequest.getName(),
                 productRequest.getPrice(),
@@ -82,20 +60,9 @@ public class ProductService {
 
     @Transactional
     public String deleteProduct(UUID productId, Restaurant restaurant, User user) {
-        if (restaurant == null) {
-            throw new IllegalArgumentException("Restaurant cannot be null");
-        }
+        validateRestaurant(restaurant);
+        Product product = validateProductOwnership(productId, restaurant);
 
-        // 상품을 데이터베이스에서 조회, 존재하지 않으면 예외 발생
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
-
-        // 상품이 속한 레스토랑이 일치하는지 확인
-        if (!product.getRestaurant().equals(restaurant)) {
-            throw new SecurityException("해당 레스토랑에 대한 권한이 없습니다.");
-        }
-
-        // 논리적 삭제(기록 후 저장)
         product.deleteBy(user);
         productRepository.save(product);
 
@@ -110,21 +77,48 @@ public class ProductService {
         List<Product> products = productRepository.findAllById(productIds);
 
         if (products.size() != productIds.size()) {
-            throw new EntityNotFoundException("상품을 찾을 수 없습니다.");
+            throw new EntityNotFoundException("요청한 상품 중 일부를 찾을 수 없습니다.");
         }
+
         return products;
     }
 
     public Product getProductById(UUID productId) {
-
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
-
-        return product;
+        return findProductById(productId);
     }
 
     public Page<ProductResponse> searchProduct(String keyword, Pageable pageable) {
         return productRepository.searchProductsByKeyword(keyword, pageable)
                 .map(ProductResponse::new);
+    }
+
+    // Helper methods
+
+    private Product findProductById(UUID productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("상품을 찾을 수 없습니다."));
+    }
+
+    private void validateRestaurant(Restaurant restaurant) {
+        if (restaurant == null) {
+            throw new IllegalArgumentException("Restaurant cannot be null");
+        }
+    }
+
+    private Product validateProductOwnership(UUID productId, Restaurant restaurant) {
+        Product product = findProductById(productId);
+        if (!product.getRestaurant().equals(restaurant)) {
+            throw new SecurityException("해당 레스토랑에 대한 권한이 없습니다.");
+        }
+        return product;
+    }
+
+    private Product buildProductFromRequest(ProductRequest productRequest, Restaurant restaurant) {
+        return Product.createProduct(
+                productRequest.getName(),
+                productRequest.getPrice(),
+                productRequest.getDescription(),
+                restaurant
+        );
     }
 }
