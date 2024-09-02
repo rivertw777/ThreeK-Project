@@ -18,11 +18,13 @@ public class PaymentResponseDto {
     private PaymentStatus paymentStatus;
     private PaymentMethod paymentMethod;
     private BigDecimal amount;
+    private UUID orderId;
 
     public PaymentResponseDto(Payment payment) {
         this.paymentId = payment.getPaymentId();
         this.paymentStatus = payment.getPaymentStatus();
         this.paymentMethod = payment.getPaymentMethod();
         this.amount = payment.getPaymentAmount();
+        this.orderId = payment.getOrder().getOrderId();
     }
 }

@@ -44,27 +44,6 @@ class PaymentControllerTest {
     }
 
     @Test
-    @DisplayName("결제 정보 수정 성공 테스트")
-    public void updatePaymentTest() throws Exception {
-        UUID paymentId = UUID.randomUUID();
-        PaymentUpdateDto paymentUpdateDto = new PaymentUpdateDto(
-                PaymentMethod.CARD, PaymentStatus.FAIL, new BigDecimal(10000)
-        );
-        ObjectMapper objectMapper = new ObjectMapper();
-        String content = objectMapper.writeValueAsString(paymentUpdateDto);
-
-        doNothing()
-                .when(paymentService)
-                .updatePayment(paymentId, paymentUpdateDto);
-
-        mockMvc.perform(put("/api/payments/" + paymentId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(content))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("message").value("결제 정보 수정 성공"));
-    }
-
-    @Test
     @DisplayName("결제 정보 조회 성공 테스트")
     public void getPaymentTest() throws Exception {
         UUID paymentId = UUID.randomUUID();

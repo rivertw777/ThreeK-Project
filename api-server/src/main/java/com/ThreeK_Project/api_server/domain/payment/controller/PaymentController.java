@@ -23,13 +23,6 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @PutMapping("/{paymentId}")
-    @Operation(summary = "사용자 결제 정보 수정")
-    public ResponseEntity<SuccessResponse> updatePayment(@PathVariable("paymentId") UUID paymentId, @RequestBody PaymentUpdateDto requestDto) {
-        paymentService.updatePayment(paymentId, requestDto);
-        return ResponseEntity.ok(new SuccessResponse("결제 정보 수정 성공"));
-    }
-
     @GetMapping("/{paymentId}")
     @Operation(summary = "사용자 결제 정보 조회")
     public ResponseEntity<PaymentResponseDto> getPayment(@PathVariable("paymentId") @Valid UUID paymentId) {
