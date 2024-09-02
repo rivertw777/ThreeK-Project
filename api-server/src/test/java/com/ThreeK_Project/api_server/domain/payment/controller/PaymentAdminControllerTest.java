@@ -54,10 +54,6 @@ class PaymentAdminControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         String content = objectMapper.writeValueAsString(paymentUpdateDto);
 
-        doNothing()
-                .when(paymentService)
-                .updatePayment(paymentId, paymentUpdateDto);
-
         mockMvc.perform(put("/api/admin/payments/" + paymentId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(content))
@@ -73,10 +69,6 @@ class PaymentAdminControllerTest {
         UUID paymentId = UUID.randomUUID();
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = userDetails.getUser();
-
-        doNothing()
-                .when(paymentService)
-                .deletePayment(paymentId, user);
 
         mockMvc.perform(delete("/api/admin/payments/" + paymentId))
                 .andExpect(status().isOk())
