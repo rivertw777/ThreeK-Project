@@ -1,14 +1,21 @@
 package com.ThreeK_Project.gateway_server.config;
 
+import static com.ThreeK_Project.gateway_server.enums.JwtProperties.HEADER_STRING;
+import static com.ThreeK_Project.gateway_server.enums.JwtProperties.TOKEN_PREFIX;
+
+import com.ThreeK_Project.gateway_server.enums.ApiPrefix;
+import com.ThreeK_Project.gateway_server.enums.ErrorMessage;
 import com.ThreeK_Project.gateway_server.user.Role;
-import com.ThreeK_Project.gateway_server.user.User;
+import com.ThreeK_Project.gateway_server.user.UserCache;
 import com.ThreeK_Project.gateway_server.user.UserCacheRepository;
+import com.ThreeK_Project.gateway_server.utils.ResponseWriter;
+import com.ThreeK_Project.gateway_server.utils.TokenManager;
 import io.jsonwebtoken.Claims;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -18,82 +25,81 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter {
 
+    private final String HEADER_NAME = "X-User-Name";
+
     private final TokenManager tokenManager;
     private final UserCacheRepository userCacheRepository;
+    private final ResponseWriter responseWriter;
 
-    public Mono<Void> filter(ServerWebExchange exchange) {
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String requestPath = exchange.getRequest().getURI().getPath();
         log.info("요청 API 경로: " + requestPath);
 
         String token = extractToken(exchange);
-
-        // 인증 없는 API
-        if (token == null) {
-            return Mono.empty();
-        }
-
-        // 인증 필요 API
-        if (tokenManager.validateToken(token)) {
-            Claims claims = tokenManager.parseClaims(token);
-            String username = claims.getSubject();
-            User user = userCacheRepository.getUserCache(username);
-
-            // UserCache Null
-            if (user == null) {
-                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                return exchange.getResponse().setComplete();
-            }
-            List<Role> roles = user.getRoles();
-
-            // 권한 없음
-            if (!isAuthorized(requestPath, roles)) {
-                return unauthorizedResponse(exchange);
+        try {
+            // 토큰 확인
+            if (token == null) {
+                return unauthorizedResponse(exchange, ErrorMessage.TOKEN_NOT_FOUND);
             }
 
-            // 헤더 추가
-            exchange.getRequest().mutate()
-                    .header("Username", username)
-                    .build();
-            return Mono.empty();
-        } else {
-            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            return exchange.getResponse().setComplete();
+            // 토큰 검증
+            if (tokenManager.validateToken(token)) {
+                Claims claims = tokenManager.parseClaims(token);
+                String username = claims.getSubject();
+                UserCache user = userCacheRepository.getUserCache(username);
+
+                // UserCache Null
+                if (user == null) {
+                    return unauthorizedResponse(exchange, ErrorMessage.USER_NOT_FOUND);
+                }
+                List<Role> roles = user.getRoles();
+
+                // 권한 없음
+                if (!isAuthorized(requestPath, roles)) {
+                    return unauthorizedResponse(exchange, ErrorMessage.FORBIDDEN);
+                }
+
+                // 헤더 추가
+                ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+                        .header(HEADER_NAME, username)
+                        .build();
+                ServerWebExchange mutatedExchange = exchange.mutate()
+                        .request(mutatedRequest)
+                        .build();
+                return chain.filter(mutatedExchange);
+            } else {
+                return unauthorizedResponse(exchange, ErrorMessage.INVALID_TOKEN);
+            }
+        } catch (Exception e) {
+            return responseWriter.setErrorResponse(exchange, ErrorMessage.INTERNAL_SERVER_ERROR.getStatus(),
+                    ErrorMessage.INTERNAL_SERVER_ERROR.getMessage());
         }
     }
 
     private String extractToken(ServerWebExchange exchange) {
-        String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        String authHeader = exchange.getRequest().getHeaders().getFirst(HEADER_STRING.getValue());
+        if (authHeader != null && authHeader.startsWith(TOKEN_PREFIX.getValue())) {
             return authHeader.substring(7);
         }
         return null;
     }
 
     private boolean isAuthorized(String requestPath, List<Role> roles) {
-        if (requestPath.startsWith("/api/master") && !roles.contains(Role.MASTER)) {
-            return false;
+        if (requestPath.startsWith(ApiPrefix.OWNER.getValue())) {
+            return roles.contains(Role.OWNER) || roles.contains(Role.MANAGER) || roles.contains(Role.MASTER);
         }
-        if (requestPath.startsWith("/api/admin") && !roles.contains(Role.MANAGER)) {
-            return false;
+        if (requestPath.startsWith(ApiPrefix.ADMIN.getValue())) {
+            return roles.contains(Role.MANAGER) || roles.contains(Role.MASTER);
         }
-        if (requestPath.startsWith("/api/owner") && !roles.contains(Role.OWNER)) {
-            return false;
+        if (requestPath.startsWith(ApiPrefix.MASTER.getValue())) {
+            return roles.contains(Role.MASTER);
         }
         return true;
     }
 
-    private Mono<Void> unauthorizedResponse(ServerWebExchange exchange) {
-        exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
-        return exchange.getResponse().setComplete();
-    }
-
-    private void addUsernameHeader(ServerWebExchange exchange, String username) {
-        // 새로운 MutableHttpHeaders 객체 생성
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Username", username);
-
-        // 응답의 헤더를 수정 가능한 상태로 만들기
-        exchange.getResponse().getHeaders().putAll(headers);
+    private Mono<Void> unauthorizedResponse(ServerWebExchange exchange, ErrorMessage errorMessage) {
+        exchange.getResponse().setStatusCode(errorMessage.getStatus());
+        return responseWriter.setErrorResponse(exchange, errorMessage.getStatus(), errorMessage.getMessage());
     }
 
 }

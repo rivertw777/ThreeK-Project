@@ -10,11 +10,11 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class UserCacheRepository {
 
-    private final RedisTemplate<String, User> redisTemplate;
+    private final RedisTemplate<String, UserCache> redisTemplate;
 
-    public User getUserCache(String username) {
+    public UserCache getUserCache(String username) {
         String key = "UserCache:" + username;
-        User user = redisTemplate.opsForValue().get(key);
+        UserCache user = redisTemplate.opsForValue().get(key);
         log.info("User {} Cache find", username);
         return user;
     }

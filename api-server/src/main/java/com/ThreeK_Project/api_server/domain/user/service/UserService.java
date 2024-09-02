@@ -16,6 +16,7 @@ import com.ThreeK_Project.api_server.domain.user.dto.request.UpdateUserInfoReque
 import com.ThreeK_Project.api_server.domain.user.dto.response.UserInfoResponse;
 import com.ThreeK_Project.api_server.domain.user.enums.Role;
 import com.ThreeK_Project.api_server.domain.user.entity.User;
+import com.ThreeK_Project.api_server.domain.user.repository.UserCacheRepository;
 import com.ThreeK_Project.api_server.domain.user.repository.UserRepository;
 import com.ThreeK_Project.api_server.global.dto.SuccessResponse;
 import com.ThreeK_Project.api_server.global.exception.ApplicationException;
@@ -35,6 +36,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserCacheRepository userCacheRepository;
 
     // 회원 조회
     @Transactional(readOnly = true)
@@ -91,6 +93,7 @@ public class UserService {
         LocalDateTime originalCreatedAt = user.getCreatedAt();
 
         userRepository.delete(user);
+        userCacheRepository.deleteUserCache(user.getUsername());
         User newUser = User.updateUser(requestParam.username(), encodedPassword, originalRoles, requestParam.phoneNumber(),
                 requestParam.address(), originalCreatedAt);
         userRepository.save(newUser);
@@ -102,6 +105,7 @@ public class UserService {
         User findUser = findUser(user.getUsername());
 
         findUser.deleteUser(findUser);
+        userCacheRepository.deleteUserCache(findUser.getUsername());
         return new SuccessResponse(DELETE_USER_SUCCESS.getValue());
     }
 
@@ -112,6 +116,7 @@ public class UserService {
         Role role = Role.fromValue(requestParam.role());
 
         findUser.addRole(role, master);
+        userCacheRepository.deleteUserCache(findUser.getUsername());
         return new SuccessResponse(ASSIGN_ROLE_SUCCESS.getValue());
     }
 
@@ -122,6 +127,7 @@ public class UserService {
         Role role = Role.fromValue(requestParam.role());
 
         findUser.removeRole(role, master);
+        userCacheRepository.deleteUserCache(findUser.getUsername());
         return new SuccessResponse(REVOKE_ROLE_SUCCESS.getValue());
     }
 
