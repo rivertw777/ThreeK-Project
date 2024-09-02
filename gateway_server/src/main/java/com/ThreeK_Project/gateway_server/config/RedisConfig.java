@@ -1,6 +1,6 @@
 package com.ThreeK_Project.gateway_server.config;
 
-import com.ThreeK_Project.gateway_server.user.User;
+import com.ThreeK_Project.gateway_server.user.UserCache;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
@@ -24,12 +24,12 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, User> redisTemplate(ObjectMapper objectMapper) {
-        RedisTemplate<String, User> redisTemplate = new RedisTemplate<>();
+    public RedisTemplate<String, UserCache> redisTemplate(ObjectMapper objectMapper) {
+        RedisTemplate<String, UserCache> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
         redisTemplate.setKeySerializer(new StringRedisSerializer());
 
-        Jackson2JsonRedisSerializer<User> serializer = new Jackson2JsonRedisSerializer<>(User.class);
+        Jackson2JsonRedisSerializer<UserCache> serializer = new Jackson2JsonRedisSerializer<>(UserCache.class);
         serializer.setObjectMapper(objectMapper);
 
         redisTemplate.setValueSerializer(serializer);
