@@ -171,13 +171,13 @@ public class OrderService {
     }
 
     public void validateOrder(User user, Order order) {
-        if(user.getRoles().contains(Role.MANAGER) || user.getRoles().contains(Role.MASTER))
+        if(user.getRoles().contains(Role.MANAGER) || user.getRoles().contains(Role.MASTER)
+        || order.getCreatedBy().getUsername().equals(user.getUsername()))
             return;
 
-        if(user.getRoles().contains(Role.OWNER) && !order.getRestaurant().getUser().getUsername().equals(user.getUsername()))
-            throw new ApplicationException("Invalid user");
+        if(user.getRoles().contains(Role.OWNER) && order.getRestaurant().getUser().getUsername().equals(user.getUsername()))
+            return;
 
-        if(!user.getRoles().contains(Role.OWNER) && !order.getCreatedBy().getUsername().equals(user.getUsername()))
-            throw new ApplicationException("Invalid user");
+        throw new ApplicationException("Invalid user");
     }
 }
