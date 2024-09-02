@@ -40,7 +40,7 @@ public class OrderController {
 
     @GetMapping
     @Operation(summary = "사용자 주문 검색")
-    public ResponseEntity<Page<OrderResponseDto>> searchUserOrders(@ModelAttribute OrderSearchDTO searchDTO) {
+    public ResponseEntity<Page<OrderResponseDto>> searchUserOrders(@ModelAttribute @Valid OrderSearchDTO searchDTO) {
         UserDetailsCustom userDetails = (UserDetailsCustom) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(orderService.searchUserOrders(userDetails.getUser().getUsername(), searchDTO));
     }

@@ -74,7 +74,6 @@ public class PaymentService {
     public Page<PaymentResponseDto> searchPayments(PaymentSearchDto searchDto) {
         Sort sort = searchDto.getAscending() ? Sort.by(Sort.Direction.ASC, searchDto.getSortBy().getValue())
                 : Sort.by(Sort.Direction.DESC, searchDto.getSortBy().getValue());
-
         Pageable pageable = PageRequest.of(searchDto.getPage(), searchDto.getSize(), sort);
 
         return paymentRepository.searchPayments(pageable, searchDto).map(PaymentResponseDto::new);
