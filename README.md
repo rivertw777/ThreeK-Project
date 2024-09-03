@@ -36,7 +36,7 @@
 
 ### Back-end
 
-| <img src="https://profilinator.rishav.dev/skills-assets/java-original-wordmark.svg" alt="Java" width="70px" height="70px" /> | <img src="https://www.seekpng.com/png/full/142-1425436_spring-boot.png" alt="Spring-Boot" width="70px" height="70px" /> | <img src="https://velog.velcdn.com/images/junyoungs7/post/868647fc-b2e6-439a-8260-6956b734fd2c/image.png" alt="Spring-Boot" width="70px" height="70px" /> | 
+| <img src="https://profilinator.rishav.dev/skills-assets/java-original-wordmark.svg" alt="Java" width="70px" height="70px" /> | <img src="https://www.seekpng.com/png/full/142-1425436_spring-boot.png" alt="Spring-Boot" width="160px" height="70px" /> | <img src="https://velog.velcdn.com/images/junyoungs7/post/868647fc-b2e6-439a-8260-6956b734fd2c/image.png" alt="Spring-Boot" width="70px" height="70px" /> | 
 |:----------------------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------:|
 |                                                             Java                                                             |                                                       Spring-Boot                                                       |                                Spring Cloud                                 |
 
@@ -47,6 +47,8 @@
 | <img src="https://minkukjo.github.io/assets//img/spring-data-logo.png" alt="JPA" width="70px" height="70px"> | <img src="https://blog.kakaocdn.net/dn/xdWQ8/btrPIFeXOCO/pkEovWQcHWznekbkRYC43k/img.png" alt="QueryDSL" width="70px" height="70px"> | 
 |:------------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------------------------------:|
 |                                               Spring Data JPA                                                |                                                              QueryDSL                                                               |
+
+### Database
 
 | <img src="https://seeklogo.com/images/P/postgresql-logo-5309879B58-seeklogo.com.png" alt="Postgresql" width="70px" height="70px"> | <img src="https://profilinator.rishav.dev/skills-assets/redis-original-wordmark.svg" alt="Redis" width="70px" height="70px"> |
 |:---------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------:|
@@ -92,9 +94,9 @@
 
 ## 개발 팀 소개
 
-| <image src="https://avatars.githubusercontent.com/u/76806695?v=4" width="100px" height="100px"> | <image src="https://avatars.githubusercontent.com/u/101173292?v=4" width="100px" height="100px"> | <image src="https://avatars.githubusercontent.com/u/119571075?v=4" width="100px" height="100px"> | 
+| <image src="https://avatars.githubusercontent.com/u/105557972?v=4" width="100px" height="100px"> | <image src="https://avatars.githubusercontent.com/u/50134759?v=4" width="100px" height="100px"> | <image src="https://avatars.githubusercontent.com/u/97355232?v=4" width="100px" height="100px"> | 
 |:-----------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------:| 
-|[강태원](https://github.com/rivertw777) <br>팀장 <br>도메인(유저, 인증, 서버))|                   [김지희](https://github.com/mii2026) <br>도메인(주문, 결제, 공지사항), 배포               |                     [김민철](https://github.com/kmc198989) <br>도메인(가게, 상품, 리뷰)                      |
+|[강태원](https://github.com/rivertw777) <br>팀장 <br>(유저, 인증, 서버)|                   [김지희](https://github.com/mii2026) <br>(주문, 결제, 공지사항 / 배포)              |                     [김민철](https://github.com/kmc198989) <br>(가게, 상품, 리뷰)                |
 
 ## 개발 기간
 
