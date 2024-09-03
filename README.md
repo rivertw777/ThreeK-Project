@@ -90,7 +90,7 @@
 
 |                       개체-관계 모델(ERD)                       |
 |:---------------------------------------------------------:|
-| <image src="[https://i.postimg.cc/CLW1qkQh/Erd.png](https://i.postimg.cc/L5bxsMLN/3k-erd.png)" width="800px" height="500px"> |
+| <image src="https://i.postimg.cc/CLW1qkQh/Erd.png" width="800px" height="500px"> |
 
 ## 개발 팀 소개
 
